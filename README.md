@@ -14,7 +14,7 @@ El proyecto integra aspectos técnicos, empresariales y sociales, siguiendo una 
 
 El diseño y flujo de la aplicación han sido definidos previamente mediante un **prototipo interactivo en Figma**, que sirve como referencia visual para la experiencia de usuario (UI/UX) y la estructura de pantallas.
 
-👉 **[Ver prototipo en Figma](https://www.figma.com/make/DxrfUaTHvpzPvyrOgFwV0F/TerretaShop-COMPLETO?p=f&t=ne5gmKN8rm5Y9ymF-0)**
+👉 **[Ver prototipo en Figma](https://www.figma.com/make/DxrfUaTHvpzPvyrOgFwV0F/TerretaShop-COMPLETO?p=f&t=L06YFWhlYemIOSUQ-0&fullscreen=1)**
 
 > El prototipo incluye la navegación principal, vistas de compra/venta, gestión de reservas y el sistema de mensajería entre comprador y vendedor.
 
