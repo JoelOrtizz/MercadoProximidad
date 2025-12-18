@@ -10,6 +10,15 @@ El proyecto integra aspectos técnicos, empresariales y sociales, siguiendo una 
 
 ---
 
+## 🎨 Prototipo de interfaz (Figma)
+
+El diseño y flujo de la aplicación han sido definidos previamente mediante un **prototipo interactivo en Figma**, que sirve como referencia visual para la experiencia de usuario (UI/UX) y la estructura de pantallas.
+
+👉 **[Ver prototipo en Figma](https://www.figma.com/tu-enlace-aqui)**
+
+> El prototipo incluye la navegación principal, vistas de compra/venta, gestión de reservas y el sistema de mensajería entre comprador y vendedor.
+
+
 ## 📚 Documentación del proyecto
 
 Toda la información relevante del proyecto se encuentra **correctamente documentada y explicada** en la carpeta **Documentacion**, incluyendo:
