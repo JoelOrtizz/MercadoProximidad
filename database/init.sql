@@ -16,7 +16,7 @@ CREATE TABLE usuarios (
   nickname VARCHAR(50) NOT NULL UNIQUE,
   email VARCHAR(150) NOT NULL UNIQUE,
   contrasena VARCHAR(255) NOT NULL,
-  tipo ENUM('comprador', 'vendedor', 'admin') NOT NULL,
+  tipo ENUM('miembro', 'admin') NOT NULL,
   lat DECIMAL(10,8) DEFAULT NULL,
   lng DECIMAL(11,8) DEFAULT NULL,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -106,8 +106,7 @@ CREATE TABLE valoraciones (
   id INT AUTO_INCREMENT PRIMARY KEY,
   id_reserva INT NOT NULL,
   id_autor INT NOT NULL,
-  id_destinatario INT NOT NULL,
-  rol_autor ENUM('comprador', 'vendedor') NOT NULL,
+  id_destinatario INT NOT NULL
   nota_producto TINYINT CHECK (nota_producto BETWEEN 1 AND 5),
   nota_entrega TINYINT CHECK (nota_entrega BETWEEN 1 AND 5),
   nota_negociacion TINYINT CHECK (nota_negociacion BETWEEN 1 AND 5),
@@ -132,7 +131,7 @@ CREATE TABLE notificaciones (
   id INT AUTO_INCREMENT PRIMARY KEY,
   id_reserva INT NOT NULL,
   id_usuario INT NOT NULL,
-  tipo ENUM('aceptada', 'recibido', 'cancelacion', 'para_recoger') NOT NULL,
+  tipo ENUM('aceptada', 'recibido', 'cancelada', 'pendiente') NOT NULL,
   leida BOOLEAN DEFAULT FALSE,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -154,7 +153,6 @@ CREATE TABLE mensajes (
   id_reserva INT NOT NULL,
   id_comprador INT NOT NULL,
   id_vendedor INT NOT NULL,
-  autor ENUM('comprador', 'vendedor') NOT NULL,
   mensaje TEXT NOT NULL,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
