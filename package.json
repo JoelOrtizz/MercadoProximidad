@@ -1,0 +1,31 @@
+{
+  "name": "proximarkt",
+  "version": "1.0.0",
+  "description": "Plataforma digital de comercio de proximidad",
+  "type":"module",
+  "main": "api/app.js",
+  "scripts": {
+    "start": "node api/app.js",
+    "dev": "nodemon api/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoelOrtizz/MercadoProximidad.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoelOrtizz/MercadoProximidad/issues"
+  },
+  "homepage": "https://github.com/JoelOrtizz/MercadoProximidad#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mysql2": "^3.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
