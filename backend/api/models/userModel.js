@@ -7,7 +7,7 @@ export const getByNick = async(uNick) => {
         [uNick]
     )
 
-    return result
+    return result[0]
 
 }
 
@@ -19,7 +19,7 @@ export const getById = async(uId) => {
         [uId]
     )
 
-    return result
+    return result[0]
 }
 
 
@@ -30,7 +30,7 @@ export const getByEmail = async(uEmail) => {
         [uEmail]
     )
 
-    return result
+    return result[0]
 }
 
 export const insertUser = async (userData) => {

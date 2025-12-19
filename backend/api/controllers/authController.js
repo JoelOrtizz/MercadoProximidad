@@ -1,4 +1,6 @@
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken';
+
 
 import { getByEmail } from '../models/userModel.js';
 
@@ -21,7 +23,7 @@ export const login = async (req, res) => {
 
         const token = jwt.sign(
             {id: user.id, nickname: user.nickname},
-            secretkey,
+            secretKey,
             {expiresIn: '1h'}
         )
 
