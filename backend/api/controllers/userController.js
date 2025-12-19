@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 
-import { insertUser } from '../models/userModel.js'
+import { insertUser, deleteUserById } from '../models/userModel.js'
 
 // ==============================
 // POST USERS
@@ -31,5 +31,28 @@ export const register = async (req, res) => {
 
         res.status(500).json({ message: error.message });
 
+    }
+}
+
+export const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const result = await deleteUserById(id);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: "Usuario no encontrado."
+            })
+        }
+
+        res.json({
+            message: "Usuario eliminado correctamente."
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
     }
 }

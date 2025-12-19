@@ -9,8 +9,6 @@ const PORT = 3000
 app.use(express.json())
 app.use(cors())
 
-app.use ('/api/usuarios', userRoutes);
-
 // ==============================
 // ⚠️ MANEJO GLOBAL DE ERRORES
 // ==============================
@@ -80,6 +78,8 @@ app.get("/health", (req, res) => {
 app.get('/', (req, res) => {
   res.send('Conexión establecida.')
 })
+
+app.use ('/api/usuarios', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando a http://localhost:${PORT}`)

@@ -12,3 +12,13 @@ export const insertUser = async (userData) => {
     return result;
 
 }
+
+export const deleteUserById = async (id) => {
+
+    const [result] = await pool.query(
+        'DELETE FROM usuarios WHERE id = ?',
+        [id]
+    );
+
+    return result;
+}
