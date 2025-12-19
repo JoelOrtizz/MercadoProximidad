@@ -1,0 +1,10 @@
+post http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+    "nombre":"joel",
+    "nickname":"_joelortizz",
+    "email":"joel@gmail.com",
+    "contrasena":"root",
+    "tipo":"miembro"
+}
