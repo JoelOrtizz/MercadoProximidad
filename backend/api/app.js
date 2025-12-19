@@ -66,7 +66,7 @@ app.use((err, req, res, next) => {
 });
 
 // ==============================
-// 🩺 HEALTH CHECK
+// HEALTH CHECK
 // ==============================
 
 app.get("/health", (req, res) => {
