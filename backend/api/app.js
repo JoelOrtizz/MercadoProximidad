@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 
 import userRoutes from './routes/userRoutes.js'
+import loginRoutes from './routes/loginRoutes.js'
 
 const app = express()
 const PORT = 3000
@@ -64,7 +65,7 @@ app.use((err, req, res, next) => {
 });
 
 // ==============================
-// 🩺 HEALTH CHECK
+// HEALTH CHECK
 // ==============================
 
 app.get("/health", (req, res) => {
@@ -80,6 +81,8 @@ app.get('/', (req, res) => {
 })
 
 app.use ('/api/usuarios', userRoutes);
+
+app.use('/api/login', loginRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando a http://localhost:${PORT}`)

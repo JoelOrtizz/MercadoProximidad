@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 
 import { insertUser, deleteUserById } from '../models/userModel.js'
 
+
 // ==============================
 // POST USERS
 // ==============================
