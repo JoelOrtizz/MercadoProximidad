@@ -33,6 +33,16 @@ export const getByEmail = async(uEmail) => {
     return result[0]
 }
 
+
+export const getUser = async () => {
+
+    const [result] = await pool.query(
+        'SELECT nombre, nickname, email, tipo FROM usuarios'
+    );
+
+    return result;
+}
+
 export const insertUser = async (userData) => {
 
     const { nombre, nickname, email, contrasena } = userData;

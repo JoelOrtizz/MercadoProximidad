@@ -1,11 +1,30 @@
 import bcrypt from 'bcrypt'
 
-import { insertUser, deleteUserById } from '../models/userModel.js'
+import { getUser, insertUser, deleteUserById } from '../models/userModel.js'
 
 
 // ==============================
 // POST USERS
 // ==============================
+
+export const fetchUser = async (req, res) => {
+    try {
+
+        const users = await getUser();
+
+        if (users.length === 0) {
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+        };
+
+        res.status(200).json({users});
+
+
+    } catch (error) {
+
+        res.status(500).json({ message: error.message });
+
+    }
+}
 
 export const register = async (req, res) => {
     try {
