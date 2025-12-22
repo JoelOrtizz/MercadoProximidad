@@ -23,3 +23,42 @@ Content-Type: application/json
 
 ####
 delete http://localhost:3000/api/usuarios/1
+###
+
+put http://localhost:3000/api/usuarios/2
+Content-Type: application/json
+
+{
+    "nombre":"joel_tonto",
+    "nickname":"_joelortizz",
+    "email":"joel@gmail.com",
+    "contrasena":"root",
+    "tipo":""
+}
+
+
+####
+post http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+    "nombre":"paco",
+    "nickname":"paco.altur",
+    "email":"paco@gmail.com",
+    "contrasena":"root",
+    "tipo":""
+}
+
+
+###
+
+put http://localhost:3000/api/usuarios/4
+Content-Type: application/json
+
+{
+    "nombre":"paco el guapo",
+    "nickname":"paco.altur",
+    "email":"paco@gmail.com",
+    "contrasena":"root",
+    "tipo":""
+}

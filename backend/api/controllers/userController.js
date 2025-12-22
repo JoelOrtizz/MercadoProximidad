@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 
-import { getUser, insertUser, deleteUserById } from '../models/userModel.js'
+import { getUser, insertUser, deleteUserById, updateUserById } from '../models/userModel.js'
 
 
 // ==============================
@@ -16,7 +16,7 @@ export const fetchUser = async (req, res) => {
             return res.status(404).json({ mensaje: 'Usuario no encontrado' });
         };
 
-        res.status(200).json({users});
+        res.status(200).json({ users });
 
 
     } catch (error) {
@@ -70,6 +70,29 @@ export const deleteUser = async (req, res) => {
             message: "Usuario eliminado correctamente."
         })
 
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+
+export const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const result = await updateUserById(id,req.body)
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: "Usuario no encontrado."
+            })
+        }
+
+        res.json({
+            message: "Usuario actualizado correctamente."
+        })
     } catch (error) {
         res.status(500).json({
             message: error.message
