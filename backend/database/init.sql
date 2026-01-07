@@ -108,7 +108,7 @@ CREATE TABLE valoraciones (
   id INT AUTO_INCREMENT PRIMARY KEY,
   id_reserva INT NOT NULL,
   id_autor INT NOT NULL,
-  id_destinatario INT NOT NULL
+  id_destinatario INT NOT NULL,
   nota_producto TINYINT CHECK (nota_producto BETWEEN 1 AND 5),
   nota_entrega TINYINT CHECK (nota_entrega BETWEEN 1 AND 5),
   nota_negociacion TINYINT CHECK (nota_negociacion BETWEEN 1 AND 5),
