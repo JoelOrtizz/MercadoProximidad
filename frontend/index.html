@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 2rem;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .btn-danger {
+            color: red;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <span>Panel Principal</span>
+        <button onclick="handleLogout()">Cerrar Sesión</button>
+    </nav>
+    <h1>Bienvenido, <span id="userDisplay"></span></h1>
+    <button onclick="handleLogout()">Cerrar Sesión</button>
+
+    <h2>Lista de Usuarios (Base de Datos)</h2>
+    <button onclick="loadUsers()">Recargar Lista</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="usersTableBody">
+        </tbody>
+    </table>
+
+    <script src="main.js"></script>
+    <script>
+        // Al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            const nickname = localStorage.getItem('user_nickname');
+            if (nickname) {
+                document.getElementById('userDisplay').innerText = nickname;
+            }
+            loadUsers();
+        });
+
+        async function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+
+            try {
+                // Esta petición fallará si no hay cookie válida
+                const data = await apiFetch('/usuarios');
+
+                if (data && data.users) {
+                    tbody.innerHTML = '';
+                    data.users.forEach(user => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${user.id}</td>
+                            <td>${user.nombre} (${user.nickname})</td>
+                            <td>${user.email}</td>
+                            <td>
+                                <button class="btn-danger" onclick="deleteUser(${user.id})">Eliminar</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="4">Error cargando usuarios o no autorizado.</td></tr>';
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('¿Seguro que quieres borrar este usuario?')) return;
+
+            try {
+                await apiFetch(`/usuarios/${id}`, 'DELETE');
+                loadUsers(); // Recargar tabla
+            } catch (e) {
+                // Error manejado
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await apiFetch('/login/logout', 'POST');
+                localStorage.removeItem('user_nickname');
+                window.location.href = 'login.html';
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+
+</html>

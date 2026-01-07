@@ -18,6 +18,7 @@ El diseño y flujo de la aplicación han sido definidos previamente mediante un 
 
 > El prototipo incluye la navegación principal, vistas de compra/venta, gestión de reservas y el sistema de mensajería entre comprador y vendedor.
 
+---
 
 ## 📚 Documentación del proyecto
 

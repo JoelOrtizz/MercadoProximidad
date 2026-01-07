@@ -28,8 +28,8 @@ erDiagram
         string descripcion
         string imagen
         int id_vendedor FK
-        timestamp fecha_creacion
         int duracion_producto
+        timestamp fecha_creacion
     }
 
     PUNTOS_ENTREGA {
@@ -48,8 +48,8 @@ erDiagram
         decimal cantidad
         int id_punto_entrega FK
         enum estado
-        timestamp fecha_creacion
         date fecha_entrega
+        timestamp fecha_creacion
     }
 
     MENSAJES {
@@ -57,7 +57,6 @@ erDiagram
         int id_reserva FK
         int id_comprador FK
         int id_vendedor FK
-        enum autor
         string mensaje
         timestamp fecha_creacion
     }
@@ -67,7 +66,6 @@ erDiagram
         int id_reserva FK
         int id_autor FK
         int id_destinatario FK
-        enum rol_autor
         int nota_producto
         int nota_entrega
         int nota_negociacion
@@ -83,6 +81,10 @@ erDiagram
         boolean leida
         timestamp fecha_creacion
     }
+
+    %% =====================
+    %% RELACIONES
+    %% =====================
 
     USUARIOS ||--o{ PRODUCTOS : vende
     USUARIOS ||--o{ PUNTOS_ENTREGA : define
