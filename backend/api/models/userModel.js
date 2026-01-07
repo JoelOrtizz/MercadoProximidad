@@ -46,11 +46,8 @@ export const getUser = async () => {
 
 export const insertUser = async ( nombre, nickname, email, contrasena) => {
 
-
     if (!nombre || !nickname || !email || !contrasena) {
-        return res.status(400).json({
-            message: "Por favor, rellena todos los campos obligatorios."
-        });
+        throw new Error("Por favor, rellena todos los campos obligatorios.");
     }
 
     // Encriptación de la contraseña
