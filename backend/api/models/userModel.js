@@ -1,4 +1,5 @@
 import pool from '../config/db.js'
+import bcrypt from 'bcrypt'
 
 export const getByNick = async (uNick) => {
 
@@ -43,9 +44,8 @@ export const getUser = async () => {
     return result;
 }
 
-export const insertUser = async (userData) => {
+export const insertUser = async ( nombre, nickname, email, contrasena) => {
 
-    const { nombre, nickname, email, contrasena } = userData;
 
     if (!nombre || !nickname || !email || !contrasena) {
         return res.status(400).json({
@@ -53,12 +53,15 @@ export const insertUser = async (userData) => {
         });
     }
 
+    // Encriptación de la contraseña
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+
     const [result] = await pool.query(
         'INSERT INTO usuarios (nombre, nickname, email, contrasena)VALUES( ?, ?, ?, ?)',
-        [nombre, nickname, email, contrasena]
+        [nombre, nickname, email, hashedPassword]
     );
 
-    return result;
+    return result.insertId;
 
 }
 
@@ -73,20 +76,21 @@ export const deleteUserById = async (id) => {
 }
 
 
-export const updateUserById = async (id, userData) => {
-
-    const { nombre, nickname, email, contrasena } = userData
+export const updateUserById = async (id, nombre, nickname, email, contrasena) => {
 
     if (!nombre || !nickname || !email || !contrasena) {
         throw new Error("Por favor, rellena todos los campos obligatorios.");
     }
 
+    // Encriptación de la contraseña
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+
     const [result] = await pool.query(
         `UPDATE usuarios 
          SET nombre = ?, nickname = ?, email = ?, contrasena = ?
          WHERE id = ?`,
-        [nombre, nickname, email, contrasena, id]
+        [nombre, nickname, email, hashedPassword, id]
     );
 
-    return result
+    return result.insertId;
 }
