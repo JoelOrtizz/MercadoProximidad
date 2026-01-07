@@ -5,9 +5,9 @@ post http://localhost:3000/api/usuarios
 Content-Type: application/json
 
 {
-    "nombre":"joel",
-    "nickname":"_joelortizz",
-    "email":"joel@gmail.com",
+    "nombre":"danii",
+    "nickname":"_danii",
+    "email":"danii@gmail.com",
     "contrasena":"root",
     "tipo":""
 }
@@ -25,13 +25,13 @@ Content-Type: application/json
 delete http://localhost:3000/api/usuarios/1
 ###
 
-put http://localhost:3000/api/usuarios/2
+put http://localhost:3000/api/usuarios/6
 Content-Type: application/json
 
 {
-    "nombre":"joel_tonto",
-    "nickname":"_joelortizz",
-    "email":"joel@gmail.com",
+    "nombre":"frela",
+    "nickname":"frankieuu",
+    "email":"frankkkkk__@gmail.com",
     "contrasena":"root",
     "tipo":""
 }

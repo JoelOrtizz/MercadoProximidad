@@ -31,20 +31,15 @@ export const register = async (req, res) => {
 
         const { nombre, nickname, email, contrasena } = req.body;
 
-        // Encriptación de la contraseña
-        const hashedPassword = await bcrypt.hash(contrasena, 10);
-
         // Guardar en la BD
-        const id = await insertUser({
-            nombre,
-            nickname,
-            email,
-            contrasena: hashedPassword
-        });
+        const id = await insertUser( nombre, nickname, email, contrasena );
 
         res.status(201).json({
             id,
-            message: "Usuario insertado con éxito."
+            nombre: nombre,
+            nickname: nickname,
+            email: email,
+            message: "Usuario insertado con éxito.",
         });
 
     } catch (error) {
@@ -67,6 +62,7 @@ export const deleteUser = async (req, res) => {
         }
 
         res.json({
+            id,
             message: "Usuario eliminado correctamente."
         })
 
@@ -82,7 +78,9 @@ export const updateUser = async (req, res) => {
     try {
         const { id } = req.params
 
-        const result = await updateUserById(id,req.body)
+        const { nombre, nickname, email, contrasena } = req.body;
+
+        const result = await updateUserById(id, nombre, nickname, email, contrasena);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({
@@ -91,6 +89,10 @@ export const updateUser = async (req, res) => {
         }
 
         res.json({
+            id,
+            nombre: nombre,
+            nickname: nickname,
+            email: email,
             message: "Usuario actualizado correctamente."
         })
     } catch (error) {
