@@ -1,0 +1,64 @@
+get http://localhost:3000/api/usuarios
+
+####
+post http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+    "nombre":"danii",
+    "nickname":"_danii",
+    "email":"danii@gmail.com",
+    "contrasena":"root",
+    "tipo":""
+}
+
+####
+post http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+    "email":"joel@gmail.com",
+    "contrasena":"root"
+}
+
+####
+delete http://localhost:3000/api/usuarios/1
+###
+
+put http://localhost:3000/api/usuarios/6
+Content-Type: application/json
+
+{
+    "nombre":"frela",
+    "nickname":"frankieuu",
+    "email":"frankkkkk__@gmail.com",
+    "contrasena":"root",
+    "tipo":""
+}
+
+
+####
+post http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+    "nombre":"paco",
+    "nickname":"paco.altur",
+    "email":"paco@gmail.com",
+    "contrasena":"root",
+    "tipo":""
+}
+
+
+###
+
+put http://localhost:3000/api/usuarios/4
+Content-Type: application/json
+
+{
+    "nombre":"paco el guapo",
+    "nickname":"paco.altur",
+    "email":"paco@gmail.com",
+    "contrasena":"root",
+    "tipo":""
+}

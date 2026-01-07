@@ -7,17 +7,17 @@ services:
     restart: unless-stopped
 
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: terretashop_db
-      MYSQL_USER: terretashop_user
-      MYSQL_PASSWORD: terretashop_pass
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
     ports:
       - "3306:3306"
 
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
     command: >
       --character-set-server=utf8mb4
