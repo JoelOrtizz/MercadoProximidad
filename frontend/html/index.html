@@ -1,96 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Dashboard</title>
-    <link rel="stylesheet" href="../css/index.css">
-</head>
+    <link rel="stylesheet" href="../css/index.css" />
+  </head>
 
-<body>
+  <body>
     <nav>
-        <span>Panel Principal</span>
-        <button onclick="handleLogout()">Cerrar Sesión</button>
+      <span>Panel principal</span>
+      <button onclick="handleLogout()">Cerrar sesion</button>
     </nav>
-    <h1>Bienvenido, <span id="userDisplay"></span></h1>
-    <button onclick="handleLogout()">Cerrar Sesión</button>
 
-    <h2>Lista de Usuarios (Base de Datos)</h2>
-    <button onclick="loadUsers()">Recargar Lista</button>
+    <h1>Bienvenido, <span id="userDisplay"></span></h1>
+    <button class="btn-danger" onclick="handleDeleteMyAccount()">Eliminar mi cuenta</button>
+
+    <h2>Lista de usuarios</h2>
+    <button onclick="loadUsers()">Recargar lista</button>
 
     <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="usersTableBody">
-        </tbody>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Tipo</th>
+        </tr>
+      </thead>
+      <tbody id="usersTableBody"></tbody>
     </table>
 
     <script src="../js/main.js"></script>
     <script>
-        // Al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            const nickname = localStorage.getItem('user_nickname');
-            if (nickname) {
-                document.getElementById('userDisplay').innerText = nickname;
-            }
-            loadUsers();
-        });
+      document.addEventListener("DOMContentLoaded", () => {
+        const nickname = localStorage.getItem("user_nickname");
+        document.getElementById("userDisplay").innerText = nickname || "(sin nickname)";
+        loadUsers();
+      });
 
-        async function loadUsers() {
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+      async function loadUsers() {
+        const tbody = document.getElementById("usersTableBody");
+        tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
 
-            try {
-                // Esta petición fallará si no hay cookie válida
-                const data = await apiFetch('/usuarios');
+        try {
+          const data = await apiFetch("/usuarios");
+          if (!data || !Array.isArray(data.users)) {
+            tbody.innerHTML = '<tr><td colspan="4">Respuesta inesperada.</td></tr>';
+            return;
+          }
 
-                if (data && data.users) {
-                    tbody.innerHTML = '';
-                    data.users.forEach(user => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${user.id}</td>
-                            <td>${user.nombre} (${user.nickname})</td>
-                            <td>${user.email}</td>
-                            <td>
-                                <button class="btn-danger" onclick="deleteUser(${user.id})">Eliminar</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="4">Error cargando usuarios o no autorizado.</td></tr>';
-            }
+          tbody.innerHTML = "";
+          data.users.forEach((user) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${user.id}</td>
+              <td>${user.nombre} (${user.nickname})</td>
+              <td>${user.email}</td>
+              <td>${user.tipo ?? ""}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } catch {
+          tbody.innerHTML = '<tr><td colspan="4">Error cargando usuarios.</td></tr>';
         }
+      }
 
-        async function deleteUser(id) {
-            if (!confirm('¿Seguro que quieres borrar este usuario?')) return;
+      async function handleDeleteMyAccount() {
+        if (!confirm("Seguro que quieres eliminar tu cuenta?")) return;
 
-            try {
-                await apiFetch(`/usuarios/${id}`, 'DELETE');
-                loadUsers(); // Recargar tabla
-            } catch (e) {
-                // Error manejado
-            }
+        try {
+          await apiFetch("/usuarios/me", "DELETE");
+          localStorage.removeItem("user_nickname");
+          window.location.href = "login.html";
+        } catch {
+          // apiFetch muestra el error
         }
-
-        async function handleLogout() {
-            try {
-                await apiFetch('/login/logout', 'POST');
-                localStorage.removeItem('user_nickname');
-                window.location.href = 'login.html';
-            } catch (e) {
-                console.error(e);
-            }
-        }
+      }
     </script>
-</body>
-
+  </body>
 </html>
+
