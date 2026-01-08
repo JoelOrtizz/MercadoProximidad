@@ -58,7 +58,7 @@ export const insertUser = async ( nombre, nickname, email, contrasena) => {
         [nombre, nickname, email, hashedPassword]
     );
 
-    return result.insertId;
+    return result;
 
 }
 
@@ -89,5 +89,5 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
         [nombre, nickname, email, hashedPassword, id]
     );
 
-    return result.insertId;
+    return result;
 }

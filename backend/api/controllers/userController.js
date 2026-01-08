@@ -1,5 +1,3 @@
-import bcrypt from 'bcrypt'
-
 import { getUser, insertUser, deleteUserById, updateUserById } from '../models/userModel.js'
 
 
