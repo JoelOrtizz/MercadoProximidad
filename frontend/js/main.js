@@ -1,4 +1,9 @@
-const API_URL = window.API_URL || "http://localhost:3000/api";
+const DEFAULT_API_URL =
+  window.location.protocol.startsWith("http") && window.location.hostname
+    ? `${window.location.protocol}//${window.location.hostname}:3000/api`
+    : "http://localhost:3000/api";
+
+const API_URL = window.API_URL || DEFAULT_API_URL;
 
 async function apiFetch(endpoint, method = "GET", body = null) {
   const options = {
@@ -52,3 +57,6 @@ async function handleLogout() {
   }
 }
 
+// Expose helpers explicitly (useful when mixing classic scripts and ES modules)
+window.apiFetch = apiFetch;
+window.handleLogout = handleLogout;
