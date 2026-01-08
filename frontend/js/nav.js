@@ -27,7 +27,7 @@ function renderNav() {
 
       <nav class="nav__menu" aria-label="Principal">
         ${makePill("Comprar", "index.html", page === "index.html")}
-        ${makePill("Vender", "#", false)}
+        ${makePill("Vender", "vender.html", page === "vender.html")}
         ${makePill("Reservas", "#", false)}
         ${makePill("Mensajes", "#", false)}
         ${makePill("Valoraciones", "#", false)}
