@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - MercadoProximidad</title>
+    <style> body { font-family: sans-serif; padding: 2rem; } </style>
+</head>
+<body>
+    <h1>Iniciar Sesión</h1>
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required value="test@test.com">
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button type="submit">Entrar</button>
+    </form>
+    <p>¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
+
+    <script src="main.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const contrasena = document.getElementById('password').value;
+
+            try {
+                // Llamamos al backend
+                const data = await apiFetch('/login', 'POST', { email, contrasena });
+                
+                if (data) {
+                    alert('Login exitoso: ' + data.message);
+                    // Guardamos info no sensible en localStorage si quieres mostrar el nombre
+                    localStorage.setItem('user_nickname', data.user.nickname);
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                // El alert ya lo maneja apiFetch, pero aquí podrías limpiar inputs
+            }
+        });
+    </script>
+</body>
+</html>
