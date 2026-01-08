@@ -27,7 +27,7 @@
             };
 
             try {
-                await apiFetch('/usuarios', 'POST', body);
+                await apiFetch('/api/usuarios', 'POST', body);
                 alert('Usuario creado. Ahora inicia sesión.');
                 window.location.href = 'login.html';
             } catch (e) {
