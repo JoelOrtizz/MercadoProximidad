@@ -1,96 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Comprar - TerretaShop</title>
+    <link rel="stylesheet" href="../css/nav.css" />
+    <link rel="stylesheet" href="../css/index.css" />
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="../css/index.css">
-</head>
+  <body>
+    <div id="globalNav"></div>
 
-<body>
-    <nav>
-        <span>Panel Principal</span>
-        <button onclick="handleLogout()">Cerrar Sesión</button>
-    </nav>
-    <h1>Bienvenido, <span id="userDisplay"></span></h1>
-    <button onclick="handleLogout()">Cerrar Sesión</button>
+    <main class="page">
+      <div class="market-layout">
+        <aside class="card filters">
+          <h2>Filtros</h2>
 
-    <h2>Lista de Usuarios (Base de Datos)</h2>
-    <button onclick="loadUsers()">Recargar Lista</button>
+          <div class="field">
+            <label class="label">Categorias</label>
+            <div class="chips">
+              <button class="chip is-active" type="button" disabled>Todas</button>
+              <button class="chip" type="button" disabled>Verduras</button>
+              <button class="chip" type="button" disabled>Fruta</button>
+              <button class="chip" type="button" disabled>Aceite</button>
+            </div>
+            <div class="hint">Ejemplo (aun no funcional)</div>
+          </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="usersTableBody">
-        </tbody>
-    </table>
+          <div class="field">
+            <label class="label" for="q">Busqueda</label>
+            <input id="q" class="input" placeholder="Nombre o descripcion" disabled />
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="button" disabled>Aplicar</button>
+            <button class="btn" type="button" disabled>Limpiar</button>
+          </div>
+        </aside>
+
+        <section class="products">
+          <div class="products-header">
+            <div>
+              <h1>Productos</h1>
+              <div class="subtitle">Ejemplos de UI (sin datos reales todavia)</div>
+            </div>
+            <button class="btn" type="button" onclick="window.location.reload()">Recargar</button>
+          </div>
+
+          <div class="product-grid">
+            <article class="product-card">
+              <div class="product-top">
+                <h3>Tomate Valenciano</h3>
+                <div class="price">2.80 &euro;</div>
+              </div>
+              <p class="desc">Tomate de la huerta de la Valldigna</p>
+              <div class="meta">Verduras &middot; Stock: 48.00 kg &middot; A 0.5 km</div>
+              <div class="bar"><div class="bar__fill" style="width: 40%"></div></div>
+              <div class="rest">Restante: 48.00 kg</div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-top">
+                <h3>Naranjas Lane Late</h3>
+                <div class="price">1.50 &euro;</div>
+              </div>
+              <p class="desc">Naranja dulce de Tavernes</p>
+              <div class="meta">Fruta &middot; Stock: 120.00 kg &middot; A 0.5 km</div>
+              <div class="bar"><div class="bar__fill" style="width: 70%"></div></div>
+              <div class="rest">Restante: 120.00 kg</div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-top">
+                <h3>Aceite de Oliva</h3>
+                <div class="price">8.90 &euro;</div>
+              </div>
+              <p class="desc">Aceite suave de almazara cercana</p>
+              <div class="meta">Aceite &middot; Stock: 30.00 L &middot; A 0.5 km</div>
+              <div class="bar"><div class="bar__fill" style="width: 55%"></div></div>
+              <div class="rest">Restante: 30.00 L</div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-top">
+                <h3>Miel de Azahar</h3>
+                <div class="price">9.50 &euro;</div>
+              </div>
+              <p class="desc">Miel local de azahar</p>
+              <div class="meta">Aceite &middot; Stock: 25.00 L &middot; A 4.5 km</div>
+              <div class="bar"><div class="bar__fill" style="width: 35%"></div></div>
+              <div class="rest">Restante: 25.00 L</div>
+            </article>
+
+            <article class="product-card">
+              <div class="product-top">
+                <h3>Lechuga Marina</h3>
+                <div class="price">1.20 &euro;</div>
+              </div>
+              <p class="desc">Lechuga cultivada cerca de la costa</p>
+              <div class="meta">Verduras &middot; Stock: 80.00 ud &middot; A 4.5 km</div>
+              <div class="bar"><div class="bar__fill" style="width: 80%"></div></div>
+              <div class="rest">Restante: 80.00 ud</div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
 
     <script src="../js/main.js"></script>
-    <script>
-        // Al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            const nickname = localStorage.getItem('user_nickname');
-            if (nickname) {
-                document.getElementById('userDisplay').innerText = nickname;
-            }
-            loadUsers();
-        });
-
-        async function loadUsers() {
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
-
-            try {
-                // Esta petición fallará si no hay cookie válida
-                const data = await apiFetch('/usuarios');
-
-                if (data && data.users) {
-                    tbody.innerHTML = '';
-                    data.users.forEach(user => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${user.id}</td>
-                            <td>${user.nombre} (${user.nickname})</td>
-                            <td>${user.email}</td>
-                            <td>
-                                <button class="btn-danger" onclick="deleteUser(${user.id})">Eliminar</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="4">Error cargando usuarios o no autorizado.</td></tr>';
-            }
-        }
-
-        async function deleteUser(id) {
-            if (!confirm('¿Seguro que quieres borrar este usuario?')) return;
-
-            try {
-                await apiFetch(`/usuarios/${id}`, 'DELETE');
-                loadUsers(); // Recargar tabla
-            } catch (e) {
-                // Error manejado
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await apiFetch('/login/logout', 'POST');
-                localStorage.removeItem('user_nickname');
-                window.location.href = 'login.html';
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    </script>
-</body>
-
+    <script src="../js/nav.js"></script>
+  </body>
 </html>

@@ -1,6 +1,12 @@
 import pool from '../config/db.js'
 import bcrypt from 'bcrypt'
 
+const badRequest = (message) => {
+    const error = new Error(message);
+    error.status = 400;
+    return error;
+}
+
 export const getByNick = async (uNick) => {
 
     const [result] = await pool.query(
@@ -47,7 +53,7 @@ export const getUser = async () => {
 export const insertUser = async ( nombre, nickname, email, contrasena) => {
 
     if (!nombre || !nickname || !email || !contrasena) {
-        throw new Error("Por favor, rellena todos los campos obligatorios.");
+        throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
 
     // Encriptación de la contraseña
@@ -76,7 +82,7 @@ export const deleteUserById = async (id) => {
 export const updateUserById = async (id, nombre, nickname, email, contrasena) => {
 
     if (!nombre || !nickname || !email || !contrasena) {
-        throw new Error("Por favor, rellena todos los campos obligatorios.");
+        throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
 
     // Encriptación de la contraseña
