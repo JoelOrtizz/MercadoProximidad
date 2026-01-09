@@ -25,6 +25,8 @@ if (!cookieSecret) {
 }
 app.use(cookieParser(cookieSecret));
 
+app.use('/uploads', express.static('uploads')); // Para pintar las imágenes de /uploads
+
 // ==============================
 // HEALTH CHECK
 // ==============================
