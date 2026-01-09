@@ -10,13 +10,19 @@ export async function fetchProducts(req, res, next) {
 }
 
 export async function updateProduct(req, res, next) {
-    try{
+    try {
         const {id} = req.params;
 
-        const {nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto} = req.body;
+        let {nombre, id_categoria, tipo, stock, precio, descripcion, id_vendedor, duracion_producto, imagen_anterior} = req.body;
 
-        if (!nombre || !id_categoria || !tipo || !descripcion || !imagen || !id_vendedor || !duracion_producto) {
-            return res.status(400).json({ message: 'Faltan campos de texto obligatorios' });
+        const nombreImagen = req.file ? req.file.filename : imagen_anterior;
+
+        id_categoria = parseInt(id_categoria);
+        stock = parseInt(stock);
+        precio = parseFloat(precio);
+
+        if (!nombre || !id_categoria || !tipo || !descripcion || !nombreImagen || !id_vendedor || !duracion_producto) {
+            return res.status(400).json({ message: 'Faltan campos obligatorios' });
         }
 
         if (precio === undefined || precio < 0) {
@@ -26,37 +32,68 @@ export async function updateProduct(req, res, next) {
         if (stock === undefined || stock <= 0) {
             return res.status(400).json({ message: 'El stock debe ser mayor a 0' });
         }
-        const result = await putProduct(nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto, id);
+
+        const result = await putProduct(nombre, id_categoria, tipo, stock, precio, descripcion, nombreImagen, id_vendedor, duracion_producto, id);
+
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
+
         res.status(200).json({ message: "Producto actualizado correctamente" });
-    }catch(error){
+    } catch(error) {
         next(error);
     }
 }
 
 export async function insertProduct(req, res, next) {
-    try{
-        const {nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto} = req.body;
-        if (!nombre || !id_categoria || !tipo || !descripcion || !imagen || !id_vendedor || !duracion_producto) {
-            return res.status(400).json({ message: 'Faltan campos obligatorios' });
+    try {
+        console.log("Datos recibidos del HTML:", req.body); // Chivato para ver qué llega
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'La imagen es obligatoria' });
         }
-        if (precio === undefined || precio < 0) {
-            return res.status(400).json({ message: 'El precio debe ser 0 o superior' });
+        const nombreImagen = req.file.filename;
+
+        let { nombre, categoria, tipo, stock, precio, descripcion, duracion } = req.body;
+
+        const id_categoria = parseInt(categoria); 
+        const stockInt = parseInt(stock);
+        const precioFloat = parseFloat(precio);
+
+        const id_vendedor = req.user ? req.user.id : 1; 
+
+        if (!nombre || isNaN(id_categoria) || !tipo || !descripcion || !duracion) {
+            return res.status(400).json({ message: 'Faltan campos de texto o la categoría está vacía' });
         }
 
-        if (stock === undefined || stock <= 0) {
-            return res.status(400).json({ message: 'El stock debe ser mayor a 0' });
+        if (isNaN(precioFloat) || precioFloat < 0) {
+            return res.status(400).json({ message: 'El precio debe ser un número positivo' });
         }
-        const result = await postProduct(nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto);
+
+        if (isNaN(stockInt) || stockInt < 0) {
+            return res.status(400).json({ message: 'El stock debe ser un número positivo' });
+        }
+
+        const result = await postProduct(
+            nombre, 
+            id_categoria, 
+            tipo, 
+            stockInt, 
+            precioFloat, 
+            descripcion, 
+            nombreImagen, 
+            id_vendedor, 
+            duracion 
+        );
         
         res.status(201).json({
             message: 'Producto creado correctamente',
             id: result.insertId,
             data: result
         });
-    }catch(error){
+
+    } catch(error) {
+        console.error(error);
         next(error);
     }
 }

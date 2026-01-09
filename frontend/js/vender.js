@@ -4,26 +4,17 @@ form.addEventListener('submit', async (e) => {
     // Aquí evitaremos que el Formulario recargue la página
     e.preventDefault();
 
-    // Recogemos los datos de los inputs
-    const datosProductos = {
-        nombre: document.getElementById('nombre').value,
-        precio: document.getElementById('precio').value,
-        stock: document.getElementById('stock').value,
-        tipo: document.getElementById('unidad').value,
-        duracion: document.getElementById('duracion').value,
-        categoria: document.getElementById('categoria').value,
-        descripcion: document.getElementById('descripcion').value,
-        imagen: document.getElementById('imagen').value
-    }
+    // Recogemos los datos de los inputs, de esta forma hace un paquete con toda la info, ya que hay archivos "file"
+    const formData = new FormData(form);
 
     try {
         // envío de datos al backend
         const respuesta = await fetch('http://localhost:3000/api/productos', {
             method: 'POST',
-            headers: {
-                'Content-Type':'application/json'
-            },
-            body: JSON.stringify(datosProductos)
+
+            credentials: 'include',
+            
+            body: formData
         });
 
         const resultado = await respuesta.json();

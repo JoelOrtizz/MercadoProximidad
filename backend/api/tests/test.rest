@@ -5,9 +5,9 @@ post http://localhost:3000/api/usuarios
 Content-Type: application/json
 
 {
-    "nombre":"danii",
-    "nickname":"_danii",
-    "email":"danii@gmail.com",
+    "nombre":"joel",
+    "nickname":"_joelortizz",
+    "email":"joel@gmail.com",
     "contrasena":"root",
     "tipo":""
 }
@@ -89,7 +89,7 @@ Content-Type: application/json
   "precio": 1.95,
   "descripcion": "Peras dulces y jugosas",
   "imagen": "https://ejemplo.com/pera.jpg",
-  "id_vendedor": 2,
+  "id_vendedor": 1,
   "duracion_producto": 20
 }
 
