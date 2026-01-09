@@ -176,11 +176,11 @@ CREATE TABLE mensajes (
 -- CATEGORÍAS INSERTADAS
 -- ======================================
 INSERT INTO categorias (nombre, descripcion) VALUES 
-('Frutas', 'Frutas frescas, de temporada y exóticas'),
+('Frutas', 'Frutas frescas, de temporada y exoticas'),
 ('Verduras', 'Hortalizas, legumbres y verduras frescas'),
-('Lácteos y derivados', 'Leche, quesos, yogures, mantequillas y otros derivados'),
-('Panadería', 'Pan fresco, bollería, pasteles y masas'),
+('Lacteos y derivados', 'Leche, quesos, yogures, mantequillas y otros derivados'),
+('Panaderia', 'Pan fresco, bolleria, pasteles y masas'),
 ('Elaborados', 'Comidas preparadas, conservas y productos procesados'),
 ('Aceites', 'Aceite de oliva, girasol, semillas y grasas vegetales'),
-('Plantas', 'Plantas ornamentales, semillas y artículos de jardinería'),
-('Otros', 'Artículos diversos y productos sin categoría específica');
+('Plantas', 'Plantas ornamentales, semillas y articulos de jardineria'),
+('Otros', 'Articulos diversos y productos sin categoria especifica');
