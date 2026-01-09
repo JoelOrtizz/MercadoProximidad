@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - MercadoProximidad</title>
+    <link rel="stylesheet" href="../css/nav.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+  </head>
+  <body>
+    <div id="globalNav"></div>
+    <main class="page">
+    <h1>Iniciar sesion</h1>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Contrasena" required />
+      <button type="submit">Entrar</button>
+    </form>
+    <p>No tienes cuenta? <a href="registro.html">Registrate</a></p>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/nav.js"></script>
+    <script>
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const contrasena = document.getElementById("password").value;
+
+        try {
+          const data = await apiFetch("/login", "POST", { email, contrasena });
+          if (data) {
+            localStorage.setItem("user_nickname", data.user.nickname);
+            window.location.href = "seleccionarCords.html";
+          }
+        } catch {
+          // apiFetch muestra el error
+        }
+      });
+    </script>
+  </body>
+</html>
