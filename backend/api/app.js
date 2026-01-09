@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import userRoutes from './routes/userRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
+import productRoutes from './routes/productRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -41,6 +42,7 @@ app.get('/', (req, res) => {
 app.use('/api/usuarios', userRoutes);
 app.use('/api/login', loginRoutes);
 app.use('/api/map', mapRoutes);
+app.use('/api/productos', productRoutes);
 
 // 404
 app.use((req, res) => {
