@@ -3,9 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <title>Registro</title>
+    <link rel="stylesheet" href="../css/nav.css" />
     <link rel="stylesheet" href="../css/registro.css" />
   </head>
   <body>
+    <div id="globalNav"></div>
+    <main class="page">
     <h1>Crear cuenta</h1>
     <input type="text" id="nombre" placeholder="Nombre completo" />
     <input type="text" id="nickname" placeholder="Nickname" />
@@ -14,8 +17,10 @@
     <button onclick="handleRegister()">Registrarse</button>
     <br />
     <a href="login.html">Volver al login</a>
+    </main>
 
     <script src="../js/main.js"></script>
+    <script src="../js/nav.js"></script>
     <script>
       async function handleRegister() {
         const body = {
@@ -36,4 +41,3 @@
     </script>
   </body>
 </html>
-
