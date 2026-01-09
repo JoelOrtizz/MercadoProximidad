@@ -12,8 +12,13 @@ router.post('/', register);
 
 router.delete('/me', requireAuth, deleteUser);
 router.put('/me', requireAuth, updateUser);
+router.delete('/me', requireAuth, deleteUser);
+router.put('/me', requireAuth, updateUser);
 
+router.delete('/:id', requireAuth, deleteUser);
+router.put('/:id', requireAuth, updateUser)
 router.delete('/:id', requireAuth, deleteUser);
 router.put('/:id', requireAuth, updateUser)
 
 export default router;
+

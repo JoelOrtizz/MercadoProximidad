@@ -7,6 +7,12 @@ const badRequest = (message) => {
     return error;
 }
 
+const badRequest = (message) => {
+    const error = new Error(message);
+    error.status = 400;
+    return error;
+}
+
 export const getByNick = async (uNick) => {
 
     const [result] = await pool.query(
@@ -54,6 +60,7 @@ export const insertUser = async ( nombre, nickname, email, contrasena) => {
 
     if (!nombre || !nickname || !email || !contrasena) {
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
+        throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
 
     // Encriptación de la contraseña
@@ -83,6 +90,7 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
 
     if (!nombre || !nickname || !email || !contrasena) {
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
+        throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
 
     // Encriptación de la contraseña
@@ -96,4 +104,7 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
     );
 
     return result;
+<<<<<<< HEAD
+}
+=======
 }
