@@ -1,39 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Registro</title>
-    <link rel="stylesheet" href="../css/registro.css">
-</head>
-<body>
-    
+    <link rel="stylesheet" href="../css/nav.css" />
+    <link rel="stylesheet" href="../css/registro.css" />
+  </head>
+  <body>
+    <div id="globalNav"></div>
+    <main class="page">
     <h1>Crear cuenta</h1>
-    <input type="text" id="nombre" placeholder="Nombre completo">
-    <input type="text" id="nickname" placeholder="Nickname">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Contraseña">
+    <input type="text" id="nombre" placeholder="Nombre completo" />
+    <input type="text" id="nickname" placeholder="Nickname" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Contrasena" />
     <button onclick="handleRegister()">Registrarse</button>
-    <br>
+    <br />
     <a href="login.html">Volver al login</a>
+    </main>
 
-    <script src="main.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/nav.js"></script>
     <script>
-        async function handleRegister() {
-            const body = {
-                nombre: document.getElementById('nombre').value,
-                nickname: document.getElementById('nickname').value,
-                email: document.getElementById('email').value,
-                contrasena: document.getElementById('password').value
-            };
+      async function handleRegister() {
+        const body = {
+          nombre: document.getElementById("nombre").value,
+          nickname: document.getElementById("nickname").value,
+          email: document.getElementById("email").value,
+          contrasena: document.getElementById("password").value,
+        };
 
-            try {
-                await apiFetch('/usuarios', 'POST', body);
-                alert('Usuario creado. Ahora inicia sesión.');
-                window.location.href = 'login.html';
-            } catch (e) {
-                // Error manejado en main.js
-            }
+        try {
+          await apiFetch("/usuarios", "POST", body);
+          alert("Usuario creado. Ahora inicia sesion.");
+          window.location.href = "login.html";
+        } catch {
+          // apiFetch muestra el error
         }
+      }
     </script>
-</body>
+  </body>
 </html>

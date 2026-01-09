@@ -1,3 +1,4 @@
+-- Active: 1759832791265@@127.0.0.1@3306
 -- ======================================
 -- BASE DE DATOS
 -- ======================================
@@ -170,3 +171,16 @@ CREATE TABLE mensajes (
     FOREIGN KEY (id_vendedor) REFERENCES usuarios(id)
     ON DELETE CASCADE
 );
+
+-- ======================================
+-- CATEGORÍAS INSERTADAS
+-- ======================================
+INSERT INTO categorias (nombre, descripcion) VALUES 
+('Frutas', 'Frutas frescas, de temporada y exóticas'),
+('Verduras', 'Hortalizas, legumbres y verduras frescas'),
+('Lácteos y derivados', 'Leche, quesos, yogures, mantequillas y otros derivados'),
+('Panadería', 'Pan fresco, bollería, pasteles y masas'),
+('Elaborados', 'Comidas preparadas, conservas y productos procesados'),
+('Aceites', 'Aceite de oliva, girasol, semillas y grasas vegetales'),
+('Plantas', 'Plantas ornamentales, semillas y artículos de jardinería'),
+('Otros', 'Artículos diversos y productos sin categoría específica');

@@ -1,46 +1,62 @@
-const API_URL = "http://localhost:3000/api";
+const DEFAULT_API_URL =
+  window.location.protocol.startsWith("http") && window.location.hostname
+    ? `${window.location.protocol}//${window.location.hostname}:3000/api`
+    : "http://localhost:3000/api";
 
-async function apiFetch(endpoint, method = 'GET', body = null){
-    const options = {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include"
-    };
+const API_URL = window.API_URL || DEFAULT_API_URL;
 
-    if (body) {
-      options.body = JSON.stringify(body); // HTTP solo transporta texto. Convertimos el objeto a String para que
-      // el backend (express.json) pueda recibirlo y reconstruirlo.
-    }
+async function apiFetch(endpoint, method = "GET", body = null) {
+  const options = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  };
 
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, options);
+
+    let data = null;
     try {
-        const response = await fetch(`${API_URL}${endpoint}`, options);
-        
-        // Hemos quitado la comprobación de status 401/403 y la redirección
-        // Ahora pasamos directamente a procesar la respuesta
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-            // Si el backend devuelve error (ej: "Token inválido"), caerá aquí
-            throw new Error(data.message || data.error || 'Error en la petición');
-        }
-
-        return data;
-    } catch (error) {
-        console.error("Error de red o lógica:", error);
-        alert(`Error: ${error.message}`);
-        throw error; // Re-lanzamos el error para que quien llame a apiFetch sepa que falló
+      data = await response.json();
+    } catch {
+      // respuesta no JSON
     }
+
+    if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem("user_nickname");
+      if (!window.location.pathname.endsWith("/login.html")) {
+        window.location.href = "login.html";
+      }
+      throw new Error((data && (data.message || data.error)) || "No autorizado");
+    }
+
+    if (!response.ok) {
+      throw new Error((data && (data.message || data.error)) || "Error en la peticion");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error de red o logica:", error);
+    alert(`Error: ${error.message}`);
+    throw error;
+  }
 }
 
 async function handleLogout() {
   try {
-    await apiFetch("/login/logout", "POST"); // Pide al servidor borrar cookie
+    await apiFetch("/login/logout", "POST");
+  } finally {
     localStorage.removeItem("user_nickname");
-    window.location.href = "login.html"; // Te devuelve al login
-  } catch (e) {
     window.location.href = "login.html";
   }
 }
+
+// Expose helpers explicitly (useful when mixing classic scripts and ES modules)
+window.apiFetch = apiFetch;
+window.handleLogout = handleLogout;

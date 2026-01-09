@@ -22,6 +22,17 @@ Content-Type: application/json
 }
 
 ####
+# Guarda las coordenadas del usuario autenticado
+# Nota: el cliente REST debe conservar cookies entre requests.
+patch http://localhost:3000/api/map/me
+Content-Type: application/json
+
+{
+    "lat": 39.4699,
+    "lng": -0.3763
+}
+
+####
 delete http://localhost:3000/api/usuarios/1
 ###
 
@@ -62,3 +73,43 @@ Content-Type: application/json
     "contrasena":"root",
     "tipo":""
 }
+
+###
+get http://localhost:3000/api/productos
+
+###
+POST http://localhost:3000/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Peras Conferencia",
+  "id_categoria": 1,
+  "tipo": "kg",
+  "stock": 100,
+  "precio": 1.95,
+  "descripcion": "Peras dulces y jugosas",
+  "imagen": "https://ejemplo.com/pera.jpg",
+  "id_vendedor": 2,
+  "duracion_producto": 20
+}
+
+###
+PUT http://localhost:3000/api/productos/4
+Content-Type: application/json
+
+{
+  "nombre": "Peras Conferencia (OFERTA)",
+  "id_categoria": 1,
+  "tipo": "kg",
+  "stock": 50,
+  "precio": 1.50,
+  "descripcion": "Rebajadas por liquidación",
+  "imagen": "https://ejemplo.com/pera_oferta.jpg",
+  "id_vendedor": 2,
+  "duracion_producto": 15
+}
+
+
+###
+DELETE http://localhost:3000/api/productos/4
+
