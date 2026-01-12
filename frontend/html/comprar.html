@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Comprar - TerretaShop</title>
+    <link rel="stylesheet" href="../css/nav.css" />
+    <link rel="stylesheet" href="../css/index.css" />
+  </head>
+
+  <body>
+    <div id="globalNav"></div>
+
+    <main class="page">
+      <div class="market-layout">
+        <aside class="card filters">
+          <h2>Filtros</h2>
+
+          <div class="field">
+            <label class="label">Categorias</label>
+            <div class="chips">
+              <button class="chip is-active" type="button" disabled>Todas</button>
+              <button class="chip" type="button" disabled>Verduras</button>
+              <button class="chip" type="button" disabled>Fruta</button>
+              <button class="chip" type="button" disabled>Aceite</button>
+            </div>
+            <div class="hint">Preparado para cuando existan endpoints de filtros</div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="q">Busqueda</label>
+            <input id="q" class="input" placeholder="Nombre o descripcion" disabled />
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="button" disabled>Aplicar</button>
+            <button class="btn" type="button" disabled>Limpiar</button>
+          </div>
+        </aside>
+
+        <section class="products">
+          <div class="products-header">
+            <div>
+              <h1>Productos</h1>
+              <div class="subtitle" id="productsSubtitle">Cargando productos...</div>
+            </div>
+            <button class="btn" type="button" id="btnReload">Recargar</button>
+          </div>
+
+          <div class="product-grid" id="productGrid" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/nav.js"></script>
+    <script src="../js/comprar.js"></script>
+  </body>
+</html>
+

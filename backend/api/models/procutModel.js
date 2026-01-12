@@ -7,11 +7,20 @@ export const getProduct = async () => {
     return result;
 }
 
+export const getProductByVendedor = async(id_vendedor) =>{
+    const [result] = await pool.query(
+        "select * from productos where id_vendedor = ? order by fecha_creacion desc",
+        [id_vendedor]
+    )
+
+    return result
+}
+
 export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {
     
     const [result] = await pool.query(
        ` INSERT INTO productos (nombre, id_categoria, tipo, stock, precio, 
-        descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) `, 
+        descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?) `, 
         [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor]
     );
 

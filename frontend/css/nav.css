@@ -91,11 +91,7 @@ body {
   padding: 10px 12px;
   color: #1f2d5c;
   font-weight: 600;
-  cursor: not-allowed;
-}
-
-.nav__user:disabled {
-  opacity: 0.9;
+  cursor: pointer;
 }
 
 .page {

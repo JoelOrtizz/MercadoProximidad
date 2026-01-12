@@ -1,4 +1,4 @@
-import {getProduct, postProduct, putProduct, deleteProductById} from '../models/procutModel.js'
+import {getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor} from '../models/procutModel.js'
 
 export async function fetchProducts(req, res, next) {
   try {
@@ -7,6 +7,24 @@ export async function fetchProducts(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+
+export async function fetchProductsByVendedor(req,res,next) {
+    try{
+        const vendedorIdRaw = req.user?.id;
+        const id_vendedor = Number.parseInt(String(vendedorIdRaw), 10);
+
+        if (!Number.isFinite(id_vendedor)) {
+            const error = new Error("No autenticado.");
+            error.status = 401;
+            return next(error);
+        }
+
+        const result = await getProductByVendedor(id_vendedor);
+        res.status(200).json(Array.isArray(result) ? result : []);
+    } catch (error) {
+        next(error)
+    }
 }
 
 export async function updateProduct(req, res, next) {
