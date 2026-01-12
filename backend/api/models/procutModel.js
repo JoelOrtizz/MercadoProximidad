@@ -9,7 +9,7 @@ export const getProduct = async () => {
 
 export const getProductByVendedor = async(id_vendedor) =>{
     const [result] = await pool.query(
-        "select * from productos where id_vendedor=?",
+        "select * from productos where id_vendedor = ? order by fecha_creacion desc",
         [id_vendedor]
     )
 

@@ -11,10 +11,17 @@ export async function fetchProducts(req, res, next) {
 
 export async function fetchProductsByVendedor(req,res,next) {
     try{
-        const id_vendedor = req.user.id;
-        
-        const result = await getProductByVendedor(id_vendedor)
-        res.status(200).json(result)
+        const vendedorIdRaw = req.user?.id;
+        const id_vendedor = Number.parseInt(String(vendedorIdRaw), 10);
+
+        if (!Number.isFinite(id_vendedor)) {
+            const error = new Error("No autenticado.");
+            error.status = 401;
+            return next(error);
+        }
+
+        const result = await getProductByVendedor(id_vendedor);
+        res.status(200).json(Array.isArray(result) ? result : []);
     } catch (error) {
         next(error)
     }
