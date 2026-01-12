@@ -48,7 +48,7 @@ function createMap() {
     try {
       await window.apiFetch("/map/me", "PATCH", selected);
       localStorage.setItem("user_coords", JSON.stringify(selected));
-      window.location.href = "index.html";
+      window.location.href = "comprar.html";
     } finally {
       btnSave.textContent = "Guardar";
       btnSave.disabled = false;
