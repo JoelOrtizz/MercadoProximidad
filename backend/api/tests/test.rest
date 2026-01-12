@@ -33,6 +33,25 @@ Content-Type: application/json
 }
 
 ####
+# Crea un punto de entrega (requiere cookie de login)
+post http://localhost:3000/api/puntos-entrega
+Content-Type: application/json
+
+{
+  "lat": 39.4699,
+  "lng": -0.3763,
+  "descripcion": "Punto de entrega 1"
+}
+
+####
+# Lista mis puntos de entrega (requiere cookie de login)
+get http://localhost:3000/api/puntos-entrega/me
+
+####
+# Lista puntos de entrega por id de usuario/vendedor (publico)
+get http://localhost:3000/api/puntos-entrega/usuario/1
+
+####
 delete http://localhost:3000/api/usuarios/1
 ###
 

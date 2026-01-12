@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import puntosEntregaRoutes from './routes/puntosEntregaRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -47,6 +48,7 @@ app.use('/api/usuarios', userRoutes);
 app.use('/api/login', loginRoutes);
 app.use('/api/map', mapRoutes);
 app.use('/api/productos', productRoutes);
+app.use('/api/puntos-entrega', puntosEntregaRoutes);
 
 // 404
 app.use((req, res) => {
