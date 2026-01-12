@@ -11,16 +11,19 @@ export async function fetchProducts(req, res, next) {
 
 export async function fetchProductsByVendedor(req,res,next) {
     try{
+        // id del vendedor a partir del token
         const vendedorIdRaw = req.user?.id;
+        // parsear id a int
         const id_vendedor = Number.parseInt(String(vendedorIdRaw), 10);
-
+        // comprobaciones
         if (!Number.isFinite(id_vendedor)) {
             const error = new Error("No autenticado.");
             error.status = 401;
             return next(error);
         }
-
+        // funcion del modelo 
         const result = await getProductByVendedor(id_vendedor);
+        // retorna el resultado y antes comprueba si es un array
         res.status(200).json(Array.isArray(result) ? result : []);
     } catch (error) {
         next(error)

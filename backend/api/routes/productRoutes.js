@@ -10,6 +10,7 @@ router.get('/', fetchProducts);
 
 router.get('/me', requireAuth, fetchProductsByVendedor)
 
+// el upload se define en multerConfig
 router.post('/', requireAuth, upload.single('imagen'), insertProduct);
 
 router.put('/:id', requireAuth, upload.single('imagen'), updateProduct );

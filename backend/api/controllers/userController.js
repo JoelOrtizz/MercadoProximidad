@@ -89,7 +89,8 @@ export const updateUser = async (req, res, next) => {
       error.status = 403;
       return next(error);
     }
-
+    
+    // recogemos los parametros del body
     const { nombre, nickname, email, contrasena } = req.body;
     const result = await updateUserById(id, nombre, nickname, email, contrasena);
 
