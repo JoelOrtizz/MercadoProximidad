@@ -11,13 +11,16 @@ export async function fetchProducts(req, res, next) {
 
 export async function updateProduct(req, res, next) {
     try {
+        // recogemos el id del usuario del token para ver si está conectado
         if (!req.user || !req.user.id) {
             const error = new Error("No autenticado.");
             error.status = 401;
             return next(error);
         }
+        // guardamos el id del usaurio como vemdedor
         const vendedorId = req.user.id;
 
+        // guardamos el id del producto a traver de la ruta con los parametros
         const productoId = Number.parseInt(req.params.id, 10);
         if (!Number.isFinite(productoId)) {
             return res.status(400).json({ message: 'Error: ID de producto invalido.' });
@@ -25,12 +28,15 @@ export async function updateProduct(req, res, next) {
 
         let { nombre, id_categoria, tipo, stock, precio, descripcion, imagen_anterior } = req.body;
 
+        // es un if donde comprueba si hahy foto nueva, si la hay la cambia y si no sigue con la anterior
         const nombreImagen = req.file ? req.file.filename : imagen_anterior;
 
+        // parseamos parametros
         id_categoria = parseInt(id_categoria);
         stock = parseInt(stock);
         precio = parseFloat(precio);
 
+        // comprobaciones
         if (!nombre || !id_categoria || !tipo || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos obligatorios' });
         }
@@ -43,6 +49,7 @@ export async function updateProduct(req, res, next) {
             return res.status(400).json({ message: 'El stock no puede ser negativo' });
         }
 
+        // guardamos los parametros en el modelo
         const result = await putProduct(
             nombre,
             id_categoria,
@@ -72,6 +79,7 @@ export async function insertProduct(req, res, next) {
         if (!req.file) {
             return res.status(400).json({ message: 'La imagen es obligatoria' });
         }
+        // recoge la imagen
         const nombreImagen = req.file.filename;
 
         let { nombre, categoria, tipo, stock, precio, descripcion} = req.body;
@@ -80,6 +88,7 @@ export async function insertProduct(req, res, next) {
         const stockInt = parseInt(stock);
         const precioFloat = parseFloat(precio);
 
+        // guardamos el id del token como vendedor
         const id_vendedor = req.user?.id;
         if (!id_vendedor) {
           const error = new Error("Inicia sesion");
@@ -87,6 +96,7 @@ export async function insertProduct(req, res, next) {
           throw error;
         }
 
+        //comprobaciones
         if (!nombre || isNaN(id_categoria) || !tipo || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos de texto o la categoría está vacía' });
         }

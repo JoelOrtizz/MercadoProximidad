@@ -1,5 +1,6 @@
 import { getUser, insertUser, deleteUserById, updateUserById } from '../models/userModel.js';
 
+// get de usuarios
 export const fetchUser = async (req, res, next) => {
   try {
     const users = await getUser();
@@ -34,8 +35,12 @@ export const register = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
+
+    // buscamos el id en la url
     const paramId = req.params?.id;
+    // buscamos el id en el token
     const authId = req.user?.id;
+    // si uno no esta mira el otro
     const id = paramId ?? authId;
 
     if (!id) {
@@ -66,8 +71,11 @@ export const deleteUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
+    // buscamos el id en la url
     const paramId = req.params?.id;
+    // buscamos el id en el token
     const authId = req.user?.id;
+    // si uno no esta mira el otro
     const id = paramId ?? authId;
 
     if (!id) {
