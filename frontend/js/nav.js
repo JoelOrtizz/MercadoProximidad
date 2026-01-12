@@ -15,10 +15,11 @@ function renderNav() {
   const page = getActivePage();
   const nickname = localStorage.getItem("user_nickname") || "";
   const isLoggedIn = Boolean(nickname);
+  const isComprar = page === "index.html" || page === "comprar.html" || page === "";
 
   host.innerHTML = `
     <header class="nav">
-      <a class="nav__brand" href="index.html">
+      <a class="nav__brand" href="comprar.html">
         <div class="nav__logo">
           <span class="brand-accent">Terreta</span><br />
           Shop
@@ -26,7 +27,7 @@ function renderNav() {
       </a>
 
       <nav class="nav__menu" aria-label="Principal">
-        ${makePill("Comprar", "index.html", page === "index.html")}
+        ${makePill("Comprar", "comprar.html", isComprar)}
         ${makePill("Vender", "vender.html", page === "vender.html")}
         ${makePill("Reservas", "#", false)}
         ${makePill("Mensajes", "#", false)}
@@ -39,7 +40,7 @@ function renderNav() {
         </button>
         ${
           isLoggedIn
-            ? `<button class="nav__user" type="button" disabled title="Usuario">${nickname}</button>`
+            ? `<button id="navProfileBtn" class="nav__user" type="button" title="Perfil">${nickname}</button>`
             : ""
         }
         <button id="navAuthBtn" class="nav__cta" type="button">
@@ -48,6 +49,13 @@ function renderNav() {
       </div>
     </header>
   `;
+
+  const profileBtn = document.getElementById("navProfileBtn");
+  if (profileBtn) {
+    profileBtn.addEventListener("click", () => {
+      window.location.href = "perfil.html";
+    });
+  }
 
   const btn = document.getElementById("navAuthBtn");
   if (!btn) return;
@@ -62,4 +70,3 @@ function renderNav() {
 }
 
 document.addEventListener("DOMContentLoaded", renderNav);
-

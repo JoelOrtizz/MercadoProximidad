@@ -20,7 +20,7 @@ export const postProduct = async (nombre, id_categoria, tipo, stock, precio, des
     
     const [result] = await pool.query(
        ` INSERT INTO productos (nombre, id_categoria, tipo, stock, precio, 
-        descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) `, 
+        descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?) `, 
         [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor]
     );
 
