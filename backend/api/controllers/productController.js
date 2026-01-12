@@ -11,14 +11,14 @@ export async function fetchProducts(req, res, next) {
 
 export async function updateProduct(req, res, next) {
     try {
-        const vendedorId = req.user?.id;
-
-        const productoId = req.body.id;
-        if (!vendedorId) {
+        if (!req.user || !req.user.id) {
             const error = new Error("No autenticado.");
             error.status = 401;
             return next(error);
         }
+        const vendedorId = req.user.id;
+
+        const productoId = req.body.id;
         if (!productoId) {
             return res.status(400).json({ message: 'Error: No se ha proporcionado el ID del producto.' });
         }
