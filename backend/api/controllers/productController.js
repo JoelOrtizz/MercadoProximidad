@@ -60,7 +60,7 @@ export async function insertProduct(req, res, next) {
         const stockInt = parseInt(stock);
         const precioFloat = parseFloat(precio);
 
-        const id_vendedor = req.user ? req.user.id : 1; 
+        const id_vendedor = req.user.id; 
 
         if (!nombre || isNaN(id_categoria) || !tipo || !descripcion || !duracion) {
             return res.status(400).json({ message: 'Faltan campos de texto o la categoría está vacía' });
