@@ -18,9 +18,9 @@ export async function updateProduct(req, res, next) {
         }
         const vendedorId = req.user.id;
 
-        const productoId = req.body.id;
-        if (!productoId) {
-            return res.status(400).json({ message: 'Error: No se ha proporcionado el ID del producto.' });
+        const productoId = Number.parseInt(req.params.id, 10);
+        if (!Number.isFinite(productoId)) {
+            return res.status(400).json({ message: 'Error: ID de producto invalido.' });
         }
 
         let { nombre, id_categoria, tipo, stock, precio, descripcion, duracion_producto, imagen_anterior } = req.body;
@@ -43,10 +43,21 @@ export async function updateProduct(req, res, next) {
             return res.status(400).json({ message: 'El stock no puede ser negativo' });
         }
 
-        const result = await putProduct(nombre, id_categoria, tipo, stock, precio, descripcion, nombreImagen, duracion_producto, productoId, vendedorId);
+        const result = await putProduct(
+            nombre,
+            id_categoria,
+            tipo,
+            stock,
+            precio,
+            descripcion,
+            nombreImagen,
+            duracion_producto,
+            productoId,
+            vendedorId
+        );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            return res.status(404).json({ message: 'Producto no encontrado o no autorizado' });
         }
 
         res.status(200).json({ message: "Producto actualizado correctamente" });
