@@ -6,16 +6,22 @@ const DEFAULT_API_URL =
 const API_URL = window.API_URL || DEFAULT_API_URL;
 
 async function apiFetch(endpoint, method = "GET", body = null) {
+  const isFormData =
+    typeof FormData !== "undefined" && body instanceof FormData;
+
   const options = {
     method,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: {},
     credentials: "include",
   };
 
-  if (body) {
-    options.body = JSON.stringify(body);
+  if (body != null) {
+    if (isFormData) {
+      options.body = body;
+    } else {
+      options.headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body);
+    }
   }
 
   try {

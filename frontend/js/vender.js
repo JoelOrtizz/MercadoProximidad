@@ -1,3 +1,10 @@
+const DEFAULT_API_URL =
+  window.location.protocol.startsWith("http") && window.location.hostname
+    ? `${window.location.protocol}//${window.location.hostname}:3000/api`
+    : "http://localhost:3000/api";
+
+const API_URL = window.API_URL || DEFAULT_API_URL;
+
 const form = document.getElementById('form_producto');
 
 form.addEventListener('submit', async (e) => {
@@ -9,7 +16,7 @@ form.addEventListener('submit', async (e) => {
 
     try {
         // envío de datos al backend
-        const respuesta = await fetch('http://localhost:3000/api/productos', {
+        const respuesta = await fetch(`${API_URL}/productos`, {
             method: 'POST',
 
             credentials: 'include',
