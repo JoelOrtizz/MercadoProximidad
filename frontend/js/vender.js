@@ -1,47 +1,26 @@
-const DEFAULT_API_URL =
-  window.location.protocol.startsWith("http") && window.location.hostname
-    ? `${window.location.protocol}//${window.location.hostname}:3000/api`
-    : "http://localhost:3000/api";
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('form_producto');
+  if (!form) return;
 
-const API_URL = window.API_URL || DEFAULT_API_URL;
-
-const form = document.getElementById('form_producto');
-
-form.addEventListener('submit', async (e) => {
-    // Aquí evitaremos que el Formulario recargue la página
+  form.addEventListener('submit', async (e) => {
+    // Evita que el formulario recargue la pagina
     e.preventDefault();
 
-    // Recogemos los datos de los inputs, de esta forma hace un paquete con toda la info, ya que hay archivos "file"
+    // FormData porque incluye imagen (multipart/form-data)
     const formData = new FormData(form);
 
     try {
-        // envío de datos al backend
-        const respuesta = await fetch(`${API_URL}/productos`, {
-            method: 'POST',
+      if (typeof window.apiFetch !== 'function') {
+        throw new Error('apiFetch no esta disponible (carga primero frontend/js/main.js)');
+      }
 
-            credentials: 'include',
-            
-            body: formData
-        });
+      const resultado = await window.apiFetch('/productos', 'POST', formData);
 
-        const resultado = await respuesta.json();
-
-        if (respuesta.ok) {
-
-            alert('Guardado con éxito. ID: ' + resultado.id);
-
-            form.reset();
-
-        }else {
-
-            alert('Error: ' + resultado.mensaje);
-
-        }
-    }catch (error) {
-
-        console.error('Error de red: ', error);
-
-        alert('No se puedo conectar con el servidor');
-
+      alert('Guardado con exito. ID: ' + resultado.id);
+      form.reset();
+    } catch (error) {
+      // apiFetch ya muestra el error; aqui solo evitamos que el submit navegue
+      console.error('Error al publicar producto:', error);
     }
+  });
 });
