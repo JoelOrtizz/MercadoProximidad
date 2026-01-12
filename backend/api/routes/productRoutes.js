@@ -8,12 +8,12 @@ const router = express.Router();
 
 router.get('/', fetchProducts);
 
-router.get('/me', requireAuth, fetchProductsByVendedor)
+router.get('/me', requireAuth, fetchProductsByVendedor);
 
 router.post('/', requireAuth, upload.single('imagen'), insertProduct);
 
-router.put('/:id', requireAuth, upload.single('imagen'), updateProduct );
+router.put('/:id', requireAuth, upload.single('imagen'), updateProduct);
 
-router.delete('/:id', deleteProduct);
+router.delete('/:id', requireAuth, deleteProduct);
 
 export default router;
