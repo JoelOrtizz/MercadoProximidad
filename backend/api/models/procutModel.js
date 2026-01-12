@@ -18,12 +18,12 @@ export const postProduct = async (nombre, id_categoria, tipo, stock, precio, des
     return result;
 };
 
-export const putProduct = async(nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto, id) => {
+export const putProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, duracion_producto, id, id_vendedor) => {
     const [result] = await pool.query(
         `UPDATE productos SET nombre = ?, id_categoria = ?, tipo = ?, stock = ?, precio = ?, descripcion = ?, 
-        imagen = ?, id_vendedor = ?, duracion_producto = ? 
-        WHERE id = ?`,
-        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto, id]
+        imagen = ?, duracion_producto = ? 
+        WHERE id = ? and id_vendedor = ?`,
+        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, duracion_producto, id, id_vendedor]
     );
 
     return result;
