@@ -7,23 +7,23 @@ export const getProduct = async () => {
     return result;
 }
 
-export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto) => {
+export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {
     
     const [result] = await pool.query(
        ` INSERT INTO productos (nombre, id_categoria, tipo, stock, precio, 
-        descripcion, imagen, id_vendedor, duracion_producto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) `, 
-        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto]
+        descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) `, 
+        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor]
     );
 
     return result;
 };
 
-export const putProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, duracion_producto, id, id_vendedor) => {
+export const putProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id, id_vendedor) => {
     const [result] = await pool.query(
         `UPDATE productos SET nombre = ?, id_categoria = ?, tipo = ?, stock = ?, precio = ?, descripcion = ?, 
-        imagen = ?, duracion_producto = ? 
+        imagen = ?
         WHERE id = ? and id_vendedor = ?`,
-        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, duracion_producto, id, id_vendedor]
+        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id, id_vendedor]
     );
 
     return result;

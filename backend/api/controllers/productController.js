@@ -23,7 +23,7 @@ export async function updateProduct(req, res, next) {
             return res.status(400).json({ message: 'Error: ID de producto invalido.' });
         }
 
-        let { nombre, id_categoria, tipo, stock, precio, descripcion, duracion_producto, imagen_anterior } = req.body;
+        let { nombre, id_categoria, tipo, stock, precio, descripcion, imagen_anterior } = req.body;
 
         const nombreImagen = req.file ? req.file.filename : imagen_anterior;
 
@@ -31,7 +31,7 @@ export async function updateProduct(req, res, next) {
         stock = parseInt(stock);
         precio = parseFloat(precio);
 
-        if (!nombre || !id_categoria || !tipo || !descripcion || !duracion_producto) {
+        if (!nombre || !id_categoria || !tipo || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos obligatorios' });
         }
 
@@ -51,7 +51,6 @@ export async function updateProduct(req, res, next) {
             precio,
             descripcion,
             nombreImagen,
-            duracion_producto,
             productoId,
             vendedorId
         );
@@ -75,7 +74,7 @@ export async function insertProduct(req, res, next) {
         }
         const nombreImagen = req.file.filename;
 
-        let { nombre, categoria, tipo, stock, precio, descripcion, duracion } = req.body;
+        let { nombre, categoria, tipo, stock, precio, descripcion} = req.body;
 
         const id_categoria = parseInt(categoria); 
         const stockInt = parseInt(stock);
@@ -88,7 +87,7 @@ export async function insertProduct(req, res, next) {
           throw error;
         }
 
-        if (!nombre || isNaN(id_categoria) || !tipo || !descripcion || !duracion) {
+        if (!nombre || isNaN(id_categoria) || !tipo || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos de texto o la categoría está vacía' });
         }
 
@@ -108,8 +107,7 @@ export async function insertProduct(req, res, next) {
             precioFloat, 
             descripcion, 
             nombreImagen, 
-            id_vendedor, 
-            duracion 
+            id_vendedor,
         );
         
         res.status(201).json({
