@@ -7,6 +7,15 @@ export const getProduct = async () => {
     return result;
 }
 
+export const getProductByVendedor = async(id_vendedor) =>{
+    const [result] = await pool.query(
+        "select * from productos where id_vendedor=?",
+        [id_vendedor]
+    )
+
+    return result
+}
+
 export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {
     
     const [result] = await pool.query(
