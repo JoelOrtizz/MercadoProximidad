@@ -11,9 +11,19 @@ export async function fetchProducts(req, res, next) {
 
 export async function updateProduct(req, res, next) {
     try {
-        const {id} = req.params;
+        const vendedorId = req.user?.id;
 
-        let {nombre, id_categoria, tipo, stock, precio, descripcion, id_vendedor, duracion_producto, imagen_anterior} = req.body;
+        const productoId = req.body.id;
+        if (!vendedorId) {
+            const error = new Error("No autenticado.");
+            error.status = 401;
+            return next(error);
+        }
+        if (!productoId) {
+            return res.status(400).json({ message: 'Error: No se ha proporcionado el ID del producto.' });
+        }
+
+        let { nombre, id_categoria, tipo, stock, precio, descripcion, duracion_producto, imagen_anterior } = req.body;
 
         const nombreImagen = req.file ? req.file.filename : imagen_anterior;
 
@@ -21,19 +31,19 @@ export async function updateProduct(req, res, next) {
         stock = parseInt(stock);
         precio = parseFloat(precio);
 
-        if (!nombre || !id_categoria || !tipo || !descripcion || !nombreImagen || !id_vendedor || !duracion_producto) {
+        if (!nombre || !id_categoria || !tipo || !descripcion || !duracion_producto) {
             return res.status(400).json({ message: 'Faltan campos obligatorios' });
         }
 
-        if (precio === undefined || precio < 0) {
-            return res.status(400).json({ message: 'El precio debe ser 0 o superior' });
+        if (isNaN(precio) || precio < 0) {
+            return res.status(400).json({ message: 'El precio debe ser mayor o igual a 0' });
         }
 
-        if (stock === undefined || stock <= 0) {
-            return res.status(400).json({ message: 'El stock debe ser mayor a 0' });
+        if (isNaN(stock) || stock < 0) { // Permitimos 0 si está agotado, pero no negativos.
+            return res.status(400).json({ message: 'El stock no puede ser negativo' });
         }
 
-        const result = await putProduct(nombre, id_categoria, tipo, stock, precio, descripcion, nombreImagen, id_vendedor, duracion_producto, id);
+        const result = await putProduct(nombre, id_categoria, tipo, stock, precio, descripcion, nombreImagen, duracion_producto, productoId, vendedorId);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Producto no encontrado' });
@@ -60,7 +70,12 @@ export async function insertProduct(req, res, next) {
         const stockInt = parseInt(stock);
         const precioFloat = parseFloat(precio);
 
-        const id_vendedor = req.user ? req.user.id : 1; 
+        const id_vendedor = req.user?.id;
+        if (!id_vendedor) {
+          const error = new Error("Inicia sesion");
+          error.status = 401;
+          throw error;
+        }
 
         if (!nombre || isNaN(id_categoria) || !tipo || !descripcion || !duracion) {
             return res.status(400).json({ message: 'Faltan campos de texto o la categoría está vacía' });

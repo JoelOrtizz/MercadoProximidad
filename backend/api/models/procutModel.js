@@ -21,8 +21,8 @@ export const postProduct = async (nombre, id_categoria, tipo, stock, precio, des
 export const putProduct = async(nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto, id) => {
     const [result] = await pool.query(
         `UPDATE productos SET nombre = ?, id_categoria = ?, tipo = ?, stock = ?, precio = ?, descripcion = ?, 
-        imagen = ?, id_vendedor = ?, duracion_producto = ? 
-        WHERE id = ?`,
+        imagen = ?, duracion_producto = ? 
+        WHERE id = ? and id_vendedor = ?`,
         [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor, duracion_producto, id]
     );
 
