@@ -2,7 +2,7 @@ import express from "express";
 import { requireAuth } from "../middlewares/requireAuth.js";
 import { fetchProducts, updateProduct, insertProduct, deleteProduct, fetchProductsByVendedor, fetchProductsByCategoria } from "../controllers/productController.js";
 
-import { upload } from "../config/multerConfig.js";
+import { upload } from "../middlewares/multerConfig.js";
 
 const router = express.Router();
 
