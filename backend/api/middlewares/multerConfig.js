@@ -1,5 +1,4 @@
 import multer from 'multer';
-import path from 'path';
 
 // creamos el multer para almacenar las imagenes en la carpeta upload de prodcuctos
 const storage = multer.diskStorage({

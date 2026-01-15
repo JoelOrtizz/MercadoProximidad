@@ -17,13 +17,10 @@
 
           <div class="field">
             <label class="label">Categorias</label>
-            <div class="chips">
-              <button class="chip is-active" type="button" disabled>Todas</button>
-              <button class="chip" type="button" disabled>Verduras</button>
-              <button class="chip" type="button" disabled>Fruta</button>
-              <button class="chip" type="button" disabled>Aceite</button>
+            <div class="chips" id="categoryChips">
+              <button class="chip is-active" type="button" data-cat="all">Todas</button>
             </div>
-            <div class="hint">Preparado para cuando existan endpoints de filtros</div>
+            <div class="hint">Categorias cargadas desde el backend (aun sin filtrar productos)</div>
           </div>
 
           <div class="field">
@@ -56,4 +53,3 @@
     <script src="../js/comprar.js"></script>
   </body>
 </html>
-

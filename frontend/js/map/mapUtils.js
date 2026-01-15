@@ -42,3 +42,32 @@ export async function getDireccionFromCoords(lat, lng) {
   return data.display_name;
 }
 
+export async function getDireccionDetalleFromCoords(lat, lng) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error obteniendo direccion");
+  }
+
+  const data = await response.json();
+  const address = data?.address || {};
+
+  return {
+    displayName: data?.display_name || "",
+    road: address.road || address.pedestrian || address.footway || "",
+    houseNumber: address.house_number || "",
+    city: address.city || "",
+    town: address.town || "",
+    village: address.village || "",
+    municipality: address.municipality || "",
+    suburb: address.suburb || "",
+    postcode: address.postcode || "",
+  };
+}
+

@@ -13,7 +13,16 @@ export const getProductByVendedor = async(id_vendedor) =>{
         [id_vendedor]
     )
 
-    return result
+    return result;
+}
+
+export const getProductByCategoria = async(id_categoria) =>{
+    const [result] = await pool.query(
+        "select * from productos where id_categoria = ? order by fecha_creacion desc",
+        [id_categoria]
+    );
+
+    return result;
 }
 
 export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {

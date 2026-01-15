@@ -69,6 +69,44 @@ function renderProductCard(p) {
   return card;
 }
 
+function setActiveCategory(chipsEl, activeValue) {
+  chipsEl.querySelectorAll(".chip[data-cat]").forEach((btn) => {
+    const isActive = btn.dataset.cat === String(activeValue);
+    btn.classList.toggle("is-active", isActive);
+  });
+}
+
+function renderCategoryChip(cat, chipsEl) {
+  const btn = document.createElement("button");
+  btn.className = "chip";
+  btn.type = "button";
+  btn.dataset.cat = String(cat.id);
+  btn.textContent = cat.nombre || `Categoria ${cat.id}`;
+  btn.title = "Filtro pendiente de implementar";
+  btn.addEventListener("click", () => {
+    setActiveCategory(chipsEl, btn.dataset.cat);
+  });
+  return btn;
+}
+
+async function loadCategorias() {
+  const chipsEl = document.getElementById("categoryChips");
+  if (!chipsEl) return;
+
+  try {
+    const categorias = await window.apiFetch("/categorias");
+    if (!Array.isArray(categorias)) return;
+
+    // Mantener "Todas" y añadir las categorias del backend
+    categorias.forEach((c) => {
+      if (!c || c.id == null) return;
+      chipsEl.appendChild(renderCategoryChip(c, chipsEl));
+    });
+  } catch {
+    // Si falla, se queda solo "Todas"
+  }
+}
+
 async function loadProducts() {
   const grid = document.getElementById("productGrid");
   const subtitle = document.getElementById("productsSubtitle");
@@ -101,6 +139,6 @@ async function loadProducts() {
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("btnReload");
   if (btn) btn.addEventListener("click", loadProducts);
+  loadCategorias();
   loadProducts();
 });
-

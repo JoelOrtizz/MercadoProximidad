@@ -1,4 +1,4 @@
-import {getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor} from '../models/procutModel.js'
+import {getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor, getProductByCategoria} from '../models/procutModel.js'
 
 export async function fetchProducts(req, res, next) {
   try {
@@ -23,7 +23,24 @@ export async function fetchProductsByVendedor(req,res,next) {
         }
         // funcion del modelo 
         const result = await getProductByVendedor(id_vendedor);
-        // retorna el resultado y antes comprueba si es un array
+        res.status(200).json(Array.isArray(result) ? result : []);
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function fetchProductsByCategoria(req,res,next) {
+    try{
+        const categoriaIdRaw = req.params.id_categoria;
+        const id_categoria = Number.parseInt(String(categoriaIdRaw), 10);
+
+        if (!Number.isFinite(id_categoria)) {
+            const error = new Error("No existe.");
+            error.status = 401;
+            return next(error);
+        }
+
+        const result = await getProductByCategoria(id_categoria);
         res.status(200).json(Array.isArray(result) ? result : []);
     } catch (error) {
         next(error)
@@ -47,18 +64,25 @@ export async function updateProduct(req, res, next) {
             return res.status(400).json({ message: 'Error: ID de producto invalido.' });
         }
 
-        let { nombre, id_categoria, tipo, stock, precio, descripcion, imagen_anterior } = req.body;
+        let { nombre, tipo, stock, precio, descripcion, imagen_anterior } = req.body;
+        const id_categoria_raw = req.body?.id_categoria;
 
         // es un if donde comprueba si hahy foto nueva, si la hay la cambia y si no sigue con la anterior
         const nombreImagen = req.file ? req.file.filename : imagen_anterior;
 
-        // parseamos parametros
-        id_categoria = parseInt(id_categoria);
+        const id_categoria =
+          id_categoria_raw === undefined || id_categoria_raw === null || id_categoria_raw === ""
+            ? null
+            : Number.parseInt(id_categoria_raw, 10);
+
+        if (id_categoria !== null && !Number.isFinite(id_categoria)) {
+            return res.status(400).json({ message: 'id_categoria invalido' });
+        }
+
         stock = parseInt(stock);
         precio = parseFloat(precio);
 
-        // comprobaciones
-        if (!nombre || !id_categoria || !tipo || !descripcion) {
+        if (!nombre || !tipo || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos obligatorios' });
         }
 
