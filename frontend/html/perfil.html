@@ -13,6 +13,7 @@
     <div id="globalNav"></div>
 
 
+    <main class="page">
     <div class="block-perfil">
         <div id="name">
             <img src="" alt="Example">
@@ -90,16 +91,20 @@
             <button id="pref_change">Configurar puntos de entrega</button>
         </div>
 
-        <div id="productos_me"  class="productos-grid">
-            
+        <div id="productos_header" class="productos-header">
+            <p>Mis productos</p>
+            <button id="btnMisProductosReload" type="button">Recargar</button>
         </div>
+
+        <div id="productos_me" class="productos-grid"></div>
     </div>
+    </main>
     
 
 
 
-    <script src="../js/nav.js"></script>
     <script src="../js/main.js"></script>
-    <script src="../js/perfil.js"></script>
+    <script src="../js/nav.js"></script>
+    <script type="module" src="../js/perfil.js"></script>
 </body>
 </html>
