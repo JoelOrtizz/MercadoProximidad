@@ -132,4 +132,5 @@ Content-Type: application/json
 ###
 DELETE http://localhost:3000/api/productos/4
 
-
+####
+get http://localhost:3000/api/categorias

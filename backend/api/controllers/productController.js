@@ -1,4 +1,4 @@
-import {getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor} from '../models/procutModel.js'
+import {getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor, getProductByCategoria} from '../models/procutModel.js'
 
 export async function fetchProducts(req, res, next) {
   try {
@@ -21,6 +21,24 @@ export async function fetchProductsByVendedor(req,res,next) {
         }
 
         const result = await getProductByVendedor(id_vendedor);
+        res.status(200).json(Array.isArray(result) ? result : []);
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function fetchProductsByCategoria(req,res,next) {
+    try{
+        const categoriaIdRaw = req.params.id_categoria;
+        const id_categoria = Number.parseInt(String(categoriaIdRaw), 10);
+
+        if (!Number.isFinite(id_categoria)) {
+            const error = new Error("No existe.");
+            error.status = 401;
+            return next(error);
+        }
+
+        const result = await getProductByCategoria(id_categoria);
         res.status(200).json(Array.isArray(result) ? result : []);
     } catch (error) {
         next(error)
