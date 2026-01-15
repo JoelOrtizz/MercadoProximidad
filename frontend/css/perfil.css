@@ -1,8 +1,8 @@
-/* Estilos generales */
+/* Estilos generales (unificado en nav.css) */
  body {
-     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-     background-color: #f8f9fa;
-     color: #333;
+     font-family: inherit;
+     background-color: inherit;
+     color: inherit;
  }
 
 /* RESET BÁSICO */
@@ -16,9 +16,8 @@
 
 /* CONTENEDOR PRINCIPAL */
 .block-perfil {
-    margin-top: 50px;
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     background: #ffffff;
     border-radius: 14px;
     padding: 32px;
