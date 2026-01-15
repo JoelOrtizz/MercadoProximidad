@@ -17,7 +17,7 @@ export const getProductByVendedor = async(id_vendedor) =>{
 }
 
 export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {
-    
+        
     const [result] = await pool.query(
        ` INSERT INTO productos (nombre, id_categoria, tipo, stock, precio, 
         descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?) `, 

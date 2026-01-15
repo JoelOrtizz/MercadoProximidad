@@ -14,6 +14,6 @@ router.post('/', requireAuth, upload.single('imagen'), insertProduct);
 
 router.put('/:id', requireAuth, upload.single('imagen'), updateProduct );
 
-router.delete('/:id', deleteProduct);
+router.delete('/:id',requireAuth, deleteProduct);
 
 export default router;
