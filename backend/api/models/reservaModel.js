@@ -12,7 +12,7 @@ export async function insertRerserva(id_vendedor, id_comprador, id_producto, can
 
 export const findById = async (id) => {
     const [result] = await pool.query(
-        'select * from reservas where id=?'
+        'select * from reservas where id=?',
         [id]
     );
 
@@ -27,11 +27,11 @@ export async function fetchReservas() {
     return result;
 }
 
-export const updateStatus = async (id, nuevoEstado) => {
+export const updateStatus = async (id, estado) => {
 
     const [result] = await pool.query(
-        'update reservas set status=? where id=?'
-        [id, nuevoEstado]
+        'update reservas set estado=? where id=?',
+        [estado, id]
     );
 
     return result;
