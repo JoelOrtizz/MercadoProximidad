@@ -1,4 +1,4 @@
-import { getUser, insertUser, deleteUserById, updateUserById } from '../models/userModel.js';
+import { getUser, insertUser, deleteUserById, updateUserById,updateUserMyself } from '../models/userModel.js';
 
 export const fetchUser = async (req, res, next) => {
   try {
@@ -101,3 +101,31 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
+export const updateUserMe = async (req,res,next) => {
+  try{
+    const id = req.user?.id;
+
+    if (!id) {
+      const error = new Error('No autenticado.');
+      error.status = 401;
+      return next(error);
+    }
+
+
+    const {nombre,email} = req.body;
+    const result = await updateUserMyself(id,nombre,email)
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    return res.json({
+      id,
+      nombre,
+      email,
+      message: 'Usuario actualizado correctamente.',
+    });
+  } catch(error){
+      return next (error)
+  }
+}

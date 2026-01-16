@@ -1,16 +1,16 @@
-import {getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor, getProductByCategoria} from '../models/procutModel.js'
+import { getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor, getProductByCategoria, getProductByPrecio,getProductByUbicacion } from '../models/procutModel.js'
 
 export async function fetchProducts(req, res, next) {
-  try {
-    const result = await getProduct();
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
+    try {
+        const result = await getProduct();
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
 }
 
-export async function fetchProductsByVendedor(req,res,next) {
-    try{
+export async function fetchProductsByVendedor(req, res, next) {
+    try {
         const vendedorIdRaw = req.user?.id;
         const id_vendedor = Number.parseInt(String(vendedorIdRaw), 10);
 
@@ -27,8 +27,8 @@ export async function fetchProductsByVendedor(req,res,next) {
     }
 }
 
-export async function fetchProductsByCategoria(req,res,next) {
-    try{
+export async function fetchProductsByCategoria(req, res, next) {
+    try {
         const categoriaIdRaw = req.params.id_categoria;
         const id_categoria = Number.parseInt(String(categoriaIdRaw), 10);
 
@@ -41,6 +41,36 @@ export async function fetchProductsByCategoria(req,res,next) {
         const result = await getProductByCategoria(id_categoria);
         res.status(200).json(Array.isArray(result) ? result : []);
     } catch (error) {
+        next(error)
+    }
+}
+
+
+export async function fetchProductsByPrecio(req, res, next) {
+    try {
+        const { precio_min, precio_max } = req.params;
+
+        const min = parseInt(precio_min, 10);
+        const max = parseInt(precio_max, 10);
+
+        if (isNaN(min) || isNaN(max)) {
+            return res.status(400).json({ error: 'Precios inválidos' });
+        }
+
+        const result = await getProductByPrecio(precio_min, precio_max);
+        res.status(200).json(Array.isArray(result) ? result : [])
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function fetchProductsByUbicacion(req,res,next){
+    try{
+        const { lat,lng } = req.params;
+
+        const result = await getProductByUbicacion(lat,lng);
+        res.status(200).json(Array.isArray(result) ? result : [])
+    }catch(error){
         next(error)
     }
 }
@@ -65,9 +95,9 @@ export async function updateProduct(req, res, next) {
         const nombreImagen = req.file ? req.file.filename : imagen_anterior;
 
         const id_categoria =
-          id_categoria_raw === undefined || id_categoria_raw === null || id_categoria_raw === ""
-            ? null
-            : Number.parseInt(id_categoria_raw, 10);
+            id_categoria_raw === undefined || id_categoria_raw === null || id_categoria_raw === ""
+                ? null
+                : Number.parseInt(id_categoria_raw, 10);
 
         if (id_categoria !== null && !Number.isFinite(id_categoria)) {
             return res.status(400).json({ message: 'id_categoria invalido' });
@@ -105,7 +135,7 @@ export async function updateProduct(req, res, next) {
         }
 
         res.status(200).json({ message: "Producto actualizado correctamente" });
-    } catch(error) {
+    } catch (error) {
         next(error);
     }
 }
@@ -119,17 +149,17 @@ export async function insertProduct(req, res, next) {
         }
         const nombreImagen = req.file.filename;
 
-        let { nombre, categoria, tipo, stock, precio, descripcion} = req.body;
+        let { nombre, categoria, tipo, stock, precio, descripcion } = req.body;
 
-        const id_categoria = parseInt(categoria); 
+        const id_categoria = parseInt(categoria);
         const stockInt = parseInt(stock);
         const precioFloat = parseFloat(precio);
 
         const id_vendedor = req.user?.id;
         if (!id_vendedor) {
-          const error = new Error("Inicia sesion");
-          error.status = 401;
-          throw error;
+            const error = new Error("Inicia sesion");
+            error.status = 401;
+            throw error;
         }
 
         if (!nombre || isNaN(id_categoria) || !tipo || !descripcion) {
@@ -145,37 +175,37 @@ export async function insertProduct(req, res, next) {
         }
 
         const result = await postProduct(
-            nombre, 
-            id_categoria, 
-            tipo, 
-            stockInt, 
-            precioFloat, 
-            descripcion, 
-            nombreImagen, 
+            nombre,
+            id_categoria,
+            tipo,
+            stockInt,
+            precioFloat,
+            descripcion,
+            nombreImagen,
             id_vendedor,
         );
-        
+
         res.status(201).json({
             message: 'Producto creado correctamente',
             id: result.insertId,
             data: result
         });
 
-    } catch(error) {
+    } catch (error) {
         console.error(error);
         next(error);
     }
 }
 
 export async function deleteProduct(req, res, next) {
-    try{
-        const {id} = req.params;
+    try {
+        const { id } = req.params;
         const result = await deleteProductById(id);
         if (result.affectedRows === 0) {
-          return res.status(404).json({ message: "Producto no encontrado" });
+            return res.status(404).json({ message: "Producto no encontrado" });
         }
         res.status(200).json({ message: "Producto eliminado correctamente" });
-    }catch(error){
+    } catch (error) {
         next(error);
     }
 }

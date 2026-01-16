@@ -1,6 +1,6 @@
 import express from "express";
 import { requireAuth } from "../middlewares/requireAuth.js";
-import { fetchProducts, updateProduct, insertProduct, deleteProduct, fetchProductsByVendedor, fetchProductsByCategoria } from "../controllers/productController.js";
+import { fetchProducts, updateProduct, insertProduct, deleteProduct, fetchProductsByVendedor, fetchProductsByCategoria, fetchProductsByPrecio } from "../controllers/productController.js";
 
 import { upload } from "../middlewares/multerConfig.js";
 
@@ -11,6 +11,8 @@ router.get('/', fetchProducts);
 router.get('/me', requireAuth, fetchProductsByVendedor);
 
 router.get('/:id_categoria', fetchProductsByCategoria);
+
+router.get('/:precio_min/:precio_max', fetchProductsByPrecio)
 
 router.post('/', requireAuth, upload.single('imagen'), insertProduct);
 

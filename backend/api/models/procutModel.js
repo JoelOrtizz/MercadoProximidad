@@ -25,6 +25,25 @@ export const getProductByCategoria = async(id_categoria) =>{
     return result;
 }
 
+export const getProductByPrecio = async(precio_min,precio_max) => {
+    const [result] = await pool.query(
+        "select * from productos where precio>=? and precio<=? order by fecha_creacion desc",
+        [precio_min,precio_max]
+    );
+
+    return result;
+}
+
+export const getProductByUbicacion = async(lat,lng) => {
+    const [result] = await pool.query(
+        "select * from productos p,usuarios u where p.id_vendedor=u.id and u.lat=? and u.lng=?"
+        [lat,lng]
+    );
+    
+    return result;
+}
+
+
 export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {
         
     const [result] = await pool.query(

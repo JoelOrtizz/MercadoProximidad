@@ -99,3 +99,19 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
 
     return result;
 }
+
+
+export const updateUserMyself = async (id,nombre,email) => {
+    
+    if (!nombre || !email){
+        throw badRequest("Por favor, rellena todos los campos")
+    }
+
+    const [result] = await pool.query(
+        `Update usuarios
+        set nombre=?,email=? where id=?`,
+        [nombre,email,id]
+    )
+
+    return result;
+}
