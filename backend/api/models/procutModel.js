@@ -7,6 +7,14 @@ export const getProduct = async () => {
     return result;
 }
 
+export async function getProductById(id) {
+    const [result] = await pool.query(
+        "select * from productos where id = ?",
+        [id]
+    );
+    return result;
+}
+
 export const getProductByVendedor = async(id_vendedor) =>{
     const [result] = await pool.query(
         "select * from productos where id_vendedor = ? order by fecha_creacion desc",

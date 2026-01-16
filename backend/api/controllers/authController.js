@@ -13,11 +13,13 @@ export const login = async (req, res, next) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
+    // utilizamos la funcion de compare para ver si coinciden
     const isMatch = await bcrypt.compare(contrasena, user.contrasena);
     if (!isMatch) {
       return res.status(401).json({ message: 'Contrasena incorrecta' });
     }
 
+    // utilizams la secret key definida en el .env para generar el token
     const secretKey = process.env.JWT_SECRET;
     if (!secretKey) {
       const error = new Error('JWT_SECRET no configurado');
@@ -25,12 +27,14 @@ export const login = async (req, res, next) => {
       return next(error);
     }
 
+    // ponemos en el token el id, el nickname, la clave secreta y su expiracion
     const token = jwt.sign(
       { id: user.id, nickname: user.nickname },
       secretKey,
       { expiresIn: '1h' }
     );
 
+    // guardamos en la cookie el token
     res.cookie('access_token', token, {
       httpOnly: true,
       sameSite: 'strict',
@@ -46,6 +50,7 @@ export const login = async (req, res, next) => {
   }
 };
 
+// cerramos sesion
 export const logout = (req, res) => {
   res.clearCookie('access_token', {
     httpOnly: true,

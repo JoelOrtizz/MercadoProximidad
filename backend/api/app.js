@@ -9,37 +9,36 @@ import mapRoutes from './routes/mapRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import puntosEntregaRoutes from './routes/puntosEntregaRoutes.js';
 import categoriasRoutes from './routes/categoriasRoutes.js';
+import reservaRoutes from './routes/reservaRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 app.use(express.json());
 
-const corsOrigin = process.env.CORS_ORIGIN
+
+const corsOrigin = process.env.CORS_ORIGIN 
   ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
   : true;
 
 app.use(cors({ origin: corsOrigin, credentials: true }));
 
+// gaurdamos la palabra secreta 
 const cookieSecret = process.env.COOKIE_SECRET;
 if (!cookieSecret) {
   throw new Error('Falta configurar COOKIE_SECRET en el .env');
 }
+// activamos el parser cookie
 app.use(cookieParser(cookieSecret));
 
 app.use('/uploads', express.static('uploads')); // Para pintar las imágenes de /uploads
 
-// ==============================
-// HEALTH CHECK
-// ==============================
 
+// ruta simple para ver si el servidor esta funcionando
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'auth-backend' });
 });
 
-// ==============================
-// RUTAS
-// ==============================
 
 app.get('/', (req, res) => {
   res.send('Conexion establecida.');
@@ -51,6 +50,7 @@ app.use('/api/map', mapRoutes);
 app.use('/api/productos', productRoutes);
 app.use('/api/puntos-entrega', puntosEntregaRoutes);
 app.use('/api/categorias', categoriasRoutes);
+app.use("/api/reservas", reservaRoutes);
 
 // 404
 app.use((req, res) => {

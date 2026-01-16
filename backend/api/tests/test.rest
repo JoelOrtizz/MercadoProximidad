@@ -17,8 +17,8 @@ post http://localhost:3000/api/login
 Content-Type: application/json
 
 {
-    "email":"delpasoo2016@gmail.com",
-    "contrasena":"contrasenya"
+    "email":"joel@gmail.com",
+    "contrasena":"root"
 }
 
 ####
@@ -146,3 +146,11 @@ DELETE http://localhost:3000/api/productos/4
 
 ####
 get http://localhost:3000/api/categorias
+
+
+###
+{
+  "id_producto": 15,
+  "cantidad": 2.50,
+  "id_punto_entrega": 3
+}

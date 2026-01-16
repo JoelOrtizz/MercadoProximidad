@@ -87,8 +87,7 @@ CREATE TABLE reservas (
   estado ENUM('pendiente', 'aceptada', 'rechazada', 'cancelada', 'completada')
     DEFAULT 'pendiente',
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  fecha_entrega DATE,
-
+  
   CONSTRAINT fk_reserva_vendedor
     FOREIGN KEY (id_vendedor) REFERENCES usuarios(id),
 

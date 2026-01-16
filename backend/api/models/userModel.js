@@ -1,6 +1,7 @@
 import pool from '../config/db.js'
 import bcrypt from 'bcrypt'
 
+// error
 const badRequest = (message) => {
     const error = new Error(message);
     error.status = 400;
