@@ -59,15 +59,24 @@ export async function updateProduct(req, res, next) {
             return res.status(400).json({ message: 'Error: ID de producto invalido.' });
         }
 
-        let { nombre, id_categoria, tipo, stock, precio, descripcion, imagen_anterior } = req.body;
+        let { nombre, tipo, stock, precio, descripcion, imagen_anterior } = req.body;
+        const id_categoria_raw = req.body?.id_categoria;
 
         const nombreImagen = req.file ? req.file.filename : imagen_anterior;
 
-        id_categoria = parseInt(id_categoria);
+        const id_categoria =
+          id_categoria_raw === undefined || id_categoria_raw === null || id_categoria_raw === ""
+            ? null
+            : Number.parseInt(id_categoria_raw, 10);
+
+        if (id_categoria !== null && !Number.isFinite(id_categoria)) {
+            return res.status(400).json({ message: 'id_categoria invalido' });
+        }
+
         stock = parseInt(stock);
         precio = parseFloat(precio);
 
-        if (!nombre || !id_categoria || !tipo || !descripcion) {
+        if (!nombre || !tipo || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos obligatorios' });
         }
 
