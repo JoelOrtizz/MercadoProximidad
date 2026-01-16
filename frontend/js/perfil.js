@@ -403,3 +403,76 @@ async function loadMyProducts() {
     container.innerHTML = `<div class="product-muted">No se pudieron cargar tus productos.</div>`;
   }
 }
+
+
+////----------------------------
+//EDITAR PERFIL
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btnEditar = document.getElementById("editar_info");
+  if (!btnEditar) return;
+
+  let editando = false;
+
+  const fields = [
+    { id: "name_info", key: "nombre", type: "text" },
+    { id: "email_info", key: "email", type: "email" },
+    { id: "tel_info", key: "telefono", type: "tel" },
+  ];
+
+  btnEditar.addEventListener("click", async () => {
+    if (!editando) {
+      // 🔹 MODO EDICIÓN
+      fields.forEach(({ id, type }) => {
+        const p = document.getElementById(id);
+        if (!p) return;
+
+        const input = document.createElement("input");
+        input.type = type;
+        input.value = p.textContent.trim();
+        input.dataset.fieldId = id;
+
+        p.replaceWith(input);
+      });
+
+      btnEditar.textContent = "Guardar";
+      editando = true;
+    } else {
+      // 🔹 GUARDAR EN BACKEND
+      const payload = {};
+
+      fields.forEach(({ id, key }) => {
+        const input = document.querySelector(`input[data-field-id="${id}"]`);
+        if (!input) return;
+        payload[key] = input.value.trim();
+      });
+
+      try {
+        btnEditar.disabled = true;
+
+        await window.apiFetch("/usuarios/me", "PUT", payload);
+
+        // 🔹 Volver a modo lectura con datos guardados
+        fields.forEach(({ id, key }) => {
+          const input = document.querySelector(`input[data-field-id="${id}"]`);
+          if (!input) return;
+
+          const p = document.createElement("p");
+          p.id = id;
+          p.textContent = payload[key] || "-";
+
+          input.replaceWith(p);
+        });
+
+        btnEditar.textContent = "Editar";
+        editando = false;
+      } catch (err) {
+        console.error("Error actualizando perfil:", err);
+        alert("No se pudo guardar la información");
+      } finally {
+        btnEditar.disabled = false;
+      }
+    }
+  });
+});
+

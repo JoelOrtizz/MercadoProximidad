@@ -535,3 +535,51 @@
     align-items: flex-start;
   }
 }
+
+
+
+/* Inputs cuando se edita la información personal */
+#personal_info input[type="text"],
+#personal_info input[type="email"],
+#personal_info input[type="tel"] {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 6px;
+    background: #ffffff;
+    font-size: 14px;
+    font-family: inherit;
+    color: #111827;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Focus consistente con el resto del sitio */
+#personal_info input:focus {
+    outline: none;
+    border-color: #0b73d7;
+    box-shadow: 0 0 0 2px rgba(11, 115, 215, 0.15);
+}
+
+/* Mantiene el layout igual al <p> */
+#personal_info .personal_info_content input {
+    display: block;
+}
+
+/* Botón editar → guardar */
+#editar_info {
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Cuando está deshabilitado mientras guarda */
+#editar_info:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Ajuste visual en mobile */
+@media (max-width: 900px) {
+    #personal_info input {
+        font-size: 15px;
+    }
+}
