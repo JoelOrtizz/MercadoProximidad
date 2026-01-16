@@ -3,6 +3,8 @@ import 'dotenv/config';
 
 export function requireAuth(req, res, next) {
   try {
+    // acces_token es el nombre del token que cuando es firmado se guarda como signedCookie y usamos la variable token
+    // para guardar la informaciond el token
     const token = req.signedCookies?.access_token;
     if (!token) {
       const error = new Error('No autenticado');
@@ -17,7 +19,9 @@ export function requireAuth(req, res, next) {
       return next(error);
     }
 
+    // verifica que el token tenga la clave secreta
     const payload = jwt.verify(token, jwtSecret);
+    // saca el id del token
     req.user = payload;
     return next();
   } catch (err) {

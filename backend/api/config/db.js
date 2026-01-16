@@ -1,6 +1,7 @@
 import mysql from 'mysql2/promise'
 import 'dotenv/config'
 
+// creamos la conexion al docker
 const pool = mysql.createPool({
     host: 'localhost',
     user: process.env.MYSQL_USER,

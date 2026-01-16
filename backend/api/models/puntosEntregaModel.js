@@ -97,3 +97,11 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
     conn.release();
   }
 };
+
+export async function getPuntoEntregaById(id) {
+  const [result] = await pool.query(
+    "select * from puntos_entrega where id = ?",
+    [id]
+  );
+  return result[0];
+}

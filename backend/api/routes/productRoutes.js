@@ -14,6 +14,7 @@ router.get('/:id_categoria', fetchProductsByCategoria);
 
 router.get('/:precio_min/:precio_max', fetchProductsByPrecio)
 
+// el upload se define en multerConfig
 router.post('/', requireAuth, upload.single('imagen'), insertProduct);
 
 router.put('/:id', requireAuth, upload.single('imagen'), updateProduct);
