@@ -1,4 +1,4 @@
-import { insertRerserva, fetchReservas, findById } from "../models/reservaModel.js";
+import { insertRerserva, fetchReservas, findById, updateStatus } from "../models/reservaModel.js";
 import { getProductById } from "../models/procutModel.js";
 import { getPuntoEntregaById } from "../models/puntosEntregaModel.js";
 
@@ -67,7 +67,6 @@ export async function getReservaById(req, res, next) {
     }
 }
 
-import { findById, updateStatus } from "../models/reservaModel";
 
 export async function cancelReservation(req, res, next) {
 
@@ -108,32 +107,30 @@ export async function cancelReservation(req, res, next) {
     }
 }
 
-export async function updateStatus(req, res, next) {
-
+export async function updateEstado(req, res, next) {
     try {
-
         const { id } = req.params;
-        const { nuevoEstado } = req.body;
+        const { estado } = req.body;
 
-        const estados = ['pendiente', 'aceptada', 'vendida', 'cancelada'];
+        const estadosValidos = ['pendiente', 'aceptada', 'rechazada', ' completada', 'cancelada'];
 
-        if (!nuevoEstado || !estados.includes(nuevoEstado)) {
-            return res.status(400).json({ error: 'Estado no válido' })
+        if (!estado || !estadosValidos.includes(estado)) {
+          return res.status(400).json({ error: "Estado no válido" });
         }
 
-        const reserva = findById(id);
+        const reserva = await findById(id);
 
         if (!reserva) {
             return res.status(404).json({ error: 'Reserva no encontrada' });
         }
 
-        const actualizado = await updateStatus(id, newStatus);
+        const actualizado = await updateStatus(id, estado);
 
         if (actualizado) {
             return res.json({
-                mensaje: `Estado actualizado a ${newStatus}`,
+                mensaje: `Estado actualizado a ${estado}`,
                 id_reserva: id,
-                nuevo_estado: newStatus
+                nuevo_estado: estado
             });
         } else {
             return res.status(400).json({ error: 'No se pudo actualizar' });

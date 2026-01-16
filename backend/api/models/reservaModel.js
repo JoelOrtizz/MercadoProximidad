@@ -27,11 +27,11 @@ export async function fetchReservas() {
     return result;
 }
 
-export const updateStatus = async (id, nuevoEstado) => {
+export const updateStatus = async (id, estado) => {
 
     const [result] = await pool.query(
-        'update reservas set status=? where id=?',
-        [id, nuevoEstado]
+        'update reservas set estado=? where id=?',
+        [estado, id]
     );
 
     return result;
