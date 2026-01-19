@@ -34,20 +34,20 @@ export const useAuthStore = defineStore("auth", () => {
 
   // peticion a endpoint login y ejecuta el fetchMe para obtener los datos del usuario
   async function login(email, contrasena) {
-    await axios.post('/login', { email, contrasena });
+    await axios.post('/api/login', { email, contrasena });
     return await fetchMe();
   }
 
   // peticion de registrar
   async function register({ nombre, nickname, email, contrasena }) {
-    await axios.post('/usuarios', { nombre, nickname, email, contrasena });
+    await axios.post('/api/usuarios', { nombre, nickname, email, contrasena });
     return await login(email, contrasena);
   }
 
   // peticion de cerrar sesion
   async function logout() {
     try {
-      await axios.post('/login/logout');
+      await axios.post('/api/login/logout');
     } finally {
       user.value = null;
       localStorage.removeItem('user_nickname');
