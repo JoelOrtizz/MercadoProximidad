@@ -1,0 +1,142 @@
+/* Global navigation (simple, reusable) */
+
+:root {
+  --font-sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --bg: #f8f9fa;
+  --text: #333;
+  --border: #e7e7e7;
+  --primary: #0b73d7;
+  --primary-weak: #eef4ff;
+  --primary-border: #bcd1ff;
+  --primary-text: #1f2d5c;
+  --content-width: 1400px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Importante: algunas paginas antiguas ponian `body { font-family: inherit }` */
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.nav {
+  padding: 12px 0;
+  border-bottom: 1px solid #eaeaea;
+  background: #fff;
+}
+
+.nav__inner {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav__logo {
+  line-height: 0.9;
+  font-weight: 800;
+  font-size: 28px;
+}
+
+.nav__logo .brand-accent {
+  color: #ff6a00;
+}
+
+.nav__logo-img {
+  height: 54px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.nav__menu {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.nav__pill {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #6c6c6c;
+  text-decoration: none;
+  min-width: 92px;
+  text-align: center;
+}
+
+.nav__pill.is-active {
+  color: var(--primary-text);
+  border-color: var(--primary-border);
+  background: var(--primary-weak);
+}
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+
+.nav__cta {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav__user {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--primary-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav__user.is-active {
+  border-color: var(--primary-border);
+  background: var(--primary-weak);
+}
+
+.page {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 24px;
+}
