@@ -12,8 +12,8 @@ export const useAuthStore = defineStore("auth", () => {
   async function fetchMe() {
     loading.value = true;
     try {
-      // peticion a la ruta del backend (baseURL ya es /api en main.js)
-      const res = await axios.get("/login/me");
+      // peticion a la ruta del backend
+      const res = await axios.get("/usuarios/me");
       // actualiza los datos de user que vienen del backend
       user.value = res.data?.user || null;
       // si el usuario tiene nickname lo guarda en localStorage para recordar todos los datos
