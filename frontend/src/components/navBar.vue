@@ -67,3 +67,4 @@ async function handleAuthClick() {
   router.push('/login');
 }
 </script>
+
