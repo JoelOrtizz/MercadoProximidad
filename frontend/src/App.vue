@@ -9,7 +9,7 @@
 <script setup>
 import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import NavBar from './components/NavBar.vue';
+import NavBar from './components/navBar.vue';
 import { useAuthStore } from './stores/auth.js';
 
 const auth = useAuthStore();
