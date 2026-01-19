@@ -1,6 +1,6 @@
 <template>
   <main>
-    <h1>Vender</h1>
+    <h1>Valoraciones</h1>
   </main>
 </template>
 
