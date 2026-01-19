@@ -1,11 +1,10 @@
-<script setup></script>
+<script setup>
+import ComprarView from './views/ComprarView.vue';
+
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <ComprarView></ComprarView>
 </template>
 
 <style scoped></style>
