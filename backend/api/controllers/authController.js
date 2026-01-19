@@ -60,3 +60,24 @@ export const logout = (req, res) => {
 
   res.status(200).json({ message: 'Sesion cerrada correctamente' });
 };
+
+export const me = async (req, res, next) => {
+  try {
+    const id = req.user?.id;
+    if (!id) {
+      const error = new Error('No autenticado');
+      error.status = 401;
+      return next(error);
+    }
+
+    const user = await getById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const { contrasena, ...safeUser } = user;
+    return res.json({ user: safeUser });
+  } catch (error) {
+    return next(error);
+  }
+};
