@@ -66,16 +66,26 @@ export async function fetchProductsByPrecio(req, res, next) {
     }
 }
 
-export async function fetchProductsByUbicacion(req,res,next){
-    try{
-        const { lat,lng } = req.params;
+export async function fetchProductsByUbicacion(req, res, next) {
+    try {
+        const { lat, lng } = req.params;
+        const radio = req.query.radio || 10; // km
 
-        const result = await getProductByUbicacion(lat,lng);
-        res.status(200).json(Array.isArray(result) ? result : [])
-    }catch(error){
-        next(error)
+        const latNum = Number(lat);
+        const lngNum = Number(lng);
+        const radioNum = Number(radio);
+
+        if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
+            return res.status(400).json({ error: "Coordenadas inválidas" });
+        }
+
+        const result = await getProductByUbicacion(latNum, lngNum, radioNum);
+        res.status(200).json(Array.isArray(result) ? result : []);
+    } catch (error) {
+        next(error);
     }
 }
+
 
 export async function updateProduct(req, res, next) {
     try {

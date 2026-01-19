@@ -42,14 +42,30 @@ export const getProductByPrecio = async(precio_min,precio_max) => {
     return result;
 }
 
-export const getProductByUbicacion = async(lat,lng) => {
+export const getProductByUbicacion = async (lat, lng, radioKm = 10) => {
     const [result] = await pool.query(
-        "select * from productos p,usuarios u where p.id_vendedor=u.id and u.lat=? and u.lng=?"
-        [lat,lng]
+        `
+        SELECT p.*, u.*,
+        (
+            6371 * acos(
+                cos(radians(?)) *
+                cos(radians(u.lat)) *
+                cos(radians(u.lng) - radians(?)) +
+                sin(radians(?)) *
+                sin(radians(u.lat))
+            )
+        ) AS distancia
+        FROM productos p
+        JOIN usuarios u ON p.id_vendedor = u.id
+        HAVING distancia <= ?
+        ORDER BY distancia ASC
+        `,
+        [lat, lng, lat, radioKm]
     );
-    
+
     return result;
-}
+};
+
 
 
 export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {
