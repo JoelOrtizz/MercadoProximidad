@@ -1,0 +1,132 @@
+ /* Estilos generales (unificado en nav.css) */
+ body {
+     font-family: inherit;
+     background-color: inherit;
+     margin: 0;
+     color: inherit;
+ }
+
+ /* Contenedor principal */
+ .container {
+     max-width: none;
+     margin: 0;
+ }
+
+ h1 {
+     font-size: 20px;
+     font-weight: 700;
+     margin-bottom: 20px;
+     color: #000;
+ }
+
+ /* La tarjeta blanca del formulario */
+ .card {
+     background-color: #ffffff;
+     border: 1px solid #e0e0e0;
+     border-radius: 8px;
+     padding: 30px;
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+ }
+
+ h2 {
+     font-size: 18px;
+     margin-top: 0;
+     margin-bottom: 10px;
+ }
+
+ .subtitle {
+     color: #6c757d;
+     font-size: 14px;
+     margin-bottom: 25px;
+     display: block;
+ }
+
+ /* Estilos de los inputs */
+ .form-group {
+     margin-bottom: 20px;
+ }
+
+ label {
+     display: block;
+     margin-bottom: 8px;
+     font-weight: 500;
+     font-size: 14px;
+     color: #212529;
+ }
+
+ input[type="text"],
+ input[type="number"],
+ select,
+ textarea,
+ input[type="file"] {
+     width: 100%;
+     padding: 10px;
+     border: 1px solid #ced4da;
+     border-radius: 4px;
+     box-sizing: border-box;
+     font-size: 14px;
+     color: #495057;
+ }
+
+ input:focus,
+ select:focus,
+ textarea:focus {
+     outline: none;
+     border-color: #80bdff;
+     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+ }
+
+ textarea {
+     resize: vertical;
+     min-height: 80px;
+ }
+
+
+ .row {
+     display: flex;
+     gap: 20px;
+ }
+
+ .col {
+     flex: 1;
+     
+ }
+
+ /* Input de archivo */
+ .file-input-wrapper {
+     border: 1px solid #ced4da;
+     border-radius: 4px;
+     padding: 5px;
+ }
+
+ input[type="file"] {
+     border: none;
+     padding: 5px;
+ }
+
+ .helper-text {
+     display: block;
+     margin-top: 5px;
+     font-size: 12px;
+     color: #6c757d;
+ }
+
+ /* Botón azul */
+ .btn-submit {
+     display: block;
+     width: 100%;
+     padding: 12px;
+     background-color: #0971ce;
+     color: white;
+     border: none;
+     border-radius: 5px;
+     font-size: 16px;
+     font-weight: 600;
+     cursor: pointer;
+     margin-top: 20px;
+     transition: background-color 0.2s;
+ }
+
+ .btn-submit:hover {
+     background-color: #0056b3;
+ }
