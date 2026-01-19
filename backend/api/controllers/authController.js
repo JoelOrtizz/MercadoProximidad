@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-import { getByEmail } from '../models/userModel.js';
+import { getByEmail, getById } from '../models/userModel.js';
 
 export const login = async (req, res, next) => {
   try {
