@@ -22,6 +22,14 @@ Content-Type: application/json
 }
 
 ####
+# Perfil del usuario autenticado (requiere cookie de login)
+get http://localhost:3000/api/login/me
+
+####
+# Perfil del usuario autenticado (alias en /usuarios, requiere cookie de login)
+get http://localhost:3000/api/usuarios/me
+
+####
 # Guarda las coordenadas del usuario autenticado
 # Nota: el cliente REST debe conservar cookies entre requests.
 patch http://localhost:3000/api/map/me
