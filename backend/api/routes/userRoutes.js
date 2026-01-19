@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { fetchUser, register, deleteUser, updateUser,updateUserMe } from '../controllers/userController.js'
+import { fetchUser, register, deleteUser, updateUser, updateUserMe } from '../controllers/userController.js'
 import { me as authMe } from '../controllers/authController.js'
 import { requireAuth } from '../middlewares/requireAuth.js';
 
