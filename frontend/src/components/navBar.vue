@@ -1,6 +1,7 @@
 <template>
     <header class="nav">
         <div class="nav__inner">
+            ``
             <RouterLink class="nav__brand" to="/comprar">
                 <img class="nav__logo-img" src="/assets/logo.jpeg" alt="TerretaShop" />
             </RouterLink>
