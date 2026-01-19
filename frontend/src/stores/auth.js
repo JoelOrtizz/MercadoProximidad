@@ -10,7 +10,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function fetchMe() {
     loading.value = true;
     try {
-      const res = await axios.get("/auth/me");
+      const res = await axios.get("/api/usuarios/me");
       user.value = res.data?.user || null;
       if (user.value?.nickname) {
         localStorage.setItem("user_nickname", user.value.nickname);
@@ -26,17 +26,18 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function login(email, contrasena) {
-    await axios.post("/auth/login", { email, contrasena });
+    await axios.post("/api/login", { email, contrasena });
     return await fetchMe();
   }
 
   async function register({ nombre, nickname, email, contrasena }) {
-    await axios.post("/auth/register", { nombre, nickname, email, contrasena });
+    
+    await axios.post("/api/usuarios", { nombre, nickname, email, contrasena });
   }
 
   async function logout() {
     try {
-      await axios.post("/auth/logout");
+      await axios.post("/api/login/logout");
     } finally {
       user.value = null;
       localStorage.removeItem("user_nickname");
