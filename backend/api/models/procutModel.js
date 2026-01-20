@@ -2,14 +2,23 @@ import pool from "../config/db.js";
 
 export const getProduct = async () => {
     const [result] = await pool.query(
-        "select * from productos"
+        `
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        FROM productos p
+        JOIN unidades un ON p.id_unidad = un.id
+        `
     );
     return result;
 }
 
 export async function getProductById(id) {
     const [result] = await pool.query(
-        "select * from productos where id = ?",
+        `
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        FROM productos p
+        JOIN unidades un ON p.id_unidad = un.id
+        WHERE p.id = ?
+        `,
         [id]
     );
     return result;
@@ -17,7 +26,13 @@ export async function getProductById(id) {
 
 export const getProductByVendedor = async(id_vendedor) =>{
     const [result] = await pool.query(
-        "select * from productos where id_vendedor = ? order by fecha_creacion desc",
+        `
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        FROM productos p
+        JOIN unidades un ON p.id_unidad = un.id
+        WHERE p.id_vendedor = ?
+        ORDER BY p.fecha_creacion DESC
+        `,
         [id_vendedor]
     )
 
@@ -26,7 +41,13 @@ export const getProductByVendedor = async(id_vendedor) =>{
 
 export const getProductByCategoria = async(id_categoria) =>{
     const [result] = await pool.query(
-        "select * from productos where id_categoria = ? order by fecha_creacion desc",
+        `
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        FROM productos p
+        JOIN unidades un ON p.id_unidad = un.id
+        WHERE p.id_categoria = ?
+        ORDER BY p.fecha_creacion DESC
+        `,
         [id_categoria]
     );
 
@@ -35,7 +56,13 @@ export const getProductByCategoria = async(id_categoria) =>{
 
 export const getProductByPrecio = async(precio_min,precio_max) => {
     const [result] = await pool.query(
-        "select * from productos where precio>=? and precio<=? order by fecha_creacion desc",
+        `
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        FROM productos p
+        JOIN unidades un ON p.id_unidad = un.id
+        WHERE p.precio >= ? AND p.precio <= ?
+        ORDER BY p.fecha_creacion DESC
+        `,
         [precio_min,precio_max]
     );
 
@@ -45,7 +72,7 @@ export const getProductByPrecio = async(precio_min,precio_max) => {
 export const getProductByUbicacion = async (lat, lng, radioKm = 10) => {
     const [result] = await pool.query(
         `
-        SELECT p.*, u.*,
+        SELECT p.*, u.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo,
         (
             6371 * acos(
                 cos(radians(?)) *
@@ -57,6 +84,7 @@ export const getProductByUbicacion = async (lat, lng, radioKm = 10) => {
         ) AS distancia
         FROM productos p
         JOIN usuarios u ON p.id_vendedor = u.id
+        JOIN unidades un ON p.id_unidad = un.id
         HAVING distancia <= ?
         ORDER BY distancia ASC
         `,
@@ -67,24 +95,23 @@ export const getProductByUbicacion = async (lat, lng, radioKm = 10) => {
 };
 
 
-
-export const postProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor) => {
+export const postProduct = async (nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id_vendedor) => {
         
     const [result] = await pool.query(
-       ` INSERT INTO productos (nombre, id_categoria, tipo, stock, precio, 
+       ` INSERT INTO productos (nombre, id_categoria, id_unidad, stock, precio, 
         descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?) `, 
-        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id_vendedor]
+        [nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id_vendedor]
     );
 
     return result;
 };
 
-export const putProduct = async (nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id, id_vendedor) => {
+export const putProduct = async (nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id, id_vendedor) => {
     const [result] = await pool.query(
-        `UPDATE productos SET nombre = ?, id_categoria = ?, tipo = ?, stock = ?, precio = ?, descripcion = ?, 
+        `UPDATE productos SET nombre = ?, id_categoria = ?, id_unidad = ?, stock = ?, precio = ?, descripcion = ?, 
         imagen = ?
         WHERE id = ? and id_vendedor = ?`,
-        [nombre, id_categoria, tipo, stock, precio, descripcion, imagen, id, id_vendedor]
+        [nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id, id_vendedor]
     );
 
     return result;

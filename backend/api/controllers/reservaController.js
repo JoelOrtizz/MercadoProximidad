@@ -4,7 +4,14 @@ import { getPuntoEntregaById } from "../models/puntosEntregaModel.js";
 
 export async function getReserva(req, res, next) {
     try{
-        const result = await fetchReservas();
+        const userId = req.user?.id;
+        if (!userId) {
+            const error = new Error("No autenticado.");
+            error.status = 401;
+            throw error;
+        }
+
+        const result = await fetchReservas(userId);
         res.status(200).json(result);
     }catch(err){
         next(err);
@@ -55,13 +62,28 @@ export async function postReserva(req, res, next) {
 
 export async function getReservaById(req, res, next) {
     try{
-        const id = req.params;
-
-        if (!id){
-            res.status(400).json({message: 'Reserva no encontrada'});
+        const userId = req.user?.id;
+        if (!userId) {
+            const error = new Error("No autenticado.");
+            error.status = 401;
+            throw error;
         }
-        const result = await findById(id);
-        res.status(200).json(result);
+
+        const id = Number.parseInt(req.params?.id, 10);
+        if (!Number.isFinite(id)){
+            return res.status(400).json({message: 'Reserva no encontrada'});
+        }
+
+        const reserva = await findById(id);
+        if (!reserva) {
+            return res.status(404).json({ error: "Reserva no encontrada" });
+        }
+
+        if (String(reserva.id_vendedor) !== String(userId) && String(reserva.id_comprador) !== String(userId)) {
+            return res.status(403).json({ error: "No autorizado" });
+        }
+
+        res.status(200).json(reserva);
     }catch(err){
         next(err);
     }
@@ -86,9 +108,18 @@ export async function cancelReservation(req, res, next) {
             return res.status(404).json({ error: "Reserva no encontrada" });
         }
 
+        // solo el comprador puede cancelar y solo si está pendiente
+        if (String(reserva.id_comprador) !== String(req.user.id)) {
+            return res.status(403).json({ error: "No autorizado" });
+        }
+
+        if (reserva.estado !== 'pendiente') {
+            return res.status(400).json({ error: "Solo se puede cancelar una reserva pendiente" });
+        }
+
         const actualizado = await updateStatus(id, 'cancelada');
 
-        if (actualizado) {
+        if (actualizado?.affectedRows > 0) {
             return res.json({
                 mensaje: 'Reserva cancelada correctamente',
                 id_reserva: id,
@@ -112,7 +143,7 @@ export async function updateEstado(req, res, next) {
         const { id } = req.params;
         const { estado } = req.body;
 
-        const estadosValidos = ['pendiente', 'aceptada', 'rechazada', ' completada', 'cancelada'];
+        const estadosValidos = ['aceptada', 'rechazada', 'completada'];
 
         if (!estado || !estadosValidos.includes(estado)) {
           return res.status(400).json({ error: "Estado no válido" });
@@ -124,9 +155,14 @@ export async function updateEstado(req, res, next) {
             return res.status(404).json({ error: 'Reserva no encontrada' });
         }
 
+        // solo el vendedor puede aceptar/rechazar/completar
+        if (String(reserva.id_vendedor) !== String(req.user?.id)) {
+            return res.status(403).json({ error: "No autorizado" });
+        }
+
         const actualizado = await updateStatus(id, estado);
 
-        if (actualizado) {
+        if (actualizado?.affectedRows > 0) {
             return res.json({
                 mensaje: `Estado actualizado a ${estado}`,
                 id_reserva: id,

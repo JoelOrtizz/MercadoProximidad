@@ -10,6 +10,7 @@ import productRoutes from './routes/productRoutes.js';
 import puntosEntregaRoutes from './routes/puntosEntregaRoutes.js';
 import categoriasRoutes from './routes/categoriasRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
+import unidadesRoutes from './routes/unidadesRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -50,6 +51,7 @@ app.use('/api/map', mapRoutes);
 app.use('/api/productos', productRoutes);
 app.use('/api/puntos-entrega', puntosEntregaRoutes);
 app.use('/api/categorias', categoriasRoutes);
+app.use('/api/unidades', unidadesRoutes);
 app.use("/api/reservas", reservaRoutes);
 
 // 404
