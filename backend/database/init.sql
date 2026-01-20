@@ -171,6 +171,8 @@ CREATE TABLE mensajes (
     ON DELETE CASCADE
 );
 
+
+
 -- ======================================
 -- CATEGORÍAS INSERTADAS
 -- ======================================

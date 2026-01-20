@@ -8,7 +8,7 @@
 
       <template v-else>
         <div id="name">
-          <img src="/assets/logo.jpeg" alt="Avatar" />
+          <img src="/assets/perfil.avif" alt="Avatar" />
           <p id="nickname">{{ auth.user.nickname }}</p>
           <p id="fecha_origen"></p>
           <button id="cerrar_sesion" type="button" @click="logout">Cerrar</button>
@@ -41,27 +41,46 @@
           </button>
         </div>
 
-        <div id="personal_info">
-          <p>Informacion personal</p>
-          <button id="editar_info" type="button" disabled>Editar</button>
+	        <div id="personal_info">
+	          <p>Informacion personal</p>
+	          <button
+	            id="editar_info"
+	            type="button"
+	            :disabled="savingProfile"
+	            @click="isEditingProfile ? cancelEditProfile() : startEditProfile()"
+	          >
+	            {{ isEditingProfile ? 'Cancelar' : 'Editar' }}
+	          </button>
 
-          <div class="personal_info_content">
-            <p>Nombre</p>
-            <p id="name_info">{{ auth.user.nombre }}</p>
-          </div>
-          <div class="personal_info_content">
-            <p>Email</p>
-            <p id="email_info">{{ auth.user.email }}</p>
-          </div>
-          <div class="personal_info_content">
-            <p>Telefono</p>
-            <p id="tel_info">-</p>
-          </div>
-          <div class="personal_info_content">
-            <p>Ubicacion</p>
-            <p id="ubi_info">{{ hasCoords ? coordsTexto : '-' }}</p>
-          </div>
-        </div>
+	          <div class="personal_info_content">
+	            <p>Nombre</p>
+	            <template v-if="isEditingProfile">
+	              <input id="name_info" v-model="profileForm.nombre" type="text" />
+	            </template>
+	            <p v-else id="name_info">{{ auth.user.nombre }}</p>
+	          </div>
+	          <div class="personal_info_content">
+	            <p>Email</p>
+	            <template v-if="isEditingProfile">
+	              <input id="email_info" v-model="profileForm.email" type="email" />
+	            </template>
+	            <p v-else id="email_info">{{ auth.user.email }}</p>
+	          </div>
+	          <div class="personal_info_content">
+	            <p>Telefono</p>
+	            <p id="tel_info">-</p>
+	          </div>
+	          <div class="personal_info_content">
+	            <p>Ubicacion</p>
+	            <p id="ubi_info">{{ hasCoords ? ubicacionTexto : '-' }}</p>
+	          </div>
+
+	          <div v-if="isEditingProfile" style="margin-top: 12px">
+	            <button class="btn btn-primary" type="button" :disabled="savingProfile" @click="saveProfile">
+	              {{ savingProfile ? 'Guardando...' : 'Guardar' }}
+	            </button>
+	          </div>
+	        </div>
 
         <div id="preferencias_block">
           <p>Preferencias</p>
@@ -72,7 +91,7 @@
           </div>
 
           <div class="pref_content">
-            <p>Notas/Preferencias</p>
+            <p>¿Quien soy?</p>
             <textarea id="pref_textare" v-model="preferenciasTexto"></textarea>
           </div>
 
@@ -188,6 +207,10 @@ const editFile = ref(null);
 const editPreviewSrc = ref('');
 const savingEdit = ref(false);
 
+const isEditingProfile = ref(false);
+const savingProfile = ref(false);
+const profileForm = ref({ nombre: '', email: '' });
+
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
   const lat = Number(auth.user?.lat);
@@ -200,7 +223,7 @@ const coordsTexto = computed(() => {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '-';
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 });
-const ubicacionTexto = computed(() => (hasCoords.value ? coordsTexto.value : 'No hay ubicacion seleccionada.'));
+const ubicacionTexto = ref('Cargando...');
 const ventasActivas = computed(() => {
   return (myProducts.value || []).reduce((acc, p) => {
     const s = Number(p?.stock);
@@ -209,6 +232,89 @@ const ventasActivas = computed(() => {
 });
 
 watch(preferenciasTexto, (v) => localStorage.setItem('pref_text', v));
+
+function startEditProfile() {
+  profileForm.value = {
+    nombre: auth.user?.nombre || '',
+    email: auth.user?.email || '',
+  };
+  isEditingProfile.value = true;
+}
+
+function cancelEditProfile() {
+  isEditingProfile.value = false;
+  profileForm.value = { nombre: '', email: '' };
+}
+
+async function saveProfile() {
+  if (!isLoggedIn.value) return;
+  savingProfile.value = true;
+  try {
+    const nombre = String(profileForm.value?.nombre || '').trim();
+    const email = String(profileForm.value?.email || '').trim();
+
+    if (!nombre || !email) {
+      alert('Rellena nombre y email.');
+      return;
+    }
+
+    await axios.put('/usuarios/me', { nombre, email });
+    await auth.fetchMe();
+    cancelEditProfile();
+  } catch (err) {
+    const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
+    alert(`Error: ${msg || 'No se pudo guardar el perfil.'}`);
+  } finally {
+    savingProfile.value = false;
+  }
+}
+
+async function reverseGeocode(lat, lng) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
+  const res = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+      'Accept-Language': 'es-ES,es;q=0.9',
+    },
+  });
+  if (!res.ok) throw new Error('Error obteniendo direccion');
+  return await res.json();
+}
+
+function formatDireccion(data) {
+  const addr = data?.address || {};
+  const road = addr.road || addr.pedestrian || addr.footway || addr.path || '';
+  const houseNumber = addr.house_number || '';
+  const city = addr.city || addr.town || addr.village || addr.municipality || '';
+
+  const line1 = [road, houseNumber].filter(Boolean).join(' ');
+  const line2 = city || '';
+  const result = [line1, line2].filter(Boolean).join(', ');
+
+  return result || data?.display_name || '';
+}
+
+async function loadUbicacion() {
+  if (!isLoggedIn.value) {
+    ubicacionTexto.value = '';
+    return;
+  }
+
+  if (!hasCoords.value) {
+    ubicacionTexto.value = 'No hay ubicacion seleccionada.';
+    return;
+  }
+
+  const lat = Number(auth.user?.lat);
+  const lng = Number(auth.user?.lng);
+  ubicacionTexto.value = 'Buscando direccion...';
+  try {
+    const data = await reverseGeocode(lat, lng);
+    ubicacionTexto.value = formatDireccion(data) || coordsTexto.value;
+  } catch {
+    ubicacionTexto.value = coordsTexto.value;
+  }
+}
 
 function resolveImageSrc(value) {
   if (!value) return '';
@@ -346,6 +452,11 @@ onMounted(async () => {
   await auth.fetchMe();
   if (!isLoggedIn.value) return;
   await loadCategorias();
+  await loadUbicacion();
   await loadMyProducts();
+});
+
+watch([() => auth.user?.lat, () => auth.user?.lng], () => {
+  loadUbicacion();
 });
 </script>
