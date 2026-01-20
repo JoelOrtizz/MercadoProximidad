@@ -14,7 +14,7 @@
           <button id="cerrar_sesion" type="button" @click="logout">Cerrar</button>
         </div>
 
-        <div id="info_vendedor">
+        <div id="info_vendedor" @click="goToMyProducts">
           <div class="content_vendedor">
             <p id="vent_act" class="dest_content">{{ ventasActivas }}</p>
             <p class="info_content">Ventas activas</p>
@@ -100,7 +100,7 @@
           </button>
         </div>
 
-        <div id="productos_header" class="productos-header">
+        <div id="productos_header" ref="myProductsEl" class="productos-header">
           <p>Mis productos</p>
           <button id="btnMisProductosReload" type="button" @click="loadMyProducts">Recargar</button>
         </div>
@@ -207,6 +207,7 @@ const unidades = ref([]);
 
 const myProducts = ref([]);
 const loadingProducts = ref(false);
+const myProductsEl = ref(null);
 
 const editingId = ref(null);
 const editForm = ref(null);
@@ -465,6 +466,10 @@ async function deleteProduct(p) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     alert(`Error: ${msg || 'No se pudo eliminar.'}`);
   }
+}
+
+function goToMyProducts() {
+  myProductsEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 onMounted(async () => {
