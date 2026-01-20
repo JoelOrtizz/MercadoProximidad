@@ -12,16 +12,30 @@ export async function insertRerserva(id_vendedor, id_comprador, id_producto, can
 
 export const findById = async (id) => {
     const [result] = await pool.query(
-        'select * from reservas where id=?',
+        `
+        SELECT r.*, p.nombre AS producto_nombre, pe.descripcion AS punto_descripcion
+        FROM reservas r
+        JOIN productos p ON r.id_producto = p.id
+        LEFT JOIN puntos_entrega pe ON r.id_punto_entrega = pe.id
+        WHERE r.id = ?
+        `,
         [id]
     );
 
-    return result;
+    return result[0] || null;
 }
 
-export async function fetchReservas() {
+export async function fetchReservas(userId) {
     const [result] = await pool.query(
-        'select * from reservas'
+        `
+        SELECT r.*, p.nombre AS producto_nombre, pe.descripcion AS punto_descripcion
+        FROM reservas r
+        JOIN productos p ON r.id_producto = p.id
+        LEFT JOIN puntos_entrega pe ON r.id_punto_entrega = pe.id
+        WHERE r.id_vendedor = ? OR r.id_comprador = ?
+        ORDER BY r.fecha_creacion DESC
+        `,
+        [userId, userId]
     );
 
     return result;
