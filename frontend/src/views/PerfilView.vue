@@ -125,7 +125,8 @@
               <div class="product-row__title">{{ p.nombre }}</div>
               <div class="product-row__desc">{{ p.descripcion || 'Sin descripcion.' }}</div>
               <div class="product-row__meta">
-                Categoria: {{ categoriaLabel(p.id_categoria) }} · Stock: {{ formatStock(p.stock, p.tipo) }}
+                Categoria: {{ categoriaLabel(p.id_categoria) }} · Stock:
+                {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
               </div>
 
               <div class="product-actions">
@@ -149,8 +150,13 @@
                   <option v-for="c in categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
                 </select>
 
-                <label>Tipo</label>
-                <input v-model="editForm.tipo" type="text" />
+                <label>Unidad</label>
+                <select v-model="editForm.id_unidad">
+                  <option value="">Seleccione una unidad</option>
+                  <option v-for="u in unidades" :key="u.id" :value="String(u.id)">
+                    {{ u.nombre }} ({{ u.simbolo }})
+                  </option>
+                </select>
 
                 <label>Stock</label>
                 <input v-model="editForm.stock" type="number" min="0" />
@@ -197,6 +203,7 @@ const router = useRouter();
 const preferenciasTexto = ref(localStorage.getItem('pref_text') || '');
 const categorias = ref([]);
 const categoriasById = ref({});
+const unidades = ref([]);
 
 const myProducts = ref([]);
 const loadingProducts = ref(false);
@@ -213,8 +220,11 @@ const profileForm = ref({ nombre: '', email: '' });
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
-  const lat = Number(auth.user?.lat);
-  const lng = Number(auth.user?.lng);
+  const latRaw = auth.user?.lat;
+  const lngRaw = auth.user?.lng;
+  if (latRaw === null || latRaw === undefined || lngRaw === null || lngRaw === undefined) return false;
+  const lat = Number(latRaw);
+  const lng = Number(lngRaw);
   return Number.isFinite(lat) && Number.isFinite(lng);
 });
 const coordsTexto = computed(() => {
@@ -328,9 +338,9 @@ function formatPrice(value) {
   return `${n.toFixed(2)} €`;
 }
 
-function formatStock(stock, tipo) {
+function formatStock(stock, unidad) {
   const s = stock == null ? '-' : String(stock);
-  const t = tipo ? String(tipo) : '';
+  const t = unidad ? String(unidad) : '';
   return t ? `${s} ${t}` : s;
 }
 
@@ -366,6 +376,15 @@ async function loadCategorias() {
   }
 }
 
+async function loadUnidades() {
+  try {
+    const res = await axios.get('/unidades');
+    unidades.value = Array.isArray(res.data) ? res.data : [];
+  } catch {
+    unidades.value = [];
+  }
+}
+
 async function loadMyProducts() {
   loadingProducts.value = true;
   try {
@@ -387,7 +406,7 @@ function startEdit(p) {
   editForm.value = {
     nombre: p.nombre || '',
     id_categoria: p.id_categoria == null ? '' : String(p.id_categoria),
-    tipo: p.tipo || '',
+    id_unidad: p.id_unidad == null ? '' : String(p.id_unidad),
     stock: p.stock ?? 0,
     precio: p.precio ?? 0,
     descripcion: p.descripcion || '',
@@ -414,7 +433,7 @@ async function saveEdit() {
     const fd = new FormData();
     fd.append('nombre', editForm.value.nombre);
     fd.append('id_categoria', editForm.value.id_categoria);
-    fd.append('tipo', editForm.value.tipo);
+    fd.append('id_unidad', editForm.value.id_unidad);
     fd.append('stock', String(editForm.value.stock));
     fd.append('precio', String(editForm.value.precio));
     fd.append('descripcion', editForm.value.descripcion);
@@ -452,6 +471,7 @@ onMounted(async () => {
   await auth.fetchMe();
   if (!isLoggedIn.value) return;
   await loadCategorias();
+  await loadUnidades();
   await loadUbicacion();
   await loadMyProducts();
 });

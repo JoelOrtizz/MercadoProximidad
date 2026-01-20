@@ -61,8 +61,11 @@ let marker = null;
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const isEditMode = computed(() => route.query?.edit === '1');
 const hasCoords = computed(() => {
-  const lat = Number(auth.user?.lat);
-  const lng = Number(auth.user?.lng);
+  const latRaw = auth.user?.lat;
+  const lngRaw = auth.user?.lng;
+  if (latRaw === null || latRaw === undefined || lngRaw === null || lngRaw === undefined) return false;
+  const lat = Number(latRaw);
+  const lng = Number(lngRaw);
   return Number.isFinite(lat) && Number.isFinite(lng);
 });
 

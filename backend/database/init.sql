@@ -17,13 +17,11 @@ CREATE TABLE usuarios (
   nickname VARCHAR(50) NOT NULL UNIQUE,
   email VARCHAR(150) NOT NULL UNIQUE,
   contrasena VARCHAR(255) NOT NULL,
-  tipo ENUM('miembro', 'admin') NOT NULL,
+  tipo ENUM('miembro', 'admin') NOT NULL DEFAULT 'miembro',
   lat DECIMAL(10,8) DEFAULT NULL,
   lng DECIMAL(11,8) DEFAULT NULL,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-ALTER TABLE usuarios 
-MODIFY tipo ENUM('miembro', 'admin') DEFAULT 'miembro';
 
 -- ======================================
 -- CATEGORIAS
@@ -35,13 +33,22 @@ CREATE TABLE categorias (
 );
 
 -- ======================================
+-- UNIDADES
+-- ======================================
+CREATE TABLE unidades (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL UNIQUE,
+  simbolo VARCHAR(10) NOT NULL UNIQUE
+);
+
+-- ======================================
 -- PRODUCTOS
 -- ======================================
 CREATE TABLE productos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(150) NOT NULL,
   id_categoria INT,
-  tipo VARCHAR(50), -- kg, litros, unidades...
+  id_unidad INT NOT NULL,
   stock DECIMAL(10,2) NOT NULL,
   precio DECIMAL(10,2) NOT NULL,
   descripcion TEXT,
@@ -56,7 +63,10 @@ CREATE TABLE productos (
 
   CONSTRAINT fk_producto_categoria
     FOREIGN KEY (id_categoria) REFERENCES categorias(id)
-    ON DELETE SET NULL
+    ON DELETE SET NULL,
+
+  CONSTRAINT fk_producto_unidad
+    FOREIGN KEY (id_unidad) REFERENCES unidades(id)
 );
 
 -- ======================================
@@ -185,3 +195,14 @@ INSERT INTO categorias (nombre, descripcion) VALUES
 ('Aceites', 'Aceite de oliva, girasol, semillas y grasas vegetales'),
 ('Plantas', 'Plantas ornamentales, semillas y articulos de jardineria'),
 ('Otros', 'Articulos diversos y productos sin categoria especifica');
+
+-- ======================================
+-- UNIDADES INSERTADAS
+-- ======================================
+INSERT INTO unidades (nombre, simbolo) VALUES
+('Kilogramo', 'kg'),
+('Gramo', 'g'),
+('Litro', 'L'),
+('Mililitro', 'ml'),
+('Unidad', 'ud'),
+('Otros', 'otros');

@@ -34,7 +34,15 @@
       await auth.login(email.value, pass.value);
 
       // comprueba si tiene cordenadas el usuario
-      const hasCoords = Number.isFinite(Number(auth.user?.lat)) && Number.isFinite(Number(auth.user?.lng));
+      const latRaw = auth.user?.lat;
+      const lngRaw = auth.user?.lng;
+      const hasCoords =
+        latRaw !== null &&
+        latRaw !== undefined &&
+        lngRaw !== null &&
+        lngRaw !== undefined &&
+        Number.isFinite(Number(latRaw)) &&
+        Number.isFinite(Number(lngRaw));
       // si no tiene coordenadas redirecciona a coords
       router.push(hasCoords ? '/comprar' : '/coords');
     } catch (error) {
