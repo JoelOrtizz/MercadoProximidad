@@ -32,6 +32,12 @@
           <input id="q" v-model="searchText" class="input" placeholder="Nombre o descripcion" />
         </div>
 
+        <div class="field">
+          <label class="label" for="dist">Distancia (km)</label>
+          <input id="dist" v-model="distanceKm" class="input" type="number" min="1" placeholder="Opcional" />
+          <div class="hint">Filtra por proximidad usando tu ubicacion guardada.</div>
+        </div>
+
         <!-- Botones de la búsqueda -->
         <div class="actions">
           <button class="btn btn-primary" type="button" @click="loadProducts">Aplicar</button>
@@ -66,7 +72,7 @@
 
             <p class="desc">{{ p.descripcion || 'Sin descripción.' }}</p>
 
-            <div class="meta">Stock: {{ formatStock(p.stock, p.tipo) }}</div>
+            <div class="meta">Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}</div>
 
             <!-- Reservar directamente (cantidad + punto) -->
             <div class="card" style="margin-top: 12px; padding: 12px">
@@ -127,6 +133,7 @@ const products = ref([]);
 const subtitle = ref('Cargando productos...');
 const selectedCategory = ref('all');
 const searchText = ref('');
+const distanceKm = ref('');
 
 // Reservas (simple, por producto)
 const puntosPorVendedor = reactive({}); // { [id_vendedor]: [puntos] }
@@ -216,8 +223,20 @@ async function loadProducts() {
     if (selectedCategory.value !== 'all') params.category = selectedCategory.value;
     if (searchText.value) params.text = searchText.value;
 
+    const dist = Number.parseFloat(String(distanceKm.value));
+    const latRaw = auth.user?.lat;
+    const lngRaw = auth.user?.lng;
+    const lat = latRaw === null || latRaw === undefined ? NaN : Number(latRaw);
+    const lng = lngRaw === null || lngRaw === undefined ? NaN : Number(lngRaw);
+    if (Number.isFinite(dist) && dist > 0 && Number.isFinite(lat) && Number.isFinite(lng)) {
+      params.lat = lat;
+      params.lng = lng;
+      params.distance = dist;
+    }
+
     const res = await axios.get('/productos', { params });
     const list = Array.isArray(res.data) ? res.data : [];
+
     products.value = list;
     subtitle.value = list.length ? `${list.length} producto(s)` : 'No hay productos publicados todavia.';
 
@@ -260,7 +279,7 @@ async function crearReserva(p) {
 
   reservandoLoadingId.value = p.id;
   try {
-    await axios.post('/reservations', {
+    await axios.post('/reservas', {
       id_producto: p.id,
       cantidad,
       id_punto_entrega: Number(reservaPuntoId[pid]),

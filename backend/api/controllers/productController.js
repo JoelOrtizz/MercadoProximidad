@@ -2,7 +2,7 @@ import { getProduct, postProduct, putProduct, deleteProductById, getProductByVen
 
 export async function fetchProducts(req, res, next) {
     try {
-        const result = await getProduct();
+        const result = await getProduct(req.query || {});
         res.status(200).json(result);
     } catch (error) {
         next(error);
