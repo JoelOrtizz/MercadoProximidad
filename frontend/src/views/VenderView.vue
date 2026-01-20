@@ -29,8 +29,13 @@
 
                 <div class="form-group row">
                     <div class="col">
-                        <label for="unidad">Tipo unidad</label>
-                        <input type="text" id="unidad" v-model="form.tipo" name="tipo" placeholder="kg,L,unidad,...">
+                        <label for="unidad">Unidad</label>
+                        <select id="unidad" v-model="form.id_unidad" name="id_unidad" required>
+                            <option value="">Seleccione una unidad</option>
+                            <option v-for="u in unidades" :key="u.id" :value="String(u.id)">
+                                {{ u.nombre }} ({{ u.simbolo }})
+                            </option>
+                        </select>
                     </div>
                 </div>
 
@@ -38,7 +43,7 @@
                     <label for="categoria">Categoria</label>
                     <select name="categoria" id="categoria" v-model="form.categoria">
                         <option value="">Seleccione una categoria</option>
-                        <option v-for="c in categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}></option>
+                        <option v-for="c in categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
                     </select>
                 </div>
 
@@ -77,6 +82,7 @@ const auth=useAuthStore();
 const router=useRouter();
 
 const categorias=ref([]);
+const unidades=ref([]);
 const loading=ref(false);
 const file=ref(null);
 
@@ -84,8 +90,8 @@ const form=ref({
     nombre: '',
     precio: 0,
     stock: 0,
-    tipo: '',
-    categorias: '',
+    id_unidad: '',
+    categoria: '',
     descripcion: '',
 });
 
@@ -97,6 +103,15 @@ async function loadCategorias() {
         categorias.value = Array.isArray(res.data) ? res.data : [];
     } catch {
         categorias.value = [];
+    }
+}
+
+async function loadUnidades() {
+    try {
+        const res = await axios.get('/unidades');
+        unidades.value = Array.isArray(res.data) ? res.data : [];
+    } catch {
+        unidades.value = [];
     }
 }
 
@@ -114,11 +129,16 @@ async function submitProduct(){
     loading.value=true;
 
     try{
+        if (!form.value.id_unidad) {
+            alert('Selecciona una unidad');
+            return;
+        }
+
         const fd = new FormData();
         fd.append('nombre', form.value.nombre);
         fd.append('precio', String(form.value.precio));
         fd.append('stock', String(form.value.stock));
-        fd.append('tipo', form.value.tipo);
+        fd.append('id_unidad', String(form.value.id_unidad));
         fd.append('categoria', form.value.categoria);
         fd.append('descripcion', form.value.descripcion);
         if (file.value) fd.append('imagen', file.value);
@@ -126,7 +146,7 @@ async function submitProduct(){
         const res = await axios.post('/productos', fd);
         alert('Guardado con existo. ID: ' +(res.data?.id ?? ''));
 
-        form.value = { nombre: '', precio:0, stock: 0,tipo: '', categoria: '', descripcion: ''};
+        form.value = { nombre: '', precio:0, stock: 0, id_unidad: '', categoria: '', descripcion: ''};
         file.value = null;
     } catch (err) {
         const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
@@ -139,6 +159,7 @@ async function submitProduct(){
 onMounted(async () => {
   await auth.fetchMe();
   await loadCategorias();
+  await loadUnidades();
 });
 
 </script>

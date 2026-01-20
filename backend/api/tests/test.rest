@@ -8,8 +8,7 @@ Content-Type: application/json
     "nombre":"joel",
     "nickname":"_joelortizz",
     "email":"joel@gmail.com",
-    "contrasena":"root",
-    "tipo":""
+    "contrasena":"root"
 }
 
 ####
@@ -82,8 +81,7 @@ Content-Type: application/json
     "nombre":"frela",
     "nickname":"frankieuu",
     "email":"frankkkkk__@gmail.com",
-    "contrasena":"root",
-    "tipo":""
+    "contrasena":"root"
 }
 
 
@@ -95,8 +93,7 @@ Content-Type: application/json
     "nombre":"paco",
     "nickname":"paco.altur",
     "email":"paco@gmail.com",
-    "contrasena":"root",
-    "tipo":""
+    "contrasena":"root"
 }
 
 
@@ -109,8 +106,7 @@ Content-Type: application/json
     "nombre":"paco el guapo",
     "nickname":"paco.altur",
     "email":"paco@gmail.com",
-    "contrasena":"root",
-    "tipo":""
+    "contrasena":"root"
 }
 
 ###
@@ -123,7 +119,7 @@ Content-Type: application/json
 {
   "nombre": "Peras Conferencia",
   "id_categoria": 1,
-  "tipo": "kg",
+  "id_unidad": 1,
   "stock": 100,
   "precio": 1.95,
   "descripcion": "Peras dulces y jugosas",
@@ -139,7 +135,7 @@ Content-Type: application/json
 {
   "nombre": "Peras Conferencia (OFERTA)",
   "id_categoria": 1,
-  "tipo": "kg",
+  "id_unidad": 1,
   "stock": 50,
   "precio": 1.50,
   "descripcion": "Rebajadas por liquidación",

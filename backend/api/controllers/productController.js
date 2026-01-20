@@ -2,7 +2,7 @@ import { getProduct, postProduct, putProduct, deleteProductById, getProductByVen
 
 export async function fetchProducts(req, res, next) {
     try {
-        const result = await getProduct();
+        const result = await getProduct(req.query || {});
         res.status(200).json(result);
     } catch (error) {
         next(error);
@@ -104,8 +104,9 @@ export async function updateProduct(req, res, next) {
             return res.status(400).json({ message: 'Error: ID de producto invalido.' });
         }
 
-        let { nombre, tipo, stock, precio, descripcion, imagen_anterior } = req.body;
+        let { nombre, stock, precio, descripcion, imagen_anterior } = req.body;
         const id_categoria_raw = req.body?.id_categoria;
+        const id_unidad_raw = req.body?.id_unidad;
 
         // es un if donde comprueba si hahy foto nueva, si la hay la cambia y si no sigue con la anterior
         const nombreImagen = req.file ? req.file.filename : imagen_anterior;
@@ -119,10 +120,15 @@ export async function updateProduct(req, res, next) {
             return res.status(400).json({ message: 'id_categoria invalido' });
         }
 
+        const id_unidad = Number.parseInt(String(id_unidad_raw), 10);
+        if (!Number.isFinite(id_unidad)) {
+            return res.status(400).json({ message: 'id_unidad invalido' });
+        }
+
         stock = parseInt(stock);
         precio = parseFloat(precio);
 
-        if (!nombre || !tipo || !descripcion) {
+        if (!nombre || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos obligatorios' });
         }
 
@@ -138,7 +144,7 @@ export async function updateProduct(req, res, next) {
         const result = await putProduct(
             nombre,
             id_categoria,
-            tipo,
+            id_unidad,
             stock,
             precio,
             descripcion,
@@ -167,9 +173,10 @@ export async function insertProduct(req, res, next) {
         // recoge la imagen
         const nombreImagen = req.file.filename;
 
-        let { nombre, categoria, tipo, stock, precio, descripcion } = req.body;
+        let { nombre, categoria, id_unidad, stock, precio, descripcion } = req.body;
 
         const id_categoria = parseInt(categoria);
+        const idUnidadInt = parseInt(id_unidad);
         const stockInt = parseInt(stock);
         const precioFloat = parseFloat(precio);
 
@@ -182,7 +189,7 @@ export async function insertProduct(req, res, next) {
         }
 
         //comprobaciones
-        if (!nombre || isNaN(id_categoria) || !tipo || !descripcion) {
+        if (!nombre || isNaN(id_categoria) || isNaN(idUnidadInt) || !descripcion) {
             return res.status(400).json({ message: 'Faltan campos de texto o la categoría está vacía' });
         }
 
@@ -197,7 +204,7 @@ export async function insertProduct(req, res, next) {
         const result = await postProduct(
             nombre,
             id_categoria,
-            tipo,
+	            idUnidadInt,
             stockInt,
             precioFloat,
             descripcion,
