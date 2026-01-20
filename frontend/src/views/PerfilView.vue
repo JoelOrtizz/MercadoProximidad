@@ -14,13 +14,13 @@
           <button id="cerrar_sesion" type="button" @click="logout">Cerrar</button>
         </div>
 
-        <div id="info_vendedor" @click="goToMyProducts">
-          <div class="content_vendedor">
+        <div id="info_vendedor">
+          <div class="content_vendedor" role="button" style="cursor: pointer" @click="goToMyProducts">
             <p id="vent_act" class="dest_content">{{ ventasActivas }}</p>
             <p class="info_content">Ventas activas</p>
           </div>
-          <div class="content_vendedor">
-            <p id="resv_act" class="dest_content">-</p>
+          <div class="content_vendedor" role="button" style="cursor: pointer" @click="goToReservas">
+            <p id="resv_act" class="dest_content">{{ reservasActivas }}</p>
             <p class="info_content">Reservas activas</p>
           </div>
           <div class="content_vendedor">
@@ -207,6 +207,8 @@ const unidades = ref([]);
 
 const myProducts = ref([]);
 const loadingProducts = ref(false);
+const myReservas = ref([]);
+const loadingReservas = ref(false);
 const myProductsEl = ref(null);
 
 const editingId = ref(null);
@@ -235,12 +237,18 @@ const coordsTexto = computed(() => {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 });
 const ubicacionTexto = ref('Cargando...');
+
 const ventasActivas = computed(() => {
   return (myProducts.value || []).reduce((acc, p) => {
     const s = Number(p?.stock);
     return acc + (Number.isFinite(s) && s > 0 ? 1 : 0);
   }, 0);
 });
+
+const reservasActivas = computed(() => {
+  return (myReservas.value || []).filter((r) => r?.estado === 'pendiente' || r?.estado === 'aceptada').length;
+});
+
 
 watch(preferenciasTexto, (v) => localStorage.setItem('pref_text', v));
 
@@ -400,6 +408,19 @@ async function loadMyProducts() {
   }
 }
 
+async function loadMyReservas() {
+  loadingReservas.value = true;
+  try {
+    const res = await axios.get('/reservas');
+    const listRaw = Array.isArray(res.data) ? res.data : [];
+    myReservas.value = listRaw.filter((r) => r?.estado !== 'cancelada');
+  } catch {
+    myReservas.value = [];
+  } finally {
+    loadingReservas.value = false;
+  }
+}
+
 function startEdit(p) {
   editingId.value = p.id;
   editFile.value = null;
@@ -472,6 +493,10 @@ function goToMyProducts() {
   myProductsEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function goToReservas() {
+  router.push('/reservas');
+}
+
 onMounted(async () => {
   await auth.fetchMe();
   if (!isLoggedIn.value) return;
@@ -479,6 +504,7 @@ onMounted(async () => {
   await loadUnidades();
   await loadUbicacion();
   await loadMyProducts();
+  await loadMyReservas();
 });
 
 watch([() => auth.user?.lat, () => auth.user?.lng], () => {
