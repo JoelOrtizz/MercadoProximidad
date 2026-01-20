@@ -4,7 +4,9 @@
 
     <div class="market-layout">
 
+      <!-- ASIDE se va a referir a la tarjeta lateral donde se mostrarán las categorías -->
       <aside class="card filters">
+
         <h2>Filtros</h2>
 
         <div class="field">
@@ -15,6 +17,7 @@
               Todas
             </button>
 
+            <!-- bucle para mostrar las categorías -->
             <button v-for="c in categorias" :key="c.id" class="chip"
               :class="{ 'is-active': selectedCategory === String(c.id) }" type="button"
               @click="selectCategory(String(c.id))">
@@ -22,17 +25,22 @@
             </button>
           </div>
         </div>
+
+        <!-- Búsqueda -->
         <div class="field">
           <label class="label" for="q">Busqueda</label>
           <input id="q" v-model="searchText" class="input" placeholder="Nombre o descripcion" />
         </div>
 
+        <!-- Botones de la búsqueda -->
         <div class="actions">
           <button class="btn btn-primary" type="button" @click="loadProducts">Aplicar</button>
           <button class="btn" type="button" @click="clearFilters">Limpiar</button>
         </div>
+        
       </aside>
 
+      <!-- Sección principal de los productos --> 
       <section class="products">
 
         <div class="products-header">
@@ -44,7 +52,7 @@
         </div>
 
         <div class="product-grid" aria-live="polite">
-
+          <!-- Bucle para mostrar los productos -->
           <article v-for="p in products" :key="p.id" class="product-card">
 
             <div class="product-top">
