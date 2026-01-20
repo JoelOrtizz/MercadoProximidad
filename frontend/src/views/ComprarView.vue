@@ -72,7 +72,7 @@
             <div class="card" style="margin-top: 12px; padding: 12px">
               <div class="field">
                 <label for="label">Cantidad</label>
-                <input :disabled="!CanReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input" type="number"
+                <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input" type="number"
                   min="1" @focus="ensureReservaDefaults(p)" />
               </div>
             </div>
@@ -80,13 +80,13 @@
             <div class="field">
 
               <label class="label">Punto de Entrega</label>
-              <select :disabled="!CanReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input"
+              <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input"
                 @focus="ensureReservaDefaults(p)">
-                <option v-for="pt in PuntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
+                <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
                   pt.descripcion || `Punto #${pt.id}` }}</option>
               </select>
 
-              <div v-if="PuntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
+              <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
                 de entrega.</div>
 
             </div>
@@ -94,7 +94,7 @@
             <div class="actions">
 
               <button class="btn btn-primary" type="button" @click="crearReserva(p)"
-                :disabled="!CanReserve(p) || reservandoLoadingId === p.id || PuntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
                 {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
               </button>
 
