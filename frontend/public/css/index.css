@@ -54,9 +54,9 @@
 }
 
 .chip.is-active {
-  border-color: #bcd1ff;
-  background: #eef4ff;
-  color: #1f2d5c;
+  border-color: #ffd2b3;
+  background: #fff3e6;
+  color: #7c2d12;
 }
 
 .input {
@@ -86,8 +86,8 @@
 }
 
 .btn-primary {
-  background: #0b73d7;
-  border-color: #0b73d7;
+  background: #ff6a00;
+  border-color: #ff6a00;
   color: #fff;
 }
 
@@ -152,11 +152,11 @@
 }
 
 .price {
-  background: #eef4ff;
+  background: #fff3e6;
   border-radius: 10px;
   padding: 8px 10px;
   font-weight: 700;
-  color: #1f2d5c;
+  color: #7c2d12;
   white-space: nowrap;
 }
 

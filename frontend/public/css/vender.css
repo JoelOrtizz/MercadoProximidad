@@ -72,8 +72,8 @@
  select:focus,
  textarea:focus {
      outline: none;
-     border-color: #80bdff;
-     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+     border-color: #ffb380;
+     box-shadow: 0 0 0 0.2rem rgba(255, 106, 0, .25);
  }
 
  textarea {
@@ -116,7 +116,7 @@
      display: block;
      width: 100%;
      padding: 12px;
-     background-color: #0971ce;
+     background-color: #ff6a00;
      color: white;
      border: none;
      border-radius: 5px;
@@ -128,5 +128,5 @@
  }
 
  .btn-submit:hover {
-     background-color: #0056b3;
+     background-color: #e65f00;
  }
