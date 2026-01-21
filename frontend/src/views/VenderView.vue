@@ -77,7 +77,9 @@ import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
 
+const toast = useToastStore();
 const auth=useAuthStore();
 const router=useRouter();
 
@@ -121,7 +123,7 @@ function onFileChange(e) {
 
 async function submitProduct(){
     if(!auth.user?.id) {
-        alert('Tienes que iniciar sesion');
+        toast.warning('Tienes que iniciar sesion');
         router.push('/login');
         return;
     }
@@ -130,7 +132,7 @@ async function submitProduct(){
 
     try{
         if (!form.value.id_unidad) {
-            alert('Selecciona una unidad');
+            toast.warning('Selecciona una unidad');
             return;
         }
 
@@ -144,13 +146,14 @@ async function submitProduct(){
         if (file.value) fd.append('imagen', file.value);
 
         const res = await axios.post('/productos', fd);
-        alert('Guardado con existo. ID: ' +(res.data?.id ?? ''));
+        toast.success('Guardado con exito. ID: ' +(res.data?.id ?? ''));
+        //alert('Guardado con existo. ID: ' +(res.data?.id ?? ''));
 
         form.value = { nombre: '', precio:0, stock: 0, id_unidad: '', categoria: '', descripcion: ''};
         file.value = null;
     } catch (err) {
         const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-        alert(`Error: ${msg || 'No se pudo publicar'}`);
+        toast.error(`Error: ${msg || 'No se pudo publicar'}`);
     } finally {
         loading.value = false;
     }

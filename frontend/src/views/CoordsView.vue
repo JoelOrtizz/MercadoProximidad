@@ -45,10 +45,12 @@ import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
 
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
+const toast = useToastStore();
 
 const selected = ref(null);
 const addressText = ref('Selecciona un punto en el mapa.');
@@ -133,7 +135,7 @@ async function setSelected(lat, lng) {
 async function createMap() {
   const L = await loadLeaflet();
   if (!L) {
-    alert('Leaflet no esta cargado');
+    toast.error('Leaflet no esta cargado');
     return;
   }
 
@@ -175,7 +177,7 @@ async function save() {
     router.push('/perfil');
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudo guardar'}`);
+    toast.error(`Error: ${msg || 'No se pudo guardar'}`);
   } finally {
     saving.value = false;
   }

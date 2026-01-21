@@ -196,9 +196,13 @@ import axios from 'axios';
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
+import { useModalStore } from '@/stores/modal.js';
 
 const auth = useAuthStore();
 const router = useRouter();
+const toast = useToastStore();
+const modal = useModalStore();
 
 const preferenciasTexto = ref(localStorage.getItem('pref_text') || '');
 const categorias = ref([]);
@@ -273,7 +277,7 @@ async function saveProfile() {
     const email = String(profileForm.value?.email || '').trim();
 
     if (!nombre || !email) {
-      alert('Rellena nombre y email.');
+      toast.warning('Rellena nombre y email.');
       return;
     }
 
@@ -282,7 +286,7 @@ async function saveProfile() {
     cancelEditProfile();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudo guardar el perfil.'}`);
+    toast.error(`Error: ${msg || 'No se pudo guardar el perfil.'}`);
   } finally {
     savingProfile.value = false;
   }
@@ -401,7 +405,7 @@ async function loadMyProducts() {
     myProducts.value = Array.isArray(res.data) ? res.data : [];
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudieron cargar tus productos.'}`);
+    toast.error(`Error: ${msg || 'No se pudieron cargar tus productos.'}`);
     myProducts.value = [];
   } finally {
     loadingProducts.value = false;
@@ -471,21 +475,24 @@ async function saveEdit() {
     cancelEdit();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudo guardar el producto.'}`);
+    toast.error(`Error: ${msg || 'No se pudo guardar el producto.'}`);
   } finally {
     savingEdit.value = false;
   }
 }
 
 async function deleteProduct(p) {
-  const ok = confirm(`Eliminar producto \"${p.nombre}\"?`);
+  const ok = await modal.openConfirm({
+    title: 'Eliminar producto',
+    message: `Eliminar producto "${p.nombre}"?`,
+  });
   if (!ok) return;
   try {
     await axios.delete(`/productos/${p.id}`);
     await loadMyProducts();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudo eliminar.'}`);
+    toast.error(`Error: ${msg || 'No se pudo eliminar.'}`);
   }
 }
 

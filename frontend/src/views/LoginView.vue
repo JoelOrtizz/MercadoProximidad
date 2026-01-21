@@ -19,9 +19,11 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth';
+  import { useToastStore } from '@/stores/toastStore.js';
 
   const auth = useAuthStore();
   const router = useRouter();
+  const toast = useToastStore();
 
   const email = ref('');
   const pass = ref('');
@@ -47,7 +49,7 @@
       router.push(hasCoords ? '/comprar' : '/coords');
     } catch (error) {
       console.error("Error en login:", error);
-      alert("Error al iniciar sesión. Comprueba tus credenciales.");
+      toast.error("Error al iniciar sesión. Comprueba tus credenciales.");
     }
   }
 </script>

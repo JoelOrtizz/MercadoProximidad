@@ -124,9 +124,11 @@ import axios from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
 import { useRouter } from 'vue-router';
+import { useToastStore } from '@/stores/toastStore.js';
 
 const auth = useAuthStore();
 const router = useRouter();
+const toast = useToastStore();
 
 const categorias = ref([]);
 const products = ref([]);
@@ -244,7 +246,7 @@ async function loadProducts() {
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     subtitle.value = 'No se pudieron cargar los productos.';
-    alert(`Error: ${msg || 'No se pudieron cargar los productos'}`);
+    toast.error(`Error: ${msg || 'No se pudieron cargar los productos'}`);
   }
 }
 
@@ -258,7 +260,7 @@ function canReserve(p) {
 
 async function crearReserva(p) {
   if (!isLoggedIn()) {
-    alert('Tienes que iniciar sesion');
+    toast.warning('Tienes que iniciar sesion');
     router.push('/login');
     return;
   }
@@ -267,13 +269,13 @@ async function crearReserva(p) {
   const pid = String(p.id);
 
   if (!reservaPuntoId[pid]) {
-    alert('Selecciona un punto de entrega');
+    toast.warning('Selecciona un punto de entrega');
     return;
   }
 
   const cantidad = Number(reservaCantidad[pid]);
   if (!Number.isFinite(cantidad) || cantidad <= 0) {
-    alert('Cantidad invalida');
+    toast.warning('Cantidad invalida');
     return;
   }
 
@@ -285,11 +287,11 @@ async function crearReserva(p) {
       id_punto_entrega: Number(reservaPuntoId[pid]),
     });
 
-    alert('Reserva creada');
+    toast.success('Reserva creada');
     await loadProducts();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudo reservar'}`);
+    toast.error(`Error: ${msg || 'No se pudo reservar'}`);
   } finally {
     reservandoLoadingId.value = null;
   }
