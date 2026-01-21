@@ -25,9 +25,11 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth';
+  import { useToastStore } from '@/stores/toastStore.js';
 
   const auth = useAuthStore();
   const router = useRouter();
+  const toast = useToastStore();
 
   const email = ref('');
   const pass = ref('');
@@ -47,7 +49,7 @@
       router.push('/coords');
     }catch(error){
       console.error("Error al crear la cuenta:", error);
-      alert("Error al crear la cuenta. Comprueba tus credenciales.");
+      toast.error("Error al crear la cuenta. Comprueba tus credenciales.");
     }
   }
 </script>

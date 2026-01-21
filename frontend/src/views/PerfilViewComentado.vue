@@ -192,6 +192,18 @@
 </template>
 
 <script setup>
+// ==========================================================
+// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
+// ==========================================================
+// Esta vista es una copia de `PerfilView.vue`.
+// El código NO cambia: solo se añaden comentarios para separar
+// funcionalidades y entender qué hace cada parte y dónde se usa.
+
+// ===============================
+// BLOQUE: IMPORTS Y DEPENDENCIAS
+// Dónde está: justo al inicio del <script>
+// Para qué sirve: traer axios, utilidades de Vue, router y el store
+// ===============================
 import axios from 'axios';
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -199,32 +211,68 @@ import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
 import { useModalStore } from '@/stores/modal.js';
 
+// ===============================
+// BLOQUE: STORE + ROUTER
+// Dónde se usa: en botones (logout, navegación) y cargas iniciales
+// Para qué sirve: leer el usuario logueado y navegar entre páginas
+// ===============================
 const auth = useAuthStore();
 const router = useRouter();
 const toast = useToastStore();
 const modal = useModalStore();
 
+// ===============================
+// BLOQUE: ESTADO (PREFERENCIAS)
+// Dónde se usa: textarea "¿Quién soy?" (v-model="preferenciasTexto")
+// Para qué sirve: guardar un texto en localStorage para no perderlo
+// ===============================
 const preferenciasTexto = ref(localStorage.getItem('pref_text') || '');
+
+// ===============================
+// BLOQUE: ESTADO (LISTAS AUXILIARES)
+// Dónde se usa: <select> de categoría y unidad en el editor de producto
+// Para qué sirve: cargar categorías/unidades desde el backend
+// ===============================
 const categorias = ref([]);
 const categoriasById = ref({});
 const unidades = ref([]);
 
+// ===============================
+// BLOQUE: ESTADO (MIS PRODUCTOS / RESERVAS)
+// Dónde se usa: lista "Mis productos" y contadores de la parte superior
+// Para qué sirve: guardar arrays y estados de carga (loading)
+// ===============================
 const myProducts = ref([]);
 const loadingProducts = ref(false);
 const myReservas = ref([]);
 const loadingReservas = ref(false);
 const myProductsEl = ref(null);
 
+// ===============================
+// BLOQUE: ESTADO (EDICIÓN DE PRODUCTO)
+// Dónde se usa: cuando se abre el editor dentro de una fila de producto
+// Para qué sirve: controlar qué producto se edita y el formulario temporal
+// ===============================
 const editingId = ref(null);
 const editForm = ref(null);
 const editFile = ref(null);
 const editPreviewSrc = ref('');
 const savingEdit = ref(false);
 
+// ===============================
+// BLOQUE: ESTADO (EDICIÓN DE PERFIL)
+// Dónde se usa: "Información personal" (Editar/Cancelar/Guardar)
+// Para qué sirve: activar modo edición y guardar nombre/email temporalmente
+// ===============================
 const isEditingProfile = ref(false);
 const savingProfile = ref(false);
 const profileForm = ref({ nombre: '', email: '' });
 
+// ===============================
+// BLOQUE: DATOS CALCULADOS (SESION Y COORDENADAS)
+// Dónde se usa: v-if del template y textos de ubicación
+// Para qué sirve: saber si hay login y si el usuario tiene lat/lng válidas
+// ===============================
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
   const latRaw = auth.user?.lat;
@@ -240,8 +288,19 @@ const coordsTexto = computed(() => {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '-';
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 });
+
+// ===============================
+// BLOQUE: ESTADO (TEXTO DE UBICACIÓN)
+// Dónde se usa: <p id="info_ubi">{{ ubicacionTexto }}</p>
+// Para qué sirve: mostrar "Cargando/Buscando" y la dirección final
+// ===============================
 const ubicacionTexto = ref('Cargando...');
 
+// ===============================
+// BLOQUE: DATOS CALCULADOS (CONTADORES)
+// Dónde se usa: "Ventas activas" y "Reservas activas" arriba del todo
+// Para qué sirve: contar productos con stock y reservas activas
+// ===============================
 const ventasActivas = computed(() => {
   return (myProducts.value || []).reduce((acc, p) => {
     const s = Number(p?.stock);
@@ -253,9 +312,18 @@ const reservasActivas = computed(() => {
   return (myReservas.value || []).filter((r) => r?.estado === 'pendiente' || r?.estado === 'aceptada').length;
 });
 
-
+// ===============================
+// BLOQUE: WATCH (PREFERENCIAS)
+// Dónde se usa: cuando escribes en el textarea de preferencias
+// Para qué sirve: guardar automáticamente el texto en localStorage
+// ===============================
 watch(preferenciasTexto, (v) => localStorage.setItem('pref_text', v));
 
+// ===============================
+// BLOQUE: BOTÓN EDITAR PERFIL
+// Dónde se usa: botón "Editar/Cancelar" en "Información personal"
+// Para qué sirve: activar/desactivar el modo edición del perfil
+// ===============================
 function startEditProfile() {
   profileForm.value = {
     nombre: auth.user?.nombre || '',
@@ -269,6 +337,11 @@ function cancelEditProfile() {
   profileForm.value = { nombre: '', email: '' };
 }
 
+// ===============================
+// BLOQUE: BOTÓN GUARDAR PERFIL
+// Dónde se usa: botón "Guardar" cuando estás editando el perfil
+// Para qué sirve: enviar nombre/email al backend y refrescar el usuario
+// ===============================
 async function saveProfile() {
   if (!isLoggedIn.value) return;
   savingProfile.value = true;
@@ -292,6 +365,11 @@ async function saveProfile() {
   }
 }
 
+// ===============================
+// BLOQUE: UBICACIÓN (BUSCAR DIRECCIÓN)
+// Dónde se usa: loadUbicacion()
+// Para qué sirve: convertir lat/lng en una dirección usando un servicio externo
+// ===============================
 async function reverseGeocode(lat, lng) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
   const res = await fetch(url, {
@@ -304,6 +382,7 @@ async function reverseGeocode(lat, lng) {
   return await res.json();
 }
 
+// Esta función "acorta" la dirección para mostrar algo bonito en pantalla.
 function formatDireccion(data) {
   const addr = data?.address || {};
   const road = addr.road || addr.pedestrian || addr.footway || addr.path || '';
@@ -317,6 +396,7 @@ function formatDireccion(data) {
   return result || data?.display_name || '';
 }
 
+// Carga la ubicación en texto que se ve en "Ubicacion actual".
 async function loadUbicacion() {
   if (!isLoggedIn.value) {
     ubicacionTexto.value = '';
@@ -339,6 +419,11 @@ async function loadUbicacion() {
   }
 }
 
+// ===============================
+// BLOQUE: HELPERS DE PRODUCTO (VISUAL)
+// Dónde se usa: en el template al pintar cada producto
+// Para qué sirve: construir imagen, precio y stock en formato legible
+// ===============================
 function resolveImageSrc(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
@@ -363,15 +448,30 @@ function categoriaLabel(idCategoria) {
   return categoriasById.value[key] || `Categoria ${key}`;
 }
 
+// ===============================
+// BLOQUE: BOTÓN "CAMBIAR UBICACIÓN"
+// Dónde se usa: botón debajo de "Ubicacion actual"
+// Para qué sirve: ir a /coords para configurar o editar ubicación
+// ===============================
 function goCoords() {
   router.push(hasCoords.value ? '/coords?edit=1' : '/coords');
 }
 
+// ===============================
+// BLOQUE: BOTÓN "CERRAR"
+// Dónde se usa: botón de cerrar sesión en la cabecera del perfil
+// Para qué sirve: cerrar sesión y volver al login
+// ===============================
 async function logout() {
   await auth.logout();
   router.push('/login');
 }
 
+// ===============================
+// BLOQUE: PETICIONES (CATEGORÍAS)
+// Dónde se usa: editor de producto (label de categoría y <select>)
+// Para qué sirve: cargar categorías y crear un mapa id->nombre
+// ===============================
 async function loadCategorias() {
   try {
     const res = await axios.get('/categorias');
@@ -389,6 +489,11 @@ async function loadCategorias() {
   }
 }
 
+// ===============================
+// BLOQUE: PETICIONES (UNIDADES)
+// Dónde se usa: editor de producto (<select> de unidad)
+// Para qué sirve: cargar unidades disponibles (kg, ud, etc.)
+// ===============================
 async function loadUnidades() {
   try {
     const res = await axios.get('/unidades');
@@ -398,6 +503,11 @@ async function loadUnidades() {
   }
 }
 
+// ===============================
+// BLOQUE: PETICIONES (MIS PRODUCTOS)
+// Dónde se usa: sección "Mis productos" + contador "Ventas activas"
+// Para qué sirve: traer la lista de productos del usuario
+// ===============================
 async function loadMyProducts() {
   loadingProducts.value = true;
   try {
@@ -412,6 +522,11 @@ async function loadMyProducts() {
   }
 }
 
+// ===============================
+// BLOQUE: PETICIONES (MIS RESERVAS)
+// Dónde se usa: contador "Reservas activas" y navegación a /reservas
+// Para qué sirve: traer reservas y quitar las que están canceladas
+// ===============================
 async function loadMyReservas() {
   loadingReservas.value = true;
   try {
@@ -425,6 +540,11 @@ async function loadMyReservas() {
   }
 }
 
+// ===============================
+// BLOQUE: BOTÓN "EDITAR" (PRODUCTO)
+// Dónde se usa: botón "Editar" en cada fila de producto
+// Para qué sirve: abrir el formulario y rellenarlo con el producto elegido
+// ===============================
 function startEdit(p) {
   editingId.value = p.id;
   editFile.value = null;
@@ -440,6 +560,11 @@ function startEdit(p) {
   };
 }
 
+// ===============================
+// BLOQUE: BOTÓN "CANCELAR" (EDICIÓN DE PRODUCTO)
+// Dónde se usa: dentro del editor del producto
+// Para qué sirve: cerrar el editor y limpiar datos temporales
+// ===============================
 function cancelEdit() {
   editingId.value = null;
   editForm.value = null;
@@ -447,11 +572,21 @@ function cancelEdit() {
   editPreviewSrc.value = '';
 }
 
+// ===============================
+// BLOQUE: INPUT DE IMAGEN (PRODUCTO)
+// Dónde se usa: input type="file" del editor
+// Para qué sirve: guardar archivo y mostrar una previsualización
+// ===============================
 function onEditFileChange(e) {
   editFile.value = e.target?.files?.[0] || null;
   editPreviewSrc.value = editFile.value ? URL.createObjectURL(editFile.value) : '';
 }
 
+// ===============================
+// BLOQUE: BOTÓN "GUARDAR" (PRODUCTO)
+// Dónde se usa: dentro del editor del producto
+// Para qué sirve: enviar cambios al backend y recargar la lista
+// ===============================
 async function saveEdit() {
   if (!editingId.value || !editForm.value) return;
   savingEdit.value = true;
@@ -481,6 +616,11 @@ async function saveEdit() {
   }
 }
 
+// ===============================
+// BLOQUE: BOTÓN "ELIMINAR" (PRODUCTO)
+// Dónde se usa: botón "Eliminar" en cada fila de producto
+// Para qué sirve: pedir confirmación y eliminar en el backend
+// ===============================
 async function deleteProduct(p) {
   const ok = await modal.openConfirm({
     title: 'Eliminar producto',
@@ -496,14 +636,29 @@ async function deleteProduct(p) {
   }
 }
 
+// ===============================
+// BLOQUE: NAVEGACIÓN (SCROLL A "MIS PRODUCTOS")
+// Dónde se usa: al pulsar el cuadro "Ventas activas"
+// Para qué sirve: hacer scroll suave hasta el listado de productos
+// ===============================
 function goToMyProducts() {
   myProductsEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ===============================
+// BLOQUE: NAVEGACIÓN (IR A RESERVAS)
+// Dónde se usa: al pulsar el cuadro "Reservas activas"
+// Para qué sirve: navegar a /reservas
+// ===============================
 function goToReservas() {
   router.push('/reservas');
 }
 
+// ===============================
+// BLOQUE: CARGA INICIAL (AL ENTRAR EN LA VISTA)
+// Dónde se usa: se ejecuta automáticamente al abrir la página
+// Para qué sirve: cargar usuario y todos los datos de la pantalla
+// ===============================
 onMounted(async () => {
   await auth.fetchMe();
   if (!isLoggedIn.value) return;
@@ -514,6 +669,11 @@ onMounted(async () => {
   await loadMyReservas();
 });
 
+// ===============================
+// BLOQUE: ACTUALIZAR UBICACIÓN SI CAMBIAN COORDENADAS
+// Dónde se usa: si el usuario cambia lat/lng (por ejemplo en /coords)
+// Para qué sirve: refrescar el texto de ubicación sin recargar la página
+// ===============================
 watch([() => auth.user?.lat, () => auth.user?.lng], () => {
   loadUbicacion();
 });
