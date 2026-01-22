@@ -55,9 +55,13 @@
                 <div class="form-group">
                     <label for="imagen">Imagen</label>
                     <div class="file-input-wrapper">
-                        <input type="file" id="imagen" name="imagen" @change="onFileChange">
+                        <input ref="fileInput" type="file" id="imagen" name="imagen" accept="image/*" @change="onFileChange">
                     </div>
                     <small class="helper-text">Se enviara la primera imagen seleccionada</small>
+
+                    <div v-if="previewSrc" class="image-preview-wrap" aria-label="Previsualizacion de imagen">
+                      <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
+                    </div>
                 </div>
 
                 <button class="btn-submit" type="submit" :disabled="loading">
@@ -87,6 +91,8 @@ const categorias=ref([]);
 const unidades=ref([]);
 const loading=ref(false);
 const file=ref(null);
+const fileInput=ref(null);
+const previewSrc=ref('');
 
 const form=ref({
     nombre: '',
@@ -118,7 +124,20 @@ async function loadUnidades() {
 }
 
 function onFileChange(e) {
-    file.value = e.target?.files?.[0] || null;
+    const f = e && e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null;
+
+    // Si ya habia una URL creada, la borramos para no acumular memoria.
+    if (previewSrc.value) {
+        try { URL.revokeObjectURL(previewSrc.value); } catch {}
+        previewSrc.value = '';
+    }
+
+    file.value = f;
+
+    // Si el usuario ha seleccionado una imagen, creamos una URL temporal para verla.
+    if (f) {
+        try { previewSrc.value = URL.createObjectURL(f); } catch { previewSrc.value = ''; }
+    }
 }
 
 async function submitProduct(){
@@ -151,6 +170,11 @@ async function submitProduct(){
 
         form.value = { nombre: '', precio:0, stock: 0, id_unidad: '', categoria: '', descripcion: ''};
         file.value = null;
+        if (previewSrc.value) {
+            try { URL.revokeObjectURL(previewSrc.value); } catch {}
+            previewSrc.value = '';
+        }
+        if (fileInput.value) fileInput.value.value = '';
     } catch (err) {
         const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
         toast.error(`Error: ${msg || 'No se pudo publicar'}`);
@@ -167,3 +191,20 @@ onMounted(async () => {
 
 </script>
 
+<style scoped>
+.image-preview-wrap {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.image-preview {
+  width: min(360px, 100%);
+  max-height: 220px;
+  border-radius: 12px;
+  border: 1px solid rgba(2, 6, 23, 0.12);
+  object-fit: cover;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+</style>

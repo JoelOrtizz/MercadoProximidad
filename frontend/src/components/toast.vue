@@ -26,7 +26,7 @@ const toast = useToastStore();
 
 .success { background: #16a34a; }
 .error   { background: #dc2626; }
-.info    { background: #2563eb; }
+.info    { background: #ff6a00; }
 .warning { background: #f59e0b; }
 
 .fade-enter-active,

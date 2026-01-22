@@ -1,17 +1,34 @@
 <template>
-  <main>
-    <h1>Login</h1>
-    <form id="login" @submit.prevent="Login">
-      <label for="email">Correo electronico</label><br>
-      <input v-model="email" type="email" name="email" id="email" placeholder="usuario@ejemplo.com" required><br>
+  <main class="page auth-page">
+    <div class="auth-card">
+      <h1>Login</h1>
 
-      <label for="contrasenya">Contraseña</label><br>
-      <input v-model="pass" type="password" name="pass" id="pass" placeholder="TuApodo123" required><br>
-      <br>
-      <button type="submit" :disabled="auth.loading">{{ auth.loading ? 'Entrando...' : 'Entrar' }}</button>
-      
-      <p>No tienes cuenta? <RouterLink to="/registro">Registrate</RouterLink></p>
-    </form>
+      <form id="login" class="auth-form" @submit.prevent="Login">
+        <div class="field">
+          <label class="label" for="email">Correo electronico</label>
+          <input
+            v-model="email"
+            class="input"
+            type="email"
+            name="email"
+            id="email"
+            placeholder="usuario@ejemplo.com"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label class="label" for="pass">Contraseヵa</label>
+          <input v-model="pass" class="input" type="password" name="pass" id="pass" placeholder="TuApodo123" required>
+        </div>
+
+        <button class="btn btn-primary auth-submit" type="submit" :disabled="auth.loading">
+          {{ auth.loading ? 'Entrando...' : 'Entrar' }}
+        </button>
+
+        <p class="auth-foot">No tienes cuenta? <RouterLink to="/registro">Registrate</RouterLink></p>
+      </form>
+    </div>
   </main>
 </template>
 
@@ -32,7 +49,7 @@
   // no ponerlo ya que lo hace el auth
   async function Login() {
     try {
-      // Llamamos a la acción del store
+      // Llamamos a la acciИn del store
       await auth.login(email.value, pass.value);
 
       // comprueba si tiene cordenadas el usuario
@@ -49,7 +66,8 @@
       router.push(hasCoords ? '/comprar' : '/coords');
     } catch (error) {
       console.error("Error en login:", error);
-      toast.error("Error al iniciar sesión. Comprueba tus credenciales.");
+      toast.error("Error al iniciar sesiИn. Comprueba tus credenciales.");
     }
   }
 </script>
+
