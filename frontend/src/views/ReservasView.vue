@@ -53,7 +53,7 @@
           </div>
 
           <div class="actions" style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap">
-            <button class="btn" type="button" disabled title="Proximo sprint">Chat</button>
+            <button class="btn" type="button" :disabled="savingById[r.id]" @click="openChat(r)">Chat</button>
 
             <button
               v-if="tab === 'pendientes' && isComprador(r)"
@@ -99,7 +99,7 @@
 <script setup>
 import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
 import { useModalStore } from '@/stores/modal.js';
@@ -107,6 +107,7 @@ import { useModalStore } from '@/stores/modal.js';
 const auth = useAuthStore();
 const toast = useToastStore();
 const modal = useModalStore();
+const router = useRouter();
 
 const reservas = ref([]);
 const loading = ref(false);
@@ -190,6 +191,33 @@ async function cambiarEstado(r, estado) {
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     toast.error(`Error: ${msg || 'No se pudo cambiar el estado'}`);
+  } finally {
+    savingById[r.id] = false;
+  }
+}
+
+async function openChat(r) {
+  if (!r) return;
+  if (!auth.user || !auth.user.id) return;
+
+  // En reservas, el chat siempre es entre comprador y vendedor, da igual el estado.
+  const myId = auth.user.id;
+  const otherId = String(r.id_vendedor) === String(myId) ? r.id_comprador : r.id_vendedor;
+
+  try {
+    savingById[r.id] = true;
+    const res = await axios.post('/chats/find-or-create', { other_user_id: otherId });
+    const chatId = res && res.data && res.data.id ? res.data.id : null;
+    const created = res && res.data && res.data.created ? true : false;
+    if (!chatId) {
+      toast.error('No se pudo abrir el chat.');
+      return;
+    }
+    if (created) toast.info('Chat creado. Ya puedes conversar desde aqui.');
+    router.push(`/mensajes/${chatId}`);
+  } catch (err) {
+    const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
+    toast.error(`Error: ${msg || 'No se pudo abrir el chat'}`);
   } finally {
     savingById[r.id] = false;
   }
