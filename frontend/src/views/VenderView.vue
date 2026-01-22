@@ -54,18 +54,17 @@
                             placeholder="Detalles del producto"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="imagen">Imagen</label>
-                        <div class="file-input-wrapper">
-                            <input type="file" id="imagen" name="imagen" @change="onFileChange">
-                        </div>
-                        <small class="helper-text">Se enviara la primera imagen seleccionada</small>
-
-                        <div v-if="imagePreview" class="image-preview" id="preview-venta">
-                            <img :src="imagePreview" alt="Previsualización" style="height: 400px;"/>
-                        </div>
-
+                <div class="form-group">
+                    <label for="imagen">Imagen</label>
+                    <div class="file-input-wrapper">
+                        <input ref="fileInput" type="file" id="imagen" name="imagen" accept="image/*" @change="onFileChange">
                     </div>
+                    <small class="helper-text">Se enviara la primera imagen seleccionada</small>
+
+                    <div v-if="previewSrc" class="image-preview-wrap" aria-label="Previsualizacion de imagen">
+                      <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
+                    </div>
+                </div>
 
                     <button class="btn-submit" type="submit" :disabled="loading">
                         {{ loading ? 'Publicando ...' : 'Publicar' }}
@@ -84,17 +83,18 @@ import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
 
-const auth = useAuthStore();
-const router = useRouter();
+const toast = useToastStore();
+const auth=useAuthStore();
+const router=useRouter();
 
-const categorias = ref([]);
-const unidades = ref([]);
-const loading = ref(false);
-const file = ref(null);
-
-const imagePreview = ref(null);
-
+const categorias=ref([]);
+const unidades=ref([]);
+const loading=ref(false);
+const file=ref(null);
+const fileInput=ref(null);
+const previewSrc=ref('');
 
 const form = ref({
     nombre: '',
@@ -126,20 +126,25 @@ async function loadUnidades() {
 }
 
 function onFileChange(e) {
-    const selectedFile = e.target?.files?.[0] || null;
-    file.value = selectedFile;
+    const f = e && e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null;
 
-    if (selectedFile) {
-        imagePreview.value = URL.createObjectURL(selectedFile);
-    } else {
-        imagePreview.value = null;
+    // Si ya habia una URL creada, la borramos para no acumular memoria.
+    if (previewSrc.value) {
+        try { URL.revokeObjectURL(previewSrc.value); } catch {}
+        previewSrc.value = '';
+    }
+
+    file.value = f;
+
+    // Si el usuario ha seleccionado una imagen, creamos una URL temporal para verla.
+    if (f) {
+        try { previewSrc.value = URL.createObjectURL(f); } catch { previewSrc.value = ''; }
     }
 }
 
-
-async function submitProduct() {
-    if (!auth.user?.id) {
-        alert('Tienes que iniciar sesion');
+async function submitProduct(){
+    if(!auth.user?.id) {
+        toast.warning('Tienes que iniciar sesion');
         router.push('/login');
         return;
     }
@@ -148,7 +153,7 @@ async function submitProduct() {
 
     try {
         if (!form.value.id_unidad) {
-            alert('Selecciona una unidad');
+            toast.warning('Selecciona una unidad');
             return;
         }
 
@@ -162,13 +167,19 @@ async function submitProduct() {
         if (file.value) fd.append('imagen', file.value);
 
         const res = await axios.post('/productos', fd);
-        alert('Guardado con existo. ID: ' + (res.data?.id ?? ''));
+        toast.success('Guardado con exito. ID: ' +(res.data?.id ?? ''));
+        //alert('Guardado con existo. ID: ' +(res.data?.id ?? ''));
 
         form.value = { nombre: '', precio: 0, stock: 0, id_unidad: '', categoria: '', descripcion: '' };
         file.value = null;
+        if (previewSrc.value) {
+            try { URL.revokeObjectURL(previewSrc.value); } catch {}
+            previewSrc.value = '';
+        }
+        if (fileInput.value) fileInput.value.value = '';
     } catch (err) {
         const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-        alert(`Error: ${msg || 'No se pudo publicar'}`);
+        toast.error(`Error: ${msg || 'No se pudo publicar'}`);
     } finally {
         loading.value = false;
     }
@@ -184,3 +195,21 @@ onMounted(async () => {
 });
 
 </script>
+
+<style scoped>
+.image-preview-wrap {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.image-preview {
+  width: min(360px, 100%);
+  max-height: 220px;
+  border-radius: 12px;
+  border: 1px solid rgba(2, 6, 23, 0.12);
+  object-fit: cover;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+</style>

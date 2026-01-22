@@ -1,23 +1,44 @@
 <template>
-  <main>
-    <h1>Registro</h1>
-    <form id="register" @submit.prevent="Register">
-      <label for="email">Correo electronico:</label><br>
-      <input v-model="email" type="email" name="email" id="email" placeholder="usuario@ejemplo.com" required><br>
+  <main class="page auth-page">
+    <div class="auth-card">
+      <h1>Registro</h1>
 
-      <label for="nom">Nombre:</label><br>
-      <input v-model="nom" type="text" name="nom" id="nom" placeholder="usuario" required><br>
+      <form id="register" class="auth-form" @submit.prevent="Register">
+        <div class="field">
+          <label class="label" for="email">Correo electronico</label>
+          <input
+            v-model="email"
+            class="input"
+            type="email"
+            name="email"
+            id="email"
+            placeholder="usuario@ejemplo.com"
+            required
+          >
+        </div>
 
-      <label for="nick">Nickname: </label><br>
-      <input v-model="nick" type="text" name="nick" id="nick" placeholder="usuario_123" required><br>
+        <div class="field">
+          <label class="label" for="nom">Nombre</label>
+          <input v-model="nom" class="input" type="text" name="nom" id="nom" placeholder="usuario" required>
+        </div>
 
-      <label for="contrasenya">Contraseña:</label><br>
-      <input v-model="pass" type="password" name="pass" id="pass" placeholder="TuApodo123" required><br>
+        <div class="field">
+          <label class="label" for="nick">Nickname</label>
+          <input v-model="nick" class="input" type="text" name="nick" id="nick" placeholder="usuario_123" required>
+        </div>
 
-      <button type="submit" :disabled="auth.loading">{{ auth.loading ? 'Creando...' : 'Registrarse' }}</button><br>
-      
-      <p>tienes cuenta? <RouterLink to="/login">Inicia Sesión</RouterLink></p>
-    </form>
+        <div class="field">
+          <label class="label" for="pass">Contraseヵa</label>
+          <input v-model="pass" class="input" type="password" name="pass" id="pass" placeholder="TuApodo123" required>
+        </div>
+
+        <button class="btn btn-primary auth-submit" type="submit" :disabled="auth.loading">
+          {{ auth.loading ? 'Creando...' : 'Registrarse' }}
+        </button>
+
+        <p class="auth-foot">tienes cuenta? <RouterLink to="/login">Inicia SesiИn</RouterLink></p>
+      </form>
+    </div>
   </main>
 </template>
 
@@ -25,9 +46,11 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '@/stores/auth';
+  import { useToastStore } from '@/stores/toastStore.js';
 
   const auth = useAuthStore();
   const router = useRouter();
+  const toast = useToastStore();
 
   const email = ref('');
   const pass = ref('');
@@ -47,7 +70,8 @@
       router.push('/coords');
     }catch(error){
       console.error("Error al crear la cuenta:", error);
-      alert("Error al crear la cuenta. Comprueba tus credenciales.");
+      toast.error("Error al crear la cuenta. Comprueba tus credenciales.");
     }
   }
 </script>
+

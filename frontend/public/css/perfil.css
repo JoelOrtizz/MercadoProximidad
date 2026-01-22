@@ -271,7 +271,7 @@
 
 .btn-primary {
   border: 0;
-  background: #0b73d7;
+  background: #ff6a00;
   color: #fff;
   font-weight: 600;
 }
@@ -422,7 +422,7 @@
 }
 
 .bar__fill {
-  background-color: #2196f3;
+  background-color: #ff6a00;
   height: 100%;
   width: 0;
   border-radius: 8px;

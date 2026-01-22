@@ -101,8 +101,12 @@ import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
+import { useModalStore } from '@/stores/modal.js';
 
 const auth = useAuthStore();
+const toast = useToastStore();
+const modal = useModalStore();
 
 const reservas = ref([]);
 const loading = ref(false);
@@ -154,14 +158,17 @@ async function loadReservas() {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     reservas.value = [];
     subtitle.value = 'No se pudieron cargar';
-    alert(`Error: ${msg || 'No se pudieron cargar las reservas'}`);
+    toast.error(`Error: ${msg || 'No se pudieron cargar las reservas'}`);
   } finally {
     loading.value = false;
   }
 }
 
 async function cancelar(r) {
-  const ok = confirm(`Cancelar la reserva #${r.id}?`);
+  const ok = await modal.openConfirm({
+    title: 'Cancelar reserva',
+    message: `Cancelar la reserva #${r.id}?`,
+  });
   if (!ok) return;
   try {
     savingById[r.id] = true;
@@ -169,7 +176,7 @@ async function cancelar(r) {
     await loadReservas();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudo cancelar'}`);
+    toast.error(`Error: ${msg || 'No se pudo cancelar'}`);
   } finally {
     savingById[r.id] = false;
   }
@@ -182,7 +189,7 @@ async function cambiarEstado(r, estado) {
     await loadReservas();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    alert(`Error: ${msg || 'No se pudo cambiar el estado'}`);
+    toast.error(`Error: ${msg || 'No se pudo cambiar el estado'}`);
   } finally {
     savingById[r.id] = false;
   }
@@ -197,4 +204,3 @@ onMounted(async () => {
   }
 });
 </script>
-

@@ -66,7 +66,7 @@ export const listMyPuntosEntrega = async (req, res, next) => {
       throw error;
     }
     // funcion desde el model
-    const rows = await listPuntosEntregaByVendedor(vendedorId);
+    const rows = await listPuntosEntregaByVendedor(vendedorId);  
     res.status(200).json(Array.isArray(rows) ? rows : []);
   } catch (error) {
     next(error);
