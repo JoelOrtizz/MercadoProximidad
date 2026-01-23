@@ -14,14 +14,17 @@ const toast = useToastStore();
 <style scoped>
 .toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: calc(var(--nav-height, 78px) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
   padding: 12px 18px;
   border-radius: 10px;
   color: white;
   font-weight: 500;
   box-shadow: 0 10px 25px rgba(0,0,0,.2);
   z-index: 9999;
+  max-width: min(520px, calc(100vw - 48px));
+  text-align: center;
 }
 
 .success { background: #16a34a; }
@@ -36,6 +39,6 @@ const toast = useToastStore();
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateX(-50%) translateY(-10px);
 }
 </style>

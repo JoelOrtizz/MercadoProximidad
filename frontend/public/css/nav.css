@@ -10,6 +10,8 @@
   --primary-border: #ffd2b3;
   --primary-text: #7c2d12;
   --content-width: 1400px;
+  /* Altura aproximada del navbar (para colocar toast/modal justo debajo) */
+  --nav-height: 78px;
 }
 
 * {
