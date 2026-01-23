@@ -51,9 +51,9 @@ export const getUser = async () => {
     return result;
 }
 
-export const insertUser = async ( nombre, nickname, email, contrasena) => {
+export const insertUser = async ( nombre, nickname, email, telef, contrasena) => {
 
-    if (!nombre || !nickname || !email || !contrasena) {
+    if (!nombre || !nickname || !email || !telef || !contrasena) {
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
@@ -62,8 +62,8 @@ export const insertUser = async ( nombre, nickname, email, contrasena) => {
     const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     const [result] = await pool.query(
-        'INSERT INTO usuarios (nombre, nickname, email, contrasena)VALUES( ?, ?, ?, ?)',
-        [nombre, nickname, email, hashedPassword]
+        'INSERT INTO usuarios (nombre, nickname, email, telef, contrasena)VALUES( ?, ?, ?, ?, ?)',
+        [nombre, nickname, email, telef, hashedPassword]
     );
 
     return result;
@@ -81,9 +81,9 @@ export const deleteUserById = async (id) => {
 }
 
 
-export const updateUserById = async (id, nombre, nickname, email, contrasena) => {
+export const updateUserById = async (id, nombre, nickname, email, telef, contrasena) => {
 
-    if (!nombre || !nickname || !email || !contrasena) {
+    if (!nombre || !nickname || !email || !telef || !contrasena) {
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
@@ -93,25 +93,25 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
 
     const [result] = await pool.query(
         `UPDATE usuarios 
-         SET nombre = ?, nickname = ?, email = ?, contrasena = ?
+         SET nombre = ?, nickname = ?, email = ?, telef = ?, contrasena = ?
          WHERE id = ?`,
-        [nombre, nickname, email, hashedPassword, id]
+        [nombre, nickname, email, telef, hashedPassword, id]
     );
 
     return result;
 }
 
 
-export const updateUserMyself = async (id,nombre,email) => {
+export const updateUserMyself = async (id,nombre,email,telef) => {
     
-    if (!nombre || !email){
+    if (!nombre || !email || !telef ){
         throw badRequest("Por favor, rellena todos los campos")
     }
 
     const [result] = await pool.query(
         `Update usuarios
-        set nombre=?,email=? where id=?`,
-        [nombre,email,id]
+        set nombre=?,email=?,telef=? where id=?`,
+        [nombre,email,telef,id]
     )
 
     return result;

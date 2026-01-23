@@ -39,8 +39,8 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   // peticion de registrar
-  async function register({ nombre, nickname, email, contrasena }) {
-    await axios.post('/usuarios', { nombre, nickname, email, contrasena });
+  async function register({ nombre, nickname, email, telef, contrasena }) {
+    await axios.post('/usuarios', { nombre, nickname, email, telef, contrasena });
     return await login(email, contrasena);
   }
 

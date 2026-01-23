@@ -68,7 +68,10 @@
 	          </div>
 	          <div class="personal_info_content">
 	            <p>Telefono</p>
-	            <p id="tel_info">-</p>
+              <template v-if="isEditingProfile">
+                <input id="telef_info" v-model="profileForm.telef" type="tel" />
+              </template>
+	            <p v-else id="telef_info">{{ auth.user.telef }}</p>
 	          </div>
 	          <div class="personal_info_content">
 	            <p>Ubicacion</p>
@@ -223,7 +226,7 @@ const savingEdit = ref(false);
 
 const isEditingProfile = ref(false);
 const savingProfile = ref(false);
-const profileForm = ref({ nombre: '', email: '' });
+const profileForm = ref({ nombre: '', email: '', telef: '' });
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
@@ -260,13 +263,14 @@ function startEditProfile() {
   profileForm.value = {
     nombre: auth.user?.nombre || '',
     email: auth.user?.email || '',
+    telef: auth.user?.telef || '',
   };
   isEditingProfile.value = true;
 }
 
 function cancelEditProfile() {
   isEditingProfile.value = false;
-  profileForm.value = { nombre: '', email: '' };
+  profileForm.value = { nombre: '', email: '' , telef: '',};
 }
 
 async function saveProfile() {
@@ -275,13 +279,14 @@ async function saveProfile() {
   try {
     const nombre = String(profileForm.value?.nombre || '').trim();
     const email = String(profileForm.value?.email || '').trim();
+    const telef = String(profileForm.value?.telef || '').trim();
 
-    if (!nombre || !email) {
-      toast.warning('Rellena nombre y email.');
+    if (!nombre || !email || !telef) {
+      toast.warning('Rellena nombre,email y telefono.');
       return;
     }
 
-    await axios.put('/usuarios/me', { nombre, email });
+    await axios.put('/usuarios/me', { nombre, email, telef });
     await auth.fetchMe();
     cancelEditProfile();
   } catch (err) {

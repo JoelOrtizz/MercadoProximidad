@@ -16,6 +16,7 @@ CREATE TABLE usuarios (
   nombre VARCHAR(100) NOT NULL,
   nickname VARCHAR(50) NOT NULL UNIQUE,
   email VARCHAR(150) NOT NULL UNIQUE,
+  telef INT NOT NULL UNIQUE,
   contrasena VARCHAR(255) NOT NULL,
   tipo ENUM('miembro', 'admin') NOT NULL DEFAULT 'miembro',
   lat DECIMAL(10,8) DEFAULT NULL,

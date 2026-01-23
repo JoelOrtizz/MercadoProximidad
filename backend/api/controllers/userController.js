@@ -17,15 +17,16 @@ export const fetchUser = async (req, res, next) => {
 
 export const register = async (req, res, next) => {
   try {
-    const { nombre, nickname, email, contrasena } = req.body;
+    const { nombre, nickname, email, telef, contrasena } = req.body;
 
-    const id = await insertUser(nombre, nickname, email, contrasena);
+    const id = await insertUser(nombre, nickname, email, telef, contrasena);
 
     return res.status(201).json({
       id,
       nombre,
       nickname,
       email,
+      telef,
       message: 'Usuario insertado con exito.',
     });
   } catch (error) {
@@ -91,8 +92,8 @@ export const updateUser = async (req, res, next) => {
     }
     
     // recogemos los parametros del body
-    const { nombre, nickname, email, contrasena } = req.body;
-    const result = await updateUserById(id, nombre, nickname, email, contrasena);
+    const { nombre, nickname, email, telef, contrasena } = req.body;
+    const result = await updateUserById(id, nombre, nickname, email, telef, contrasena);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
@@ -103,6 +104,7 @@ export const updateUser = async (req, res, next) => {
       nombre,
       nickname,
       email,
+      telef,
       message: 'Usuario actualizado correctamente.',
     });
   } catch (error) {
@@ -121,8 +123,8 @@ export const updateUserMe = async (req,res,next) => {
     }
 
 
-    const {nombre,email} = req.body;
-    const result = await updateUserMyself(id,nombre,email)
+    const {nombre,email,telef} = req.body;
+    const result = await updateUserMyself(id,nombre,email,telef)
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
@@ -132,6 +134,7 @@ export const updateUserMe = async (req,res,next) => {
       id,
       nombre,
       email,
+      telef,
       message: 'Usuario actualizado correctamente.',
     });
   } catch(error){

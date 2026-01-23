@@ -28,6 +28,11 @@
         </div>
 
         <div class="field">
+          <label class="label" for="telef">Telefono</label>
+          <input v-model="telef" class="input" type="tel" name="telef" id="telef" placeholder="555666777" required>
+        </div>
+
+        <div class="field">
           <label class="label" for="pass">Contraseヵa</label>
           <input v-model="pass" class="input" type="password" name="pass" id="pass" placeholder="TuApodo123" required>
         </div>
@@ -56,6 +61,7 @@
   const pass = ref('');
   const  nom = ref('');
   const nick = ref('');
+  const telef = ref('')
 
 
   async function Register() {
@@ -64,6 +70,7 @@
         nombre: nom.value,
         nickname: nick.value,
         email: email.value,
+        telef: telef.value,
         contrasena: pass.value,
       });
 

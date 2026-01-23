@@ -8,6 +8,7 @@ Content-Type: application/json
     "nombre":"joel",
     "nickname":"_joelortizz",
     "email":"joel@gmail.com",
+    "telef":"967123056",
     "contrasena":"root"
 }
 
