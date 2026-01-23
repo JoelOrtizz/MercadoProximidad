@@ -1,3 +1,20 @@
+<!--
+VISTA: Comprar (ComprarView.vue)
+
+Qué pantalla es:
+- Es la pantalla principal para buscar y reservar productos del marketplace.
+- Aquí el usuario actúa como comprador: filtra productos y crea reservas.
+
+Qué puede hacer el usuario aquí:
+- Ver productos publicados por otros usuarios.
+- Filtrar por categoría, texto y (si tiene ubicación guardada) por distancia.
+- Elegir cantidad y punto de entrega del vendedor.
+- Crear una reserva del producto.
+
+Con qué otras pantallas se relaciona:
+- Si no estás logueado y quieres reservar, te envía a /login.
+- Los puntos de entrega que aparecen aquí se configuran en /puntos-entrega (pero esa pantalla es del vendedor).
+-->
 <template>
 
   <main>
@@ -120,16 +137,43 @@
 
 
 <script setup>
+// ==========================================================
+// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
+// ==========================================================
+// En esta copia NO se cambia el comportamiento.
+// Solo se añaden comentarios para entender el flujo de la pantalla.
+
+// ===============================
+// BLOQUE: IMPORTS Y DEPENDENCIAS
+// Qué problema resuelve: necesitamos hablar con el backend y usar estado de la sesión.
+// Cuándo se usa: desde que entras a la pantalla.
+// Con qué se relaciona: con todos los bloques que cargan productos/categorías y crean reservas.
+// Si no existiera: no podríamos pedir datos al backend ni saber quién está logueado.
+// ===============================
 import axios from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
 import { useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
 
+// ===============================
+// BLOQUE: SESIÓN + NAVEGACIÓN + NOTIFICACIONES
+// Qué problema resuelve: saber si hay usuario logueado, poder movernos a otra pantalla y mostrar mensajes.
+// Cuándo se usa: cuando intentas reservar sin sesión, o cuando hay errores/éxitos.
+// Con qué se relaciona: con `crearReserva`, `canReserve`, y los mensajes del usuario (toast).
+// Si no existiera: no podríamos redirigir a login ni avisar de errores.
+// ===============================
 const auth = useAuthStore();
 const router = useRouter();
 const toast = useToastStore();
 
+// ===============================
+// BLOQUE: ESTADO DE PANTALLA (FILTROS Y LISTADO)
+// Qué problema resuelve: guardar lo que el usuario ve y selecciona (categoría, texto, distancia, lista de productos).
+// Cuándo se usa: todo el rato mientras navegas por productos.
+// Con qué se relaciona: con `loadProducts`, `selectCategory`, `clearFilters`.
+// Si no existiera: cada interacción “se olvidaría” y no podríamos renderizar nada.
+// ===============================
 const categorias = ref([]);
 const products = ref([]);
 const subtitle = ref('Cargando productos...');
@@ -138,13 +182,34 @@ const searchText = ref('');
 const distanceKm = ref('');
 
 // Reservas (simple, por producto)
+// ===============================
+// BLOQUE: ESTADO DE RESERVA (POR PRODUCTO)
+// Qué problema resuelve: cada producto tiene su “mini-formulario” (cantidad + punto elegido).
+// Cuándo se usa: cuando enfocas cantidad/punto o pulsas “Reservar”.
+// Con qué se relaciona: con `ensureReservaDefaults`, `puntosEntregaDeVendedor`, `crearReserva`.
+// Si no existiera: no podríamos saber qué cantidad/punto ha elegido el usuario para cada producto.
+// ===============================
 const puntosPorVendedor = reactive({}); // { [id_vendedor]: [puntos] }
 const reservaCantidad = reactive({}); // { [id_producto]: number }
 const reservaPuntoId = reactive({}); // { [id_producto]: string }
 const reservandoLoadingId = ref(null);
 
+// ===============================
+// BLOQUE: “HAY SESIÓN?” (COMPROBACIÓN RÁPIDA)
+// Qué problema resuelve: bloquear la reserva si no hay usuario logueado.
+// Cuándo se usa: al reservar y al decidir si un botón está habilitado.
+// Con qué se relaciona: `canReserve` y `crearReserva`.
+// Si no existiera: un usuario sin sesión intentaría reservar y fallaría de forma confusa.
+// ===============================
 const isLoggedIn = () => Boolean(auth.user?.id);
 
+// ===============================
+// BLOQUE: FORMATEO VISUAL (IMAGEN / PRECIO / STOCK)
+// Qué problema resuelve: mostrar datos del backend de forma “bonita” y consistente.
+// Cuándo se usa: cada vez que se pinta un producto.
+// Con qué se relaciona: con el template (tarjetas de producto).
+// Si no existiera: verías textos raros, sin € o sin ruta correcta de imágenes.
+// ===============================
 function resolveImageSrc(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
@@ -168,12 +233,26 @@ function selectCategory(value) {
   loadProducts();
 }
 
+// ===============================
+// BLOQUE: BOTÓN “LIMPIAR FILTROS”
+// Qué problema resuelve: volver al estado “sin filtros” para ver todo.
+// Cuándo se usa: cuando el usuario pulsa “Limpiar”.
+// Con qué se relaciona: con `loadProducts` porque recarga el listado.
+// Si no existiera: el usuario tendría que borrar filtros a mano.
+// ===============================
 function clearFilters() {
   selectedCategory.value = 'all';
   searchText.value = '';
   loadProducts();
 }
 
+// ===============================
+// BLOQUE: CARGA DE CATEGORÍAS (FILTROS)
+// Qué problema resuelve: pintar las categorías del backend como botones de filtro.
+// Cuándo se usa: al entrar a la pantalla.
+// Con qué se relaciona: con el template del lateral “Filtros”.
+// Si no existiera: solo podrías filtrar por “Todas”.
+// ===============================
 async function loadCategorias() {
   try {
     const res = await axios.get('/categorias');
@@ -199,6 +278,13 @@ function ensureReservaDefaults(p) {
 }
 
 async function preloadPuntosEntrega(productsList) {
+  // ===============================
+  // BLOQUE: PRE-CARGA DE PUNTOS DE ENTREGA (POR VENDEDOR)
+  // Qué problema resuelve: para reservar necesitas ver los puntos del vendedor en el <select>.
+  // Cuándo se usa: después de cargar productos.
+  // Con qué se relaciona: con `puntosEntregaDeVendedor` y con el formulario de reserva.
+  // Si no existiera: el desplegable de puntos estaría vacío o pediría datos tarde.
+  // ===============================
   const vendedores = Array.from(new Set((productsList || []).map((p) => String(p?.id_vendedor)).filter(Boolean)));
   const toLoad = vendedores.filter((id) => puntosPorVendedor[id] == null);
 
@@ -217,6 +303,13 @@ async function preloadPuntosEntrega(productsList) {
 }
 
 async function loadProducts() {
+  // ===============================
+  // BLOQUE: CARGA PRINCIPAL DE PRODUCTOS
+  // Qué problema resuelve: traer del backend los productos que se van a mostrar.
+  // Cuándo se usa: al entrar, al aplicar filtros y al recargar.
+  // Con qué se relaciona: con la UI de filtros y con `preloadPuntosEntrega`.
+  // Si no existiera: la pantalla estaría vacía y no podrías comprar nada.
+  // ===============================
   subtitle.value = 'Cargando productos...';
   products.value = [];
 
@@ -251,6 +344,13 @@ async function loadProducts() {
 }
 
 function canReserve(p) {
+  // ===============================
+  // BLOQUE: VALIDACIÓN “PUEDE RESERVAR?”
+  // Qué problema resuelve: deshabilitar botones si no procede (sin sesión, sin stock, es tu propio producto).
+  // Cuándo se usa: cada vez que se pinta una tarjeta de producto.
+  // Con qué se relaciona: con el template (disabled) y con `crearReserva`.
+  // Si no existiera: podrías pulsar “Reservar” y generar errores evitables.
+  // ===============================
   if (!isLoggedIn()) return false;
   if (!p) return false;
   if (String(p.id_vendedor) === String(auth.user?.id)) return false;
@@ -259,6 +359,13 @@ function canReserve(p) {
 }
 
 async function crearReserva(p) {
+  // ===============================
+  // BLOQUE: ACCIÓN “RESERVAR”
+  // Qué problema resuelve: crear una reserva en el backend con producto + cantidad + punto de entrega.
+  // Cuándo se usa: cuando el usuario pulsa el botón “Reservar”.
+  // Con qué se relaciona: con `ensureReservaDefaults`, `canReserve` y la recarga de productos.
+  // Si no existiera: esta pantalla solo mostraría productos, pero no permitiría comprarlos.
+  // ===============================
   if (!isLoggedIn()) {
     toast.warning('Tienes que iniciar sesion');
     router.push('/login');
@@ -298,6 +405,13 @@ async function crearReserva(p) {
 }
 
 onMounted(async () => {
+  // ===============================
+  // BLOQUE: CARGA INICIAL DE LA PANTALLA
+  // Qué problema resuelve: al entrar, prepara la sesión y carga lo que se ve (categorías y productos).
+  // Cuándo se usa: automáticamente al abrir /comprar.
+  // Con qué se relaciona: con `loadCategorias` y `loadProducts`.
+  // Si no existiera: entrarías y verías la pantalla sin datos o con datos viejos.
+  // ===============================
   await auth.fetchMe();
   loadCategorias();
   loadProducts();

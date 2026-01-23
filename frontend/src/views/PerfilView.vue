@@ -15,11 +15,12 @@
         </div>
 
         <div id="info_vendedor">
-          <div class="content_vendedor" role="button" style="cursor: pointer" @click="goToMyProducts">
+          <div class="content_vendedor" style="cursor: pointer" @click="goToMyProducts">
             <p id="vent_act" class="dest_content">{{ ventasActivas }}</p>
             <p class="info_content">Ventas activas</p>
           </div>
-          <div class="content_vendedor" role="button" style="cursor: pointer" @click="goToReservas">
+
+          <div class="content_vendedor" style="cursor: pointer" @click="goToReservas">
             <p id="resv_act" class="dest_content">{{ reservasActivas }}</p>
             <p class="info_content">Reservas activas</p>
           </div>
@@ -68,7 +69,10 @@
 	          </div>
 	          <div class="personal_info_content">
 	            <p>Telefono</p>
-	            <p id="tel_info">-</p>
+	            <template v-if="isEditingProfile">
+	              <input id="tel_info" v-model="profileForm.tlf" type="text" />
+	            </template>
+	            <p v-else id="tel_info">{{ auth.user.tlf || '-' }}</p>
 	          </div>
 	          <div class="personal_info_content">
 	            <p>Ubicacion</p>
@@ -83,16 +87,22 @@
 	        </div>
 
         <div id="preferencias_block">
-          <p>Preferencias</p>
+          <p>Puntos de entrega</p>
 
-          <div class="pref_content">
-            <p>Radio de busqueda(Km)</p>
-            <p id="info_radio">-</p>
-          </div>
+          <div id="fetchPoints">
+            <p v-if="loadingPoints" class="points-muted">Cargando puntos...</p>
 
-          <div class="pref_content">
-            <p>¿Quien soy?</p>
-            <textarea id="pref_textare" v-model="preferenciasTexto"></textarea>
+            <p v-else-if="myPoints.length === 0" class="points-muted">
+              No tienes puntos de entrega configurados
+            </p>
+
+            <div v-else class="contenedor-puntos-entrega">
+              <ul class="lista-puntos-basic">
+                <li v-for="point in myPoints" :key="point.id" class="punto-item-basic">
+                  {{ point.descripcion || `Punto #${point.id}` }}
+                </li>
+              </ul>
+            </div>
           </div>
 
           <button id="pref_change" type="button" @click="router.push('/puntos-entrega')">
@@ -204,7 +214,6 @@ const router = useRouter();
 const toast = useToastStore();
 const modal = useModalStore();
 
-const preferenciasTexto = ref(localStorage.getItem('pref_text') || '');
 const categorias = ref([]);
 const categoriasById = ref({});
 const unidades = ref([]);
@@ -223,7 +232,11 @@ const savingEdit = ref(false);
 
 const isEditingProfile = ref(false);
 const savingProfile = ref(false);
-const profileForm = ref({ nombre: '', email: '' });
+const profileForm = ref({ nombre: '', email: '', tlf: '' });
+
+// Puntos de entrega del usuario (maximo 5)
+const myPoints = ref([]);
+const loadingPoints = ref(false);
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
@@ -254,19 +267,19 @@ const reservasActivas = computed(() => {
 });
 
 
-watch(preferenciasTexto, (v) => localStorage.setItem('pref_text', v));
 
 function startEditProfile() {
   profileForm.value = {
     nombre: auth.user?.nombre || '',
     email: auth.user?.email || '',
+    tlf: auth.user?.tlf || '',
   };
   isEditingProfile.value = true;
 }
 
 function cancelEditProfile() {
   isEditingProfile.value = false;
-  profileForm.value = { nombre: '', email: '' };
+  profileForm.value = { nombre: '', email: '', tlf: '' };
 }
 
 async function saveProfile() {
@@ -275,13 +288,15 @@ async function saveProfile() {
   try {
     const nombre = String(profileForm.value?.nombre || '').trim();
     const email = String(profileForm.value?.email || '').trim();
+    const tlf = String(profileForm.value?.tlf || '').trim();
+    const tlfFinal = tlf ? tlf : null;
 
     if (!nombre || !email) {
       toast.warning('Rellena nombre y email.');
       return;
     }
 
-    await axios.put('/usuarios/me', { nombre, email });
+    await axios.put('/usuarios/me', { nombre, email, tlf: tlfFinal });
     await auth.fetchMe();
     cancelEditProfile();
   } catch (err) {
@@ -425,6 +440,25 @@ async function loadMyReservas() {
   }
 }
 
+async function loadMyPoints() {
+  if (!isLoggedIn.value) {
+    myPoints.value = [];
+    return;
+  }
+
+  loadingPoints.value = true;
+  try {
+    const res = await axios.get('/puntos-entrega/me');
+    myPoints.value = Array.isArray(res.data) ? res.data : [];
+  } catch (err) {
+    console.error('Error cargando los puntos', err);
+    toast.error('Error cargando los puntos.');
+    myPoints.value = [];
+  } finally {
+    loadingPoints.value = false;
+  }
+}
+
 function startEdit(p) {
   editingId.value = p.id;
   editFile.value = null;
@@ -512,6 +546,15 @@ onMounted(async () => {
   await loadUbicacion();
   await loadMyProducts();
   await loadMyReservas();
+  await loadMyPoints();
+});
+
+watch(isLoggedIn, async (v) => {
+  if (!v) {
+    myPoints.value = [];
+    return;
+  }
+  await loadMyPoints();
 });
 
 watch([() => auth.user?.lat, () => auth.user?.lng], () => {

@@ -5,7 +5,7 @@ const modal = useModalStore();
 
 <template>
   <div v-if="modal.visible" class="backdrop">
-    <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal">
       <h3 class="modal__title">{{ modal.title }}</h3>
       <p class="modal__message">{{ modal.message }}</p>
 
@@ -24,8 +24,8 @@ const modal = useModalStore();
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(3px);
   display: grid;
-  place-items: center;
-  padding: 16px;
+  place-items: start center;
+  padding: calc(var(--nav-height, 78px) + 12px) 16px 16px;
   z-index: 10000;
 }
 .modal {

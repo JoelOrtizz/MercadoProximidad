@@ -16,6 +16,7 @@ CREATE TABLE usuarios (
   nombre VARCHAR(100) NOT NULL,
   nickname VARCHAR(50) NOT NULL UNIQUE,
   email VARCHAR(150) NOT NULL UNIQUE,
+  tlf VARCHAR(20) DEFAULT NULL,
   contrasena VARCHAR(255) NOT NULL,
   tipo ENUM('miembro', 'admin') NOT NULL DEFAULT 'miembro',
   lat DECIMAL(10,8) DEFAULT NULL,
@@ -93,7 +94,9 @@ CREATE TABLE reservas (
   id_comprador INT NOT NULL,
   id_producto INT NOT NULL,
   cantidad DECIMAL(10,2) NOT NULL,
-  id_punto_entrega INT NOT NULL,
+  -- Cuando una reserva se cancela / se completa, ya no nos importa mantener el punto "congelado".
+  -- Por eso permitimos NULL: asi el vendedor puede reemplazar sus puntos de entrega sin romper reservas antiguas.
+  id_punto_entrega INT NULL,
   estado ENUM('pendiente', 'aceptada', 'rechazada', 'cancelada', 'completada')
     DEFAULT 'pendiente',
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -109,6 +112,7 @@ CREATE TABLE reservas (
 
   CONSTRAINT fk_reserva_punto
     FOREIGN KEY (id_punto_entrega) REFERENCES puntos_entrega(id)
+    ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================
@@ -224,9 +228,9 @@ INSERT INTO unidades (nombre, simbolo) VALUES
 -- ======================================
 -- Contraseña para ambos usuarios: 1234
 -- (hash bcrypt ya generado, para que puedas hacer login)
-INSERT INTO usuarios (id, nombre, nickname, email, contrasena, tipo, lat, lng) VALUES
-(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', NULL, NULL),
-(2, 'Joel', 'Joel', 'joel@ejemplo.com', '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', NULL, NULL);
+INSERT INTO usuarios (id, nombre, nickname, email, tlf, contrasena, tipo, lat, lng) VALUES
+(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', NULL, NULL),
+(2, 'Joel', 'Joel', 'joel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', NULL, NULL);
 
 -- Creamos (si no existe) el chat entre ellos y unos mensajes de ejemplo.
 

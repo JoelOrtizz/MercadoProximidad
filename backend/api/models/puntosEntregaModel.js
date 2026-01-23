@@ -56,6 +56,41 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
   try {
     await conn.beginTransaction();
 
+    // Si hay reservas que apuntan a puntos actuales del vendedor, no podemos borrar esos puntos
+    // (la FK en reservas lo impide). En modo "reemplazar", mejor avisar claramente.
+    const [refRows] = await conn.query(
+      `
+        SELECT COUNT(*) AS total
+        FROM reservas r
+        JOIN puntos_entrega p ON p.id = r.id_punto_entrega
+        WHERE p.id_vendedor = ?
+          AND r.estado IN ('pendiente', 'aceptada')
+      `,
+      [vendedorId]
+    );
+
+    const totalReferenciadas = Number(refRows?.[0]?.total);
+    if (Number.isFinite(totalReferenciadas) && totalReferenciadas > 0) {
+      const error = new Error(
+        'No se pueden reemplazar los puntos de entrega porque hay reservas activas que usan alguno de esos puntos.'
+      );
+      error.status = 409;
+      throw error;
+    }
+
+    // Si hay reservas antiguas (canceladas / rechazadas / completadas) que todavia guardan un punto,
+    // lo quitamos aqui para que no bloqueen el borrado por la foreign key.
+    await conn.query(
+      `
+        UPDATE reservas r
+        JOIN puntos_entrega p ON p.id = r.id_punto_entrega
+        SET r.id_punto_entrega = NULL
+        WHERE p.id_vendedor = ?
+          AND r.estado IN ('rechazada', 'cancelada', 'completada')
+      `,
+      [vendedorId]
+    );
+
     // Semantica "reemplazar": borra los existentes y crea los nuevos.
     await conn.query(`DELETE FROM puntos_entrega WHERE id_vendedor = ?`, [vendedorId]);
 

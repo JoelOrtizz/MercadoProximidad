@@ -1,3 +1,18 @@
+<!--
+VISTA: Vender / Publicar producto (VenderView.vue)
+
+Qué pantalla es:
+- Pantalla para que un usuario publique un producto a la venta.
+
+Qué puede hacer el usuario aquí:
+- Rellenar un formulario con nombre, precio, stock, unidad, categoría y descripción.
+- Subir una imagen (con previsualización).
+- Enviar el formulario para crear el producto en el backend.
+
+Con qué otras pantallas se relaciona:
+- Si no hay sesión, invita a ir a /login.
+- El producto creado luego aparecerá en /perfil (mis productos) y en /comprar (para otros usuarios).
+-->
 <template>
   <main class="page">
     <div class="container">
@@ -77,12 +92,35 @@
 
 <script setup>
 
+// ==========================================================
+// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
+// ==========================================================
+// Esta vista es un formulario de publicación:
+// - carga categorías/unidades del backend,
+// - guarda lo que escribe el usuario,
+// - al final envía un FormData (para incluir imagen).
+// No se modifica el comportamiento del código.
+
+// ===============================
+// BLOQUE: IMPORTS
+// Qué problema resuelve: pedir datos al backend y usar sesión/navegación.
+// Cuándo se usa: al entrar a la vista y al publicar.
+// Con qué se relaciona: con loadCategorias(), loadUnidades() y submitProduct().
+// Si no existiera: no podrías publicar productos.
+// ===============================
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
 
+// ===============================
+// BLOQUE: SESIÓN + ROUTER + TOAST
+// Qué problema resuelve: bloquear publicación sin login, navegar a login y mostrar mensajes.
+// Cuándo se usa: al enviar el formulario y al cargar datos.
+// Con qué se relaciona: con submitProduct() y el v-if del template.
+// Si no existiera: fallaría con errores y sin feedback al usuario.
+// ===============================
 const toast = useToastStore();
 const auth=useAuthStore();
 const router=useRouter();
@@ -106,6 +144,13 @@ const form=ref({
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
 async function loadCategorias() {
+    // ===============================
+    // BLOQUE: CARGAR CATEGORÍAS
+    // Qué problema resuelve: llenar el <select> de categorías.
+    // Cuándo se usa: al entrar en la pantalla.
+    // Con qué se relaciona: con el formulario de publicación.
+    // Si no existiera: el usuario no podría elegir categoría.
+    // ===============================
     try {
         const res = await axios.get('/categorias');
         categorias.value = Array.isArray(res.data) ? res.data : [];
@@ -115,6 +160,13 @@ async function loadCategorias() {
 }
 
 async function loadUnidades() {
+    // ===============================
+    // BLOQUE: CARGAR UNIDADES
+    // Qué problema resuelve: llenar el <select> de unidades (kg, ud, etc.).
+    // Cuándo se usa: al entrar en la pantalla.
+    // Con qué se relaciona: con el formulario de publicación.
+    // Si no existiera: el backend recibiría productos sin unidad válida.
+    // ===============================
     try {
         const res = await axios.get('/unidades');
         unidades.value = Array.isArray(res.data) ? res.data : [];
@@ -124,6 +176,13 @@ async function loadUnidades() {
 }
 
 function onFileChange(e) {
+    // ===============================
+    // BLOQUE: PREVISUALIZACIÓN DE IMAGEN
+    // Qué problema resuelve: dejar ver la imagen antes de publicar.
+    // Cuándo se usa: al seleccionar archivo en el input.
+    // Con qué se relaciona: con el estado `file` y `previewSrc`, y con submitProduct().
+    // Si no existiera: subirías “a ciegas” sin saber si la imagen es la correcta.
+    // ===============================
     const f = e && e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null;
 
     // Si ya habia una URL creada, la borramos para no acumular memoria.
@@ -141,6 +200,13 @@ function onFileChange(e) {
 }
 
 async function submitProduct(){
+    // ===============================
+    // BLOQUE: PUBLICAR PRODUCTO
+    // Qué problema resuelve: enviar al backend los datos del producto (y la imagen) para crear la oferta.
+    // Cuándo se usa: al enviar el formulario.
+    // Con qué se relaciona: con el estado del formulario, la sesión y el toast.
+    // Si no existiera: la pantalla no publicaría nada.
+    // ===============================
     if(!auth.user?.id) {
         toast.warning('Tienes que iniciar sesion');
         router.push('/login');
@@ -184,6 +250,13 @@ async function submitProduct(){
 }
 
 onMounted(async () => {
+  // ===============================
+  // BLOQUE: CARGA INICIAL
+  // Qué problema resuelve: recuperar sesión y cargar los desplegables del formulario.
+  // Cuándo se usa: al entrar a /vender.
+  // Con qué se relaciona: con loadCategorias() y loadUnidades().
+  // Si no existiera: el formulario saldría sin opciones.
+  // ===============================
   await auth.fetchMe();
   await loadCategorias();
   await loadUnidades();

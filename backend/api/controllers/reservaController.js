@@ -154,7 +154,12 @@ export async function cancelReservation(req, res, next) {
       return res.status(400).json({ error: "Solo se puede cancelar una reserva pendiente" });
     }
 
-    const [updReserva] = await conn.query("UPDATE reservas SET estado = ? WHERE id = ?", ["cancelada", id]);
+    // Al cancelar, dejamos el punto de entrega en NULL para que el vendedor pueda cambiar sus puntos
+    // sin que las reservas antiguas bloqueen el borrado por la foreign key.
+    const [updReserva] = await conn.query(
+      "UPDATE reservas SET estado = ?, id_punto_entrega = NULL WHERE id = ?",
+      ["cancelada", id]
+    );
     if (!updReserva?.affectedRows) {
       await conn.rollback();
       return res.status(400).json({ error: "No se pudo cancelar la reserva." });
@@ -216,7 +221,16 @@ export async function updateEstado(req, res, next) {
 
     const estadoPrevio = String(reserva.estado || "");
 
-    const [upd] = await conn.query("UPDATE reservas SET estado = ? WHERE id = ?", [estado, id]);
+    // Si la reserva pasa a "rechazada" o "completada", ya no queremos que bloquee cambios de puntos de entrega.
+    // Por eso ponemos el punto en NULL en esos casos.
+    let sqlUpdate = "UPDATE reservas SET estado = ? WHERE id = ?";
+    let paramsUpdate = [estado, id];
+    if (estado === "rechazada" || estado === "completada") {
+      sqlUpdate = "UPDATE reservas SET estado = ?, id_punto_entrega = NULL WHERE id = ?";
+      paramsUpdate = [estado, id];
+    }
+
+    const [upd] = await conn.query(sqlUpdate, paramsUpdate);
     if (!upd?.affectedRows) {
       await conn.rollback();
       return res.status(400).json({ error: "No se pudo actualizar" });

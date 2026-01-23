@@ -45,7 +45,7 @@ export const getByEmail = async (uEmail) => {
 export const getUser = async () => {
 
     const [result] = await pool.query(
-        'SELECT id,nombre, nickname, email, tipo FROM usuarios'
+        'SELECT id,nombre, nickname, email, tlf, tipo FROM usuarios'
     );
 
     return result;
@@ -102,7 +102,7 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
 }
 
 
-export const updateUserMyself = async (id,nombre,email) => {
+export const updateUserMyself = async (id,nombre,email,tlf) => {
     
     if (!nombre || !email){
         throw badRequest("Por favor, rellena todos los campos")
@@ -110,8 +110,8 @@ export const updateUserMyself = async (id,nombre,email) => {
 
     const [result] = await pool.query(
         `Update usuarios
-        set nombre=?,email=? where id=?`,
-        [nombre,email,id]
+        set nombre=?,email=?,tlf=? where id=?`,
+        [nombre,email, tlf ?? null, id]
     )
 
     return result;

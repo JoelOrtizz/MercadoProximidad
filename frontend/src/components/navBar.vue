@@ -5,7 +5,7 @@
         <img class="nav__logo-img" src="/assets/logo.jpeg" alt="TerretaShop" />
       </RouterLink>
 
-      <nav class="nav__menu" aria-label="Principal">
+      <nav class="nav__menu">
         <RouterLink class="nav__pill" :class="{ 'is-active': isComprar }" to="/comprar">Comprar</RouterLink>
         <RouterLink class="nav__pill" :class="{ 'is-active': isVender }" to="/vender">Vender</RouterLink>
         <RouterLink class="nav__pill" :class="{ 'is-active': isReservas }" to="/reservas">Reservas</RouterLink>
@@ -16,7 +16,7 @@
       </nav>
 
       <div class="nav__actions">
-        <button class="nav__icon" type="button" title="Notificaciones" aria-label="Notificaciones">
+        <button class="nav__icon" type="button" title="Notificaciones">
           &#128276;
         </button>
 
