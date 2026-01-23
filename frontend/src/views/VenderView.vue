@@ -59,7 +59,7 @@
                     </div>
                     <small class="helper-text">Se enviara la primera imagen seleccionada</small>
 
-                    <div v-if="previewSrc" class="image-preview-wrap" aria-label="Previsualizacion de imagen">
+                    <div v-if="previewSrc" class="image-preview-wrap">
                       <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
                     </div>
                 </div>

@@ -57,7 +57,7 @@
           <button class="btn" type="button" @click="loadProducts">Recargar</button>
         </div>
 
-        <div class="product-grid" aria-live="polite">
+        <div class="product-grid">
           <!-- Bucle para mostrar los productos -->
           <article v-for="p in products" :key="p.id" class="product-card">
 

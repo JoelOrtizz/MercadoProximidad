@@ -20,7 +20,7 @@
       </p>
 
       <section class="coords-layout">
-        <div id="map" aria-label="Mapa"></div>
+        <div id="map"></div>
 
         <aside class="coords-card">
           <h2>Coordenadas</h2>

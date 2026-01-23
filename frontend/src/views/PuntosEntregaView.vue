@@ -16,7 +16,7 @@
     </p>
 
     <section v-else class="layout">
-      <div id="map" aria-label="Mapa"></div>
+      <div id="map"></div>
 
       <aside class="card">
         <h2>Puntos seleccionados</h2>
@@ -28,7 +28,7 @@
         </div>
 
         <div class="table-wrap">
-          <table class="table" aria-label="Tabla de puntos de entrega">
+          <table class="table">
             <thead>
               <tr>
                 <th>#</th>
@@ -48,7 +48,7 @@
           </table>
         </div>
 
-        <div class="status" role="status" aria-live="polite">{{ statusText }}</div>
+        <div class="status">{{ statusText }}</div>
       </aside>
     </section>
   </main>

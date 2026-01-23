@@ -5,7 +5,7 @@ const modal = useModalStore();
 
 <template>
   <div v-if="modal.visible" class="backdrop">
-    <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal">
       <h3 class="modal__title">{{ modal.title }}</h3>
       <p class="modal__message">{{ modal.message }}</p>
 

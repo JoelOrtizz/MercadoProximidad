@@ -54,7 +54,7 @@
             </button>
           </header>
 
-          <div ref="messagesEl" class="conv__messages" aria-live="polite">
+          <div ref="messagesEl" class="conv__messages">
             <div v-if="loadingMensajes" class="conv__muted">Cargando mensajes...</div>
             <div v-else-if="mensajes.length === 0" class="conv__muted">Escribe el primer mensaje.</div>
 
@@ -235,4 +235,3 @@ onMounted(async () => {
   await loadChats();
 });
 </script>
-
