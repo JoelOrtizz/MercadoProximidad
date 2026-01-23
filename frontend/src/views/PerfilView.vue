@@ -41,63 +41,63 @@
           </button>
         </div>
 
-	        <div id="personal_info">
-	          <p>Informacion personal</p>
-	          <button
-	            id="editar_info"
-	            type="button"
-	            :disabled="savingProfile"
-	            @click="isEditingProfile ? cancelEditProfile() : startEditProfile()"
-	          >
-	            {{ isEditingProfile ? 'Cancelar' : 'Editar' }}
-	          </button>
+        <div id="personal_info">
+          <p>Informacion personal</p>
+          <button id="editar_info" type="button" :disabled="savingProfile"
+            @click="isEditingProfile ? cancelEditProfile() : startEditProfile()">
+            {{ isEditingProfile ? 'Cancelar' : 'Editar' }}
+          </button>
 
-	          <div class="personal_info_content">
-	            <p>Nombre</p>
-	            <template v-if="isEditingProfile">
-	              <input id="name_info" v-model="profileForm.nombre" type="text" />
-	            </template>
-	            <p v-else id="name_info">{{ auth.user.nombre }}</p>
-	          </div>
-	          <div class="personal_info_content">
-	            <p>Email</p>
-	            <template v-if="isEditingProfile">
-	              <input id="email_info" v-model="profileForm.email" type="email" />
-	            </template>
-	            <p v-else id="email_info">{{ auth.user.email }}</p>
-	          </div>
-	          <div class="personal_info_content">
-	            <p>Telefono</p>
-	            <p id="tel_info">-</p>
-	          </div>
-	          <div class="personal_info_content">
-	            <p>Ubicacion</p>
-	            <p id="ubi_info">{{ hasCoords ? ubicacionTexto : '-' }}</p>
-	          </div>
+          <div class="personal_info_content">
+            <p>Nombre</p>
+            <template v-if="isEditingProfile">
+              <input id="name_info" v-model="profileForm.nombre" type="text" />
+            </template>
+            <p v-else id="name_info">{{ auth.user.nombre }}</p>
+          </div>
+          <div class="personal_info_content">
+            <p>Email</p>
+            <template v-if="isEditingProfile">
+              <input id="email_info" v-model="profileForm.email" type="email" />
+            </template>
+            <p v-else id="email_info">{{ auth.user.email }}</p>
+          </div>
+          <div class="personal_info_content">
+            <p>Telefono</p>
+            <p id="tel_info">-</p>
+          </div>
+          <div class="personal_info_content">
+            <p>Ubicacion</p>
+            <p id="ubi_info">{{ hasCoords ? ubicacionTexto : '-' }}</p>
+          </div>
 
-	          <div v-if="isEditingProfile" style="margin-top: 12px">
-	            <button class="btn btn-primary" type="button" :disabled="savingProfile" @click="saveProfile">
-	              {{ savingProfile ? 'Guardando...' : 'Guardar' }}
-	            </button>
-	          </div>
-	        </div>
+          <div v-if="isEditingProfile" style="margin-top: 12px">
+            <button class="btn btn-primary" type="button" :disabled="savingProfile" @click="saveProfile">
+              {{ savingProfile ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </div>
 
         <div id="preferencias_block">
           <p>Preferencias</p>
 
-          <div class="pref_content">
-            <p>Radio de busqueda(Km)</p>
-            <p id="info_radio">-</p>
-          </div>
-
-          <div class="pref_content">
-            <p>¿Quien soy?</p>
-            <textarea id="pref_textare" v-model="preferenciasTexto"></textarea>
-          </div>
-
           <button id="pref_change" type="button" @click="router.push('/puntos-entrega')">
             Configurar puntos de entrega
           </button>
+
+          <div id="fetchPoints">
+            <p v-if="loadingPoints">Cargando Puntos...</p>
+
+            <p v-else-if="myPoints.length === 0">No tienes puntos de entrega configurados</p>
+
+            <div v-else class="contenedor-puntos-entrega">
+              <ul class="lista-puntos-custom">
+                <li v-for="point in myPoints" :key="point.id" class="tarjeta-punto">
+                  {{ point.descripcion || 'Punto sin descripción' }}
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
 
         <div id="productos_header" ref="myProductsEl" class="productos-header">
@@ -109,17 +109,9 @@
           <div v-if="loadingProducts" class="product-muted">Cargando productos...</div>
           <div v-else-if="myProducts.length === 0" class="product-muted">No tienes productos publicados.</div>
 
-          <div
-            v-for="p in myProducts"
-            :key="p.id"
-            class="product-row"
-            :class="{ 'is-editing': editingId === p.id }"
-          >
-            <img
-              class="product-row__img"
-              :src="p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg'"
-              :alt="`Imagen de ${p.nombre}`"
-            />
+          <div v-for="p in myProducts" :key="p.id" class="product-row" :class="{ 'is-editing': editingId === p.id }">
+            <img class="product-row__img" :src="p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg'"
+              :alt="`Imagen de ${p.nombre}`" />
 
             <div>
               <div class="product-row__title">{{ p.nombre }}</div>
@@ -170,11 +162,8 @@
                 <label>Cambiar imagen</label>
                 <input type="file" accept="image/*" @change="onEditFileChange" />
 
-                <img
-                  class="product-edit__preview"
-                  :src="editPreviewSrc || (p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg')"
-                  alt="Preview"
-                />
+                <img class="product-edit__preview"
+                  :src="editPreviewSrc || (p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg')" alt="Preview" />
               </div>
 
               <div class="product-actions">
@@ -224,6 +213,10 @@ const savingEdit = ref(false);
 const isEditingProfile = ref(false);
 const savingProfile = ref(false);
 const profileForm = ref({ nombre: '', email: '' });
+
+// Para el Fetch de los puntos que tiene cada usuario
+const myPoints = ref([]);
+const loadingPoints = ref(false);
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
@@ -336,6 +329,19 @@ async function loadUbicacion() {
     ubicacionTexto.value = formatDireccion(data) || coordsTexto.value;
   } catch {
     ubicacionTexto.value = coordsTexto.value;
+  }
+}
+
+async function loadMyPoints() {
+  loadingPoints.value = true;
+  try {
+    const res = await axios.get('/puntos-entrega/me');
+    myPoints.value = Array.isArray(res.data) ? res.data : [];
+  } catch (err) {
+    console.error("Error cargando los puntos", err);
+    toast.error("Error cargando los puntos", err);
+  } finally {
+    loadingPoints.value = false;
   }
 }
 
@@ -512,6 +518,7 @@ onMounted(async () => {
   await loadUbicacion();
   await loadMyProducts();
   await loadMyReservas();
+  await loadMyPoints();
 });
 
 watch([() => auth.user?.lat, () => auth.user?.lng], () => {
