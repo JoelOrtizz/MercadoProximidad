@@ -50,3 +50,14 @@ export const updateStatus = async (id, estado) => {
 
     return result;
 }
+
+export async function reservaByUserId(id, id_user) {
+    const [result] = await pool.query(
+        `select id_vendedor, id_comprador, estado
+        from reservas
+        where id = ? and (id_vendedor = ? or id_comprador=?)`,
+        [id, id_user, id_user]
+    );
+
+    return result;
+}
