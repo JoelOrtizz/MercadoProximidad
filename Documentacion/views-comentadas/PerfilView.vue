@@ -1,3 +1,24 @@
+<!--
+VISTA: Perfil (PerfilView.vue)
+
+Qué pantalla es:
+- Pantalla “mi cuenta” del usuario logueado.
+- Aquí se ve información personal, ubicación, puntos de entrega y “mis productos”.
+
+Qué puede hacer el usuario aquí:
+- Ver su nickname e info básica.
+- Editar datos personales (nombre, email, teléfono) y guardarlos.
+- Ver/editar su ubicación (ir a /coords).
+- Ver sus puntos de entrega actuales y abrir la pantalla de configuración (/puntos-entrega).
+- Ver sus productos y hacer CRUD básico (editar/eliminar).
+- Ver el contador de reservas activas y navegar a /reservas.
+
+Con qué otras pantallas se relaciona:
+- /login si no hay sesión.
+- /coords para configurar o cambiar ubicación.
+- /puntos-entrega para editar los puntos.
+- /reservas para ver/gestionar reservas.
+-->
 <template>
   <main class="page">
     <div class="block-perfil">
@@ -19,6 +40,7 @@
             <p id="vent_act" class="dest_content">{{ ventasActivas }}</p>
             <p class="info_content">Ventas activas</p>
           </div>
+
           <div class="content_vendedor" style="cursor: pointer" @click="goToReservas">
             <p id="resv_act" class="dest_content">{{ reservasActivas }}</p>
             <p class="info_content">Reservas activas</p>
@@ -88,16 +110,6 @@
         <div id="preferencias_block">
           <p>Puntos de entrega</p>
 
-
-
-
-
-
-
-          <button id="pref_change" type="button" @click="router.push('/puntos-entrega')">
-            Configurar puntos de entrega
-          </button>
-
           <div id="fetchPoints">
             <p v-if="loadingPoints" class="points-muted">Cargando puntos...</p>
 
@@ -113,6 +125,10 @@
               </ul>
             </div>
           </div>
+
+          <button id="pref_change" type="button" @click="router.push('/puntos-entrega')">
+            Configurar puntos de entrega
+          </button>
         </div>
 
         <div id="productos_header" ref="myProductsEl" class="productos-header">
@@ -210,14 +226,21 @@
 // ==========================================================
 // BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
 // ==========================================================
-// Esta vista es una copia de `PerfilView.vue`.
-// El código NO cambia: solo se añaden comentarios para separar
-// funcionalidades y entender qué hace cada parte y dónde se usa.
+// Esta vista es “larga” porque junta varias cosas:
+// - Datos del usuario (perfil)
+// - Ubicación (texto a partir de lat/lng)
+// - Puntos de entrega (lista rápida)
+// - Mis productos (listar / editar / eliminar)
+//
+// Importante: en esta copia NO cambiamos el comportamiento.
+// Solo añadimos comentarios para entender el flujo funcional.
 
 // ===============================
-// BLOQUE: IMPORTS Y DEPENDENCIAS
-// Dónde está: justo al inicio del <script>
-// Para qué sirve: traer axios, utilidades de Vue, router y el store
+// BLOQUE: IMPORTS
+// Qué problema resuelve: hablar con el backend, navegar y usar stores globales (auth/toast/modal).
+// Cuándo se usa: desde que entras al perfil.
+// Con qué se relaciona: con todas las cargas (productos, reservas, puntos) y acciones (guardar, eliminar, logout).
+// Si no existiera: la pantalla no podría cargar nada ni reaccionar a botones.
 // ===============================
 import axios from 'axios';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -227,9 +250,11 @@ import { useToastStore } from '@/stores/toastStore.js';
 import { useModalStore } from '@/stores/modal.js';
 
 // ===============================
-// BLOQUE: STORE + ROUTER
-// Dónde se usa: en botones (logout, navegación) y cargas iniciales
-// Para qué sirve: leer el usuario logueado y navegar entre páginas
+// BLOQUE: STORES + ROUTER
+// Qué problema resuelve: tener el usuario logueado, poder navegar y mostrar avisos/modales.
+// Cuándo se usa: en casi todos los botones y cargas.
+// Con qué se relaciona: con logout(), saveProfile(), deleteProduct(), navegación a coords/reservas.
+// Si no existiera: no habría sesión ni feedback al usuario.
 // ===============================
 const auth = useAuthStore();
 const router = useRouter();
@@ -237,24 +262,22 @@ const toast = useToastStore();
 const modal = useModalStore();
 
 // ===============================
-// BLOQUE: ESTADO (PREFERENCIAS)
-// Dónde se usa: panel "Puntos de entrega" del perfil
-// Para qué sirve: guardar un texto en localStorage para no perderlo
-// ===============================
-
-// ===============================
-// BLOQUE: ESTADO (LISTAS AUXILIARES)
-// Dónde se usa: <select> de categoría y unidad en el editor de producto
-// Para qué sirve: cargar categorías/unidades desde el backend
+// BLOQUE: LISTAS AUXILIARES (CATEGORÍAS Y UNIDADES)
+// Qué problema resuelve: cuando editas un producto, necesitas desplegables con categorías y unidades.
+// Cuándo se usa: cuando abres el editor de un producto en “Mis productos”.
+// Con qué se relaciona: con loadCategorias(), loadUnidades() y el formulario de edición.
+// Si no existiera: no podrías seleccionar categoría/unidad correctamente.
 // ===============================
 const categorias = ref([]);
 const categoriasById = ref({});
 const unidades = ref([]);
 
 // ===============================
-// BLOQUE: ESTADO (MIS PRODUCTOS / RESERVAS)
-// Dónde se usa: lista "Mis productos" y contadores de la parte superior
-// Para qué sirve: guardar arrays y estados de carga (loading)
+// BLOQUE: MIS PRODUCTOS Y MIS RESERVAS (DATOS DE LA PANTALLA)
+// Qué problema resuelve: guardar los listados que se muestran y los contadores de arriba.
+// Cuándo se usa: al entrar al perfil y al recargar.
+// Con qué se relaciona: con loadMyProducts(), loadMyReservas(), ventasActivas y reservasActivas.
+// Si no existiera: no verías tus productos ni los números del perfil.
 // ===============================
 const myProducts = ref([]);
 const loadingProducts = ref(false);
@@ -263,9 +286,11 @@ const loadingReservas = ref(false);
 const myProductsEl = ref(null);
 
 // ===============================
-// BLOQUE: ESTADO (EDICIÓN DE PRODUCTO)
-// Dónde se usa: cuando se abre el editor dentro de una fila de producto
-// Para qué sirve: controlar qué producto se edita y el formulario temporal
+// BLOQUE: EDICIÓN DE PRODUCTO (FORMULARIO TEMPORAL)
+// Qué problema resuelve: permitir editar un producto “en línea” sin ir a otra pantalla.
+// Cuándo se usa: cuando pulsas “Editar” en un producto.
+// Con qué se relaciona: con startEdit(), saveEdit(), cancelEdit() y deleteProduct().
+// Si no existiera: solo podrías ver productos, pero no modificarlos.
 // ===============================
 const editingId = ref(null);
 const editForm = ref(null);
@@ -274,26 +299,32 @@ const editPreviewSrc = ref('');
 const savingEdit = ref(false);
 
 // ===============================
-// BLOQUE: ESTADO (EDICIÓN DE PERFIL)
-// Dónde se usa: "Información personal" (Editar/Cancelar/Guardar)
-// Para qué sirve: activar modo edición y guardar nombre/email temporalmente
+// BLOQUE: EDICIÓN DEL PERFIL (DATOS PERSONALES)
+// Qué problema resuelve: permitir cambiar nombre/email/teléfono sin salir del perfil.
+// Cuándo se usa: cuando pulsas “Editar” en Información personal.
+// Con qué se relaciona: con startEditProfile(), saveProfile() y cancelEditProfile().
+// Si no existiera: el perfil sería solo de lectura.
 // ===============================
 const isEditingProfile = ref(false);
 const savingProfile = ref(false);
 const profileForm = ref({ nombre: '', email: '', tlf: '' });
 
 // ===============================
-// BLOQUE: CARGA DE PUNTOS DE ENTREGA (LISTA DEL PERFIL)
-// Donde se usa: bloque "Puntos de entrega" del perfil
-// Para que sirve: mostrar los puntos actuales (maximo 5) del usuario logueado
+// BLOQUE: PUNTOS DE ENTREGA (RESUMEN EN EL PERFIL)
+// Qué problema resuelve: ver rápidamente qué puntos tienes guardados sin entrar a la pantalla de configuración.
+// Cuándo se usa: al entrar al perfil (carga inicial) y cuando vuelves de /puntos-entrega.
+// Con qué se relaciona: con loadMyPoints() y con el botón “Configurar puntos de entrega”.
+// Si no existiera: el usuario no sabría qué puntos tiene hasta abrir la otra pantalla.
 // ===============================
 const myPoints = ref([]);
 const loadingPoints = ref(false);
 
 // ===============================
-// BLOQUE: DATOS CALCULADOS (SESION Y COORDENADAS)
-// Dónde se usa: v-if del template y textos de ubicación
-// Para qué sirve: saber si hay login y si el usuario tiene lat/lng válidas
+// BLOQUE: COMPROBACIONES Y TEXTOS DERIVADOS
+// Qué problema resuelve: decidir si hay login, si hay coords, y mostrar textos ya “preparados”.
+// Cuándo se usa: en el template para mostrar/habilitar secciones.
+// Con qué se relaciona: con la ubicación, con las redirecciones y con la UI de contadores.
+// Si no existiera: habría muchos “if” repartidos y sería más difícil entender el flujo.
 // ===============================
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
@@ -310,19 +341,8 @@ const coordsTexto = computed(() => {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '-';
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 });
-
-// ===============================
-// BLOQUE: ESTADO (TEXTO DE UBICACIÓN)
-// Dónde se usa: <p id="info_ubi">{{ ubicacionTexto }}</p>
-// Para qué sirve: mostrar "Cargando/Buscando" y la dirección final
-// ===============================
 const ubicacionTexto = ref('Cargando...');
 
-// ===============================
-// BLOQUE: DATOS CALCULADOS (CONTADORES)
-// Dónde se usa: "Ventas activas" y "Reservas activas" arriba del todo
-// Para qué sirve: contar productos con stock y reservas activas
-// ===============================
 const ventasActivas = computed(() => {
   return (myProducts.value || []).reduce((acc, p) => {
     const s = Number(p?.stock);
@@ -334,17 +354,8 @@ const reservasActivas = computed(() => {
   return (myReservas.value || []).filter((r) => r?.estado === 'pendiente' || r?.estado === 'aceptada').length;
 });
 
-// ===============================
-// BLOQUE: WATCH (PREFERENCIAS)
-// Dónde se usa: cuando escribes en el textarea de preferencias
-// Para qué sirve: guardar automáticamente el texto en localStorage
-// ===============================
 
-// ===============================
-// BLOQUE: BOTÓN EDITAR PERFIL
-// Dónde se usa: botón "Editar/Cancelar" en "Información personal"
-// Para qué sirve: activar/desactivar el modo edición del perfil
-// ===============================
+
 function startEditProfile() {
   profileForm.value = {
     nombre: auth.user?.nombre || '',
@@ -359,36 +370,14 @@ function cancelEditProfile() {
   profileForm.value = { nombre: '', email: '', tlf: '' };
 }
 
-// ===============================
-// BLOQUE: PETICIONES (MIS PUNTOS DE ENTREGA)
-// Donde se usa: panel "Puntos de entrega" del perfil
-// Para que sirve: mostrar la lista (maximo 5) sin ir a la pagina de configuracion
-// ===============================
-async function loadMyPoints() {
-  if (!isLoggedIn.value) {
-    myPoints.value = [];
-    return;
-  }
-
-  loadingPoints.value = true;
-  try {
-    const res = await axios.get('/puntos-entrega/me');
-    myPoints.value = Array.isArray(res.data) ? res.data : [];
-  } catch (err) {
-    console.error('Error cargando los puntos', err);
-    toast.error('Error cargando los puntos.');
-    myPoints.value = [];
-  } finally {
-    loadingPoints.value = false;
-  }
-}
-
-// ===============================
-// BLOQUE: BOTÓN GUARDAR PERFIL
-// Dónde se usa: botón "Guardar" cuando estás editando el perfil
-// Para qué sirve: enviar nombre/email al backend y refrescar el usuario
-// ===============================
 async function saveProfile() {
+  // ===============================
+  // BLOQUE: GUARDAR PERFIL (NOMBRE / EMAIL / TELÉFONO)
+  // Qué problema resuelve: mandar al backend los cambios del usuario y refrescar los datos de sesión.
+  // Cuándo se usa: cuando el usuario pulsa “Guardar” en Información personal.
+  // Con qué se relaciona: con startEditProfile() (rellena el form) y con auth.fetchMe() (refresca lo que se ve).
+  // Si no existiera: podrías editar en pantalla pero no se guardaría en la base de datos.
+  // ===============================
   if (!isLoggedIn.value) return;
   savingProfile.value = true;
   try {
@@ -413,11 +402,6 @@ async function saveProfile() {
   }
 }
 
-// ===============================
-// BLOQUE: UBICACIÓN (BUSCAR DIRECCIÓN)
-// Dónde se usa: loadUbicacion()
-// Para qué sirve: convertir lat/lng en una dirección usando un servicio externo
-// ===============================
 async function reverseGeocode(lat, lng) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
   const res = await fetch(url, {
@@ -430,7 +414,6 @@ async function reverseGeocode(lat, lng) {
   return await res.json();
 }
 
-// Esta función "acorta" la dirección para mostrar algo bonito en pantalla.
 function formatDireccion(data) {
   const addr = data?.address || {};
   const road = addr.road || addr.pedestrian || addr.footway || addr.path || '';
@@ -444,7 +427,6 @@ function formatDireccion(data) {
   return result || data?.display_name || '';
 }
 
-// Carga la ubicación en texto que se ve en "Ubicacion actual".
 async function loadUbicacion() {
   if (!isLoggedIn.value) {
     ubicacionTexto.value = '';
@@ -467,11 +449,6 @@ async function loadUbicacion() {
   }
 }
 
-// ===============================
-// BLOQUE: HELPERS DE PRODUCTO (VISUAL)
-// Dónde se usa: en el template al pintar cada producto
-// Para qué sirve: construir imagen, precio y stock en formato legible
-// ===============================
 function resolveImageSrc(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
@@ -496,30 +473,15 @@ function categoriaLabel(idCategoria) {
   return categoriasById.value[key] || `Categoria ${key}`;
 }
 
-// ===============================
-// BLOQUE: BOTÓN "CAMBIAR UBICACIÓN"
-// Dónde se usa: botón debajo de "Ubicacion actual"
-// Para qué sirve: ir a /coords para configurar o editar ubicación
-// ===============================
 function goCoords() {
   router.push(hasCoords.value ? '/coords?edit=1' : '/coords');
 }
 
-// ===============================
-// BLOQUE: BOTÓN "CERRAR"
-// Dónde se usa: botón de cerrar sesión en la cabecera del perfil
-// Para qué sirve: cerrar sesión y volver al login
-// ===============================
 async function logout() {
   await auth.logout();
   router.push('/login');
 }
 
-// ===============================
-// BLOQUE: PETICIONES (CATEGORÍAS)
-// Dónde se usa: editor de producto (label de categoría y <select>)
-// Para qué sirve: cargar categorías y crear un mapa id->nombre
-// ===============================
 async function loadCategorias() {
   try {
     const res = await axios.get('/categorias');
@@ -537,11 +499,6 @@ async function loadCategorias() {
   }
 }
 
-// ===============================
-// BLOQUE: PETICIONES (UNIDADES)
-// Dónde se usa: editor de producto (<select> de unidad)
-// Para qué sirve: cargar unidades disponibles (kg, ud, etc.)
-// ===============================
 async function loadUnidades() {
   try {
     const res = await axios.get('/unidades');
@@ -552,9 +509,11 @@ async function loadUnidades() {
 }
 
 // ===============================
-// BLOQUE: PETICIONES (MIS PRODUCTOS)
-// Dónde se usa: sección "Mis productos" + contador "Ventas activas"
-// Para qué sirve: traer la lista de productos del usuario
+// BLOQUE: CARGA “MIS PRODUCTOS”
+// Qué problema resuelve: traer del backend los productos del usuario logueado para mostrarlos y editarlos.
+// Cuándo se usa: al entrar al perfil y cuando pulsas “Recargar”.
+// Con qué se relaciona: con la lista “Mis productos” y con el editor (porque necesitas los datos actuales).
+// Si no existiera: el perfil no mostraría tus productos.
 // ===============================
 async function loadMyProducts() {
   loadingProducts.value = true;
@@ -570,11 +529,6 @@ async function loadMyProducts() {
   }
 }
 
-// ===============================
-// BLOQUE: PETICIONES (MIS RESERVAS)
-// Dónde se usa: contador "Reservas activas" y navegación a /reservas
-// Para qué sirve: traer reservas y quitar las que están canceladas
-// ===============================
 async function loadMyReservas() {
   loadingReservas.value = true;
   try {
@@ -589,10 +543,31 @@ async function loadMyReservas() {
 }
 
 // ===============================
-// BLOQUE: BOTÓN "EDITAR" (PRODUCTO)
-// Dónde se usa: botón "Editar" en cada fila de producto
-// Para qué sirve: abrir el formulario y rellenarlo con el producto elegido
+// BLOQUE: CARGA “MIS PUNTOS DE ENTREGA”
+// Qué problema resuelve: pedir al backend los puntos del usuario para pintarlos en el resumen del perfil.
+// Cuándo se usa: al entrar al perfil y cuando la sesión cambia.
+// Con qué se relaciona: con el bloque de UI “Puntos de entrega” y con el botón de configurar.
+// Si no existiera: la lista se quedaría vacía o desactualizada.
 // ===============================
+async function loadMyPoints() {
+  if (!isLoggedIn.value) {
+    myPoints.value = [];
+    return;
+  }
+
+  loadingPoints.value = true;
+  try {
+    const res = await axios.get('/puntos-entrega/me');
+    myPoints.value = Array.isArray(res.data) ? res.data : [];
+  } catch (err) {
+    console.error('Error cargando los puntos', err);
+    toast.error('Error cargando los puntos.');
+    myPoints.value = [];
+  } finally {
+    loadingPoints.value = false;
+  }
+}
+
 function startEdit(p) {
   editingId.value = p.id;
   editFile.value = null;
@@ -608,11 +583,6 @@ function startEdit(p) {
   };
 }
 
-// ===============================
-// BLOQUE: BOTÓN "CANCELAR" (EDICIÓN DE PRODUCTO)
-// Dónde se usa: dentro del editor del producto
-// Para qué sirve: cerrar el editor y limpiar datos temporales
-// ===============================
 function cancelEdit() {
   editingId.value = null;
   editForm.value = null;
@@ -620,21 +590,11 @@ function cancelEdit() {
   editPreviewSrc.value = '';
 }
 
-// ===============================
-// BLOQUE: INPUT DE IMAGEN (PRODUCTO)
-// Dónde se usa: input type="file" del editor
-// Para qué sirve: guardar archivo y mostrar una previsualización
-// ===============================
 function onEditFileChange(e) {
   editFile.value = e.target?.files?.[0] || null;
   editPreviewSrc.value = editFile.value ? URL.createObjectURL(editFile.value) : '';
 }
 
-// ===============================
-// BLOQUE: BOTÓN "GUARDAR" (PRODUCTO)
-// Dónde se usa: dentro del editor del producto
-// Para qué sirve: enviar cambios al backend y recargar la lista
-// ===============================
 async function saveEdit() {
   if (!editingId.value || !editForm.value) return;
   savingEdit.value = true;
@@ -665,9 +625,11 @@ async function saveEdit() {
 }
 
 // ===============================
-// BLOQUE: BOTÓN "ELIMINAR" (PRODUCTO)
-// Dónde se usa: botón "Eliminar" en cada fila de producto
-// Para qué sirve: pedir confirmación y eliminar en el backend
+// BLOQUE: ELIMINAR PRODUCTO (CON CONFIRMACIÓN)
+// Qué problema resuelve: borrar un producto y avisar al usuario antes con un modal.
+// Cuándo se usa: al pulsar “Eliminar” en un producto.
+// Con qué se relaciona: con el Modal global (confirmación) y con loadMyProducts() (refresco).
+// Si no existiera: podrías borrar sin confirmación o no podrías borrar productos.
 // ===============================
 async function deleteProduct(p) {
   const ok = await modal.openConfirm({
@@ -684,28 +646,20 @@ async function deleteProduct(p) {
   }
 }
 
-// ===============================
-// BLOQUE: NAVEGACIÓN (SCROLL A "MIS PRODUCTOS")
-// Dónde se usa: al pulsar el cuadro "Ventas activas"
-// Para qué sirve: hacer scroll suave hasta el listado de productos
-// ===============================
 function goToMyProducts() {
   myProductsEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ===============================
-// BLOQUE: NAVEGACIÓN (IR A RESERVAS)
-// Dónde se usa: al pulsar el cuadro "Reservas activas"
-// Para qué sirve: navegar a /reservas
-// ===============================
 function goToReservas() {
   router.push('/reservas');
 }
 
 // ===============================
-// BLOQUE: CARGA INICIAL (AL ENTRAR EN LA VISTA)
-// Dónde se usa: se ejecuta automáticamente al abrir la página
-// Para qué sirve: cargar usuario y todos los datos de la pantalla
+// BLOQUE: CARGA INICIAL DEL PERFIL
+// Qué problema resuelve: cuando entras, la vista necesita varios datos (usuario, ubicación, productos, reservas, puntos).
+// Cuándo se usa: automáticamente al abrir la pantalla /perfil.
+// Con qué se relaciona: con todas las funciones de carga (loadCategorias, loadUnidades, loadUbicacion, loadMyProducts, loadMyReservas, loadMyPoints).
+// Si no existiera: verías valores vacíos, contadores a 0 y listas sin datos.
 // ===============================
 onMounted(async () => {
   await auth.fetchMe();
@@ -718,11 +672,6 @@ onMounted(async () => {
   await loadMyPoints();
 });
 
-// ===============================
-// BLOQUE: ACTUALIZAR UBICACIÓN SI CAMBIAN COORDENADAS
-// Dónde se usa: si el usuario cambia lat/lng (por ejemplo en /coords)
-// Para qué sirve: refrescar el texto de ubicación sin recargar la página
-// ===============================
 watch(isLoggedIn, async (v) => {
   if (!v) {
     myPoints.value = [];

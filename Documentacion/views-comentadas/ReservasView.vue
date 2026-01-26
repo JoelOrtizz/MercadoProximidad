@@ -1,3 +1,20 @@
+<!--
+VISTA: Reservas (ReservasView.vue)
+
+Qué pantalla es:
+- Pantalla para ver y gestionar reservas (tanto como comprador como como vendedor).
+- Se divide por pestañas: pendientes, aceptadas y finalizadas.
+
+Qué puede hacer el usuario aquí:
+- Ver sus reservas y su estado.
+- Si eres comprador: cancelar reservas pendientes.
+- Si eres vendedor: aceptar/rechazar reservas pendientes y marcar completadas las aceptadas.
+- Abrir un chat con la otra persona desde una reserva (crea el chat si no existe).
+
+Con qué otras pantallas se relaciona:
+- /login si no hay sesión.
+- /mensajes/:id al pulsar “Chat”.
+-->
 <template>
   <main class="page">
     <div class="products-header">
@@ -97,6 +114,22 @@
 </template>
 
 <script setup>
+// ==========================================================
+// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
+// ==========================================================
+// Esta vista es el “panel de reservas”:
+// - Carga la lista completa de reservas del usuario.
+// - Filtra por pestañas (pendientes/aceptadas/finalizadas).
+// - Permite acciones según rol (comprador/vendedor).
+// No se modifica el comportamiento del código.
+
+// ===============================
+// BLOQUE: IMPORTS
+// Qué problema resuelve: hablar con el backend, navegar y mostrar avisos/modales.
+// Cuándo se usa: desde que entras a /reservas.
+// Con qué se relaciona: con loadReservas(), cancelar(), cambiarEstado() y openChat().
+// Si no existiera: no podrías gestionar reservas ni abrir chats.
+// ===============================
 import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -115,6 +148,13 @@ const subtitle = ref('Cargando...');
 const tab = ref('pendientes'); // pendientes | aceptadas | finalizadas
 const savingById = reactive({});
 
+// ===============================
+// BLOQUE: SESIÓN
+// Qué problema resuelve: saber si el usuario está logueado y si es comprador/vendedor en cada reserva.
+// Cuándo se usa: en los botones (mostrar/ocultar) y en la carga inicial.
+// Con qué se relaciona: con isComprador(), isVendedor(), y el v-if del template.
+// Si no existiera: se mostrarían botones incorrectos o fallarían llamadas por 401.
+// ===============================
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
 function formatDate(value) {
@@ -147,6 +187,13 @@ const activeList = computed(() => {
 });
 
 async function loadReservas() {
+  // ===============================
+  // BLOQUE: CARGAR RESERVAS
+  // Qué problema resuelve: pedir al backend todas las reservas del usuario.
+  // Cuándo se usa: al entrar y al recargar.
+  // Con qué se relaciona: con las pestañas y el listado.
+  // Si no existiera: la pantalla estaría vacía.
+  // ===============================
   loading.value = true;
   subtitle.value = 'Cargando...';
   try {
@@ -166,6 +213,13 @@ async function loadReservas() {
 }
 
 async function cancelar(r) {
+  // ===============================
+  // BLOQUE: CANCELAR RESERVA (COMPRADOR)
+  // Qué problema resuelve: permitir al comprador cancelar una reserva pendiente.
+  // Cuándo se usa: al pulsar “Cancelar”.
+  // Con qué se relaciona: con el modal de confirmación y la recarga de reservas.
+  // Si no existiera: el comprador no podría cancelar desde aquí.
+  // ===============================
   const ok = await modal.openConfirm({
     title: 'Cancelar reserva',
     message: `Cancelar la reserva #${r.id}?`,
@@ -184,6 +238,13 @@ async function cancelar(r) {
 }
 
 async function cambiarEstado(r, estado) {
+  // ===============================
+  // BLOQUE: CAMBIAR ESTADO (VENDEDOR)
+  // Qué problema resuelve: aceptar/rechazar pendientes y marcar completadas aceptadas.
+  // Cuándo se usa: al pulsar los botones de estado.
+  // Con qué se relaciona: con loadReservas() para refrescar la lista.
+  // Si no existiera: el vendedor no podría gestionar reservas.
+  // ===============================
   try {
     savingById[r.id] = true;
     await axios.put(`/reservas/${r.id}/status`, { estado });
@@ -197,6 +258,13 @@ async function cambiarEstado(r, estado) {
 }
 
 async function openChat(r) {
+  // ===============================
+  // BLOQUE: ABRIR CHAT DESDE RESERVA
+  // Qué problema resuelve: ir a la conversación con la otra persona sin duplicar chats.
+  // Cuándo se usa: al pulsar el botón “Chat”.
+  // Con qué se relaciona: con /chats/find-or-create (backend) y con la vista /mensajes/:id.
+  // Si no existiera: el usuario no tendría un acceso directo a conversar desde reservas.
+  // ===============================
   if (!r) return;
   if (!auth.user || !auth.user.id) return;
 
@@ -224,6 +292,13 @@ async function openChat(r) {
 }
 
 onMounted(async () => {
+  // ===============================
+  // BLOQUE: CARGA INICIAL
+  // Qué problema resuelve: recuperar sesión y cargar reservas si hay login.
+  // Cuándo se usa: al entrar en la pantalla.
+  // Con qué se relaciona: con loadReservas() y con el v-if del template.
+  // Si no existiera: verías una pantalla sin datos o errores.
+  // ===============================
   await auth.fetchMe();
   if (isLoggedIn.value) {
     await loadReservas();

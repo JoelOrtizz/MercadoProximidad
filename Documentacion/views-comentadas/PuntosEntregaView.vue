@@ -1,3 +1,21 @@
+<!--
+VISTA: Configurar puntos de entrega (PuntosEntregaView.vue)
+
+Qué pantalla es:
+- Pantalla para que un vendedor gestione sus puntos de entrega.
+- Se usa un mapa: el usuario pincha para añadir varios puntos (máximo 5).
+
+Qué puede hacer el usuario aquí:
+- Ver un mapa y hacer click para crear puntos.
+- Ver una lista/tabla con los puntos que ha seleccionado.
+- Eliminar puntos de la lista.
+- Guardar todos los puntos de golpe (“reemplazar”).
+- Volver a /perfil.
+
+Con qué otras pantallas se relaciona:
+- /perfil (botón “Volver a perfil”).
+- /comprar: los compradores verán estos puntos al reservar un producto tuyo.
+-->
 <template>
   <main class="page">
     <div class="header">
@@ -55,6 +73,22 @@
 </template>
 
 <script setup>
+// ==========================================================
+// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
+// ==========================================================
+// Esta vista está pensada como un “editor de puntos”:
+// - el mapa añade puntos,
+// - la tabla los muestra y permite borrar,
+// - el botón “Guardar todo” envía todo al backend.
+// No se modifica el comportamiento del código.
+
+// ===============================
+// BLOQUE: IMPORTS
+// Qué problema resuelve: hablar con el backend, usar sesión y montar/desmontar el mapa.
+// Cuándo se usa: desde que entras a /puntos-entrega.
+// Con qué se relaciona: con createMap(), loadMyPuntosEntrega() y saveAll().
+// Si no existiera: no podrías cargar ni guardar puntos.
+// ===============================
 import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -77,6 +111,13 @@ function setStatus(text) {
 }
 
 function loadLeaflet() {
+  // ===============================
+  // BLOQUE: CARGA DE LA LIBRERÍA DEL MAPA
+  // Qué problema resuelve: Leaflet se carga “cuando hace falta” para poder dibujar el mapa.
+  // Cuándo se usa: al entrar en la vista antes de crear el mapa.
+  // Con qué se relaciona: con createMap() y con window.L.
+  // Si no existiera: no se vería el mapa ni podrías seleccionar puntos.
+  // ===============================
   if (window.L) return Promise.resolve(window.L);
 
   return new Promise((resolve, reject) => {
@@ -144,6 +185,13 @@ function fitToPoints() {
 }
 
 async function createMap() {
+  // ===============================
+  // BLOQUE: CREAR MAPA Y RECOGER CLICS
+  // Qué problema resuelve: montar el mapa y permitir añadir puntos con un click.
+  // Cuándo se usa: al entrar a la pantalla.
+  // Con qué se relaciona: con addPoint() (cada click termina añadiendo un punto).
+  // Si no existiera: la pantalla sería solo una tabla sin forma de añadir puntos.
+  // ===============================
   const L = await loadLeaflet();
 
   map = L.map('map').setView([39.0717, -0.2668], 13);
@@ -175,6 +223,13 @@ function myLocation() {
 }
 
 async function addPoint(lat, lng) {
+  // ===============================
+  // BLOQUE: AÑADIR PUNTO (CLICK EN MAPA)
+  // Qué problema resuelve: crear un punto con marcador + texto de dirección.
+  // Cuándo se usa: cuando el usuario pincha en el mapa.
+  // Con qué se relaciona: con reverseGeocodeDetail() y con la tabla de puntos.
+  // Si no existiera: pinchar en el mapa no tendría efecto.
+  // ===============================
   if (points.value.length >= MAX_PUNTOS) {
     setStatus(`Maximo ${MAX_PUNTOS} puntos de entrega.`);
     return;
@@ -197,6 +252,13 @@ async function addPoint(lat, lng) {
 }
 
 function removePoint(p) {
+  // ===============================
+  // BLOQUE: ELIMINAR PUNTO
+  // Qué problema resuelve: quitar un punto si te has equivocado.
+  // Cuándo se usa: al pulsar “Eliminar” en la tabla.
+  // Con qué se relaciona: con el estado points y los marcadores del mapa.
+  // Si no existiera: el usuario tendría que recargar la página para corregir.
+  // ===============================
   try {
     if (p.marker && map) map.removeLayer(p.marker);
   } catch {}
@@ -207,6 +269,13 @@ function removePoint(p) {
 }
 
 async function saveAll() {
+  // ===============================
+  // BLOQUE: GUARDAR TODO (REEMPLAZAR PUNTOS)
+  // Qué problema resuelve: enviar al backend la lista completa de puntos de una sola vez.
+  // Cuándo se usa: al pulsar “Guardar todo”.
+  // Con qué se relaciona: con el backend /puntos-entrega/bulk (reemplaza los puntos del vendedor).
+  // Si no existiera: el usuario no podría guardar sus puntos para que aparezcan en compras.
+  // ===============================
   if (points.value.length === 0) return;
   if (points.value.length > MAX_PUNTOS) {
     setStatus(`Maximo ${MAX_PUNTOS} puntos de entrega.`);
@@ -234,6 +303,13 @@ async function saveAll() {
 }
 
 async function loadMyPuntosEntrega() {
+  // ===============================
+  // BLOQUE: CARGAR PUNTOS YA GUARDADOS
+  // Qué problema resuelve: si el usuario ya tenía puntos, se pintan en el mapa y en la tabla.
+  // Cuándo se usa: al entrar a la pantalla.
+  // Con qué se relaciona: con la tabla y con fitToPoints() (centrar el mapa).
+  // Si no existiera: siempre empezarías “desde cero” aunque ya tengas puntos guardados.
+  // ===============================
   setStatus('Cargando puntos...');
   try {
     const res = await axios.get('/puntos-entrega/me');
@@ -271,6 +347,13 @@ async function loadMyPuntosEntrega() {
 }
 
 onMounted(async () => {
+  // ===============================
+  // BLOQUE: CARGA INICIAL
+  // Qué problema resuelve: recuperar sesión, crear el mapa y traer puntos existentes.
+  // Cuándo se usa: al entrar en /puntos-entrega.
+  // Con qué se relaciona: con createMap() y loadMyPuntosEntrega().
+  // Si no existiera: no verías nada o verías datos desactualizados.
+  // ===============================
   await auth.fetchMe();
   if (!isLoggedIn.value) return;
   await createMap();

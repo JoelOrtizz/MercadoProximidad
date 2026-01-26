@@ -121,8 +121,12 @@ export const updateUserMe = async (req,res,next) => {
     }
 
 
-    const {nombre,email} = req.body;
-    const result = await updateUserMyself(id,nombre,email)
+    const {nombre,email,tlf} = req.body;
+
+    // Si llega como string vacio, lo guardamos como NULL (asi no hay "telefono = ''" raro en BD)
+    const tlfFinal = (tlf === '' || tlf === undefined) ? null : tlf;
+
+    const result = await updateUserMyself(id,nombre,email,tlfFinal)
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
@@ -132,6 +136,7 @@ export const updateUserMe = async (req,res,next) => {
       id,
       nombre,
       email,
+      tlf: tlfFinal,
       message: 'Usuario actualizado correctamente.',
     });
   } catch(error){
