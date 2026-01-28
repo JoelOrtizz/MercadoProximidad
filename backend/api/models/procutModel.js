@@ -1,5 +1,6 @@
 import pool from "../config/db.js";
 
+// u.nickname se ha añadido a la lista para poder mostrar el campo (nickname -> vendedor) en la tarjeta
 const PRODUCT_SELECT_COLUMNS = `
     p.id,
     p.nombre,
@@ -10,12 +11,14 @@ const PRODUCT_SELECT_COLUMNS = `
     p.descripcion,
     p.imagen,
     p.id_vendedor,
+    u.nickname, 
     p.fecha_creacion,
     p.duracion_producto,
     un.nombre AS unidad_nombre,
     un.simbolo AS unidad_simbolo
 `;
 
+// 2. AÑADIMOS u.nickname AL GROUP BY
 const PRODUCT_GROUP_BY_COLUMNS = `
     p.id,
     p.nombre,
@@ -26,6 +29,7 @@ const PRODUCT_GROUP_BY_COLUMNS = `
     p.descripcion,
     p.imagen,
     p.id_vendedor,
+    u.nickname,
     p.fecha_creacion,
     p.duracion_producto,
     un.nombre,
@@ -38,13 +42,14 @@ const buildProductsQuery = ({ category, text, lat, lng, distance }) => {
     const selectParams = [];
     const havingParams = [];
 
-    let join = " JOIN unidades un ON p.id_unidad = un.id";
+    // 3. AÑADIMOS EL JOIN CON USUARIOS AQUÍ para poder traer el campo nickname o cualquier otro de "usuarios"
+    let join = " JOIN unidades un ON p.id_unidad = un.id JOIN usuarios u ON p.id_vendedor = u.id";
+    
     let select = PRODUCT_SELECT_COLUMNS;
     let groupBy = "";
     let having = "";
     let orderBy = " ORDER BY p.fecha_creacion DESC";
 
-    // En el marketplace solo mostramos productos con stock disponible (no se borran, solo se ocultan).
     where.push("p.stock > 0");
 
     if (category !== undefined && category !== null) {
@@ -108,12 +113,14 @@ export const getProduct = async (filters = {}) => {
     return result;
 }
 
+// 4. ACTUALIZAMOS LAS DEMÁS FUNCIONES GET PARA INCLUIR EL JOIN Y LOS CAMPOS
 export async function getProductById(id) {
     const [result] = await pool.query(
         `
-        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo, u.nickname AS vendedor_nickname
         FROM productos p
         JOIN unidades un ON p.id_unidad = un.id
+        JOIN usuarios u ON p.id_vendedor = u.id
         WHERE p.id = ?
         `,
         [id]
@@ -124,52 +131,52 @@ export async function getProductById(id) {
 export const getProductByVendedor = async(id_vendedor) =>{
     const [result] = await pool.query(
         `
-        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo, u.nickname AS vendedor_nickname
         FROM productos p
         JOIN unidades un ON p.id_unidad = un.id
+        JOIN usuarios u ON p.id_vendedor = u.id
         WHERE p.id_vendedor = ?
         ORDER BY p.fecha_creacion DESC
         `,
         [id_vendedor]
     )
-
     return result;
 }
 
 export const getProductByCategoria = async(id_categoria) =>{
     const [result] = await pool.query(
         `
-        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo, u.nickname AS vendedor_nickname
         FROM productos p
         JOIN unidades un ON p.id_unidad = un.id
+        JOIN usuarios u ON p.id_vendedor = u.id
         WHERE p.id_categoria = ?
         ORDER BY p.fecha_creacion DESC
         `,
         [id_categoria]
     );
-
     return result;
 }
 
 export const getProductByPrecio = async(precio_min,precio_max) => {
     const [result] = await pool.query(
         `
-        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo
+        SELECT p.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo, u.nickname AS vendedor_nickname
         FROM productos p
         JOIN unidades un ON p.id_unidad = un.id
+        JOIN usuarios u ON p.id_vendedor = u.id
         WHERE p.precio >= ? AND p.precio <= ?
         ORDER BY p.fecha_creacion DESC
         `,
         [precio_min,precio_max]
     );
-
     return result;
 }
 
 export const getProductByUbicacion = async (lat, lng, radioKm = 10) => {
     const [result] = await pool.query(
         `
-        SELECT p.*, u.*, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo,
+        SELECT p.*, u.nickname AS vendedor_nickname, un.nombre AS unidad_nombre, un.simbolo AS unidad_simbolo,
         (
             6371 * acos(
                 cos(radians(?)) *
@@ -187,19 +194,16 @@ export const getProductByUbicacion = async (lat, lng, radioKm = 10) => {
         `,
         [lat, lng, lat, radioKm]
     );
-
     return result;
 };
 
-
+// --- LAS FUNCIONES DE ESCRITURA (INSERT/UPDATE/DELETE) SE MANTIENEN IGUAL ---
 export const postProduct = async (nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id_vendedor) => {
-        
     const [result] = await pool.query(
-       ` INSERT INTO productos (nombre, id_categoria, id_unidad, stock, precio, 
-        descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?) `, 
+       `INSERT INTO productos (nombre, id_categoria, id_unidad, stock, precio, 
+        descripcion, imagen, id_vendedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
         [nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id_vendedor]
     );
-
     return result;
 };
 
@@ -210,15 +214,13 @@ export const putProduct = async (nombre, id_categoria, id_unidad, stock, precio,
         WHERE id = ? and id_vendedor = ?`,
         [nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id, id_vendedor]
     );
-
     return result;
-}
+};
 
 export const deleteProductById = async(id) => {
     const result = await pool.query(
         `delete from productos where id = ?`,
         [id]
     );
-
     return result;
 }

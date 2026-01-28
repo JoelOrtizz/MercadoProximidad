@@ -115,7 +115,7 @@ async function reverseGeocode(lat, lng) {
 
 async function setSelected(lat, lng) {
   selected.value = { lat, lng };
-
+  
   const L = window.L;
   if (marker) {
     marker.setLatLng([lat, lng]);

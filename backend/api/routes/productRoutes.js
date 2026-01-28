@@ -12,9 +12,9 @@ router.get('/me', requireAuth, fetchProductsByVendedor);
 
 router.get('/:id_categoria', fetchProductsByCategoria);
 
-router.get('/:precio_min/:precio_max', fetchProductsByPrecio)
+router.get('/:precio_min/:precio_max', fetchProductsByPrecio);
 
-router.get('/:lat/:lng', fetchProductsByUbicacion, requireAuth)
+router.get('/:lat/:lng', fetchProductsByUbicacion, requireAuth);
 
 // el upload se define en multerConfig
 router.post('/', requireAuth, upload.single('imagen'), insertProduct);

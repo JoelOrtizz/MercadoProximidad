@@ -70,7 +70,7 @@
               <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`">
             </div>
 
-            <p class="desc">{{ p.descripcion || 'Sin descripción.' }}</p>
+            <p class="desc"><span style="font-weight: bold;">Descripción:</span> {{ p.descripcion || 'Sin descripción.' }}</p>
 
             <div class="meta">Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}</div>
 
@@ -85,7 +85,7 @@
 
             <div class="field">
 
-              <label class="label">Punto de Entrega</label>
+              <label class="label">Punto de Entrega | @{{ p.nickname || 'Desconocido' }}</label>
               <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input"
                 @focus="ensureReservaDefaults(p)">
                 <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
