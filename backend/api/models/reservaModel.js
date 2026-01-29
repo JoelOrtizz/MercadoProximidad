@@ -2,9 +2,9 @@ import pool from '../config/db.js'
 
 export async function insertRerserva(id_vendedor, id_comprador, id_producto, cantidad, id_punto_entrega) {
     const [result] = await pool.query(
-      `insert into reservas (id_vendedor, id_comprador, id_producto, cantidad, id_punto_entrega)
+        `insert into reservas (id_vendedor, id_comprador, id_producto, cantidad, id_punto_entrega)
       values(?,?,?,?,?)`,
-      [id_vendedor, id_comprador, id_producto, cantidad, id_punto_entrega]
+        [id_vendedor, id_comprador, id_producto, cantidad, id_punto_entrega]
     );
 
     return result;
@@ -49,4 +49,86 @@ export const updateStatus = async (id, estado) => {
     );
 
     return result;
+}
+
+// AÑADIR 2 ENDPOINTS DE SOLICITAR CANCELACION
+export const solicitarCancelacionReserva = async (idReserva, idUsuario) => {
+
+    // Validamos usando el id del comprador
+    const [rows] = await pool.query(
+        "select id from reservas where id = ? and id_comprador = ? and estado = 'aceptada'",
+        [idReserva, idUsuario]
+    );
+
+    if (rows.length === 0) {
+        throw new Error("No se puede solicitar la cancelación (No eres el comprador o no está aceptada.)");
+    }
+    
+    // Nuevo estado
+    const [result] = await pool.query(
+        "update reservas set estado = 'cancelacion_solicitada' where id = ?",
+        [idReserva]
+    );
+
+    return result;
+}
+
+export const responderCancelacion = async (idReserva, idVendedor, decision) => {
+    const conn = await pool.getConnection();
+
+    try {
+        await conn.beginTransaction();
+
+        // Validamos que el producto sea del vendedor logueado
+        const [rows] = await conn.query(
+            `SELECT r.id, r.cantidad, r.id_producto 
+             FROM reservas r
+             JOIN productos p ON r.id_producto = p.id
+             WHERE r.id = ? AND p.id_vendedor = ? AND r.estado = 'cancelacion_solicitada'
+             FOR UPDATE`,
+            [idReserva, idVendedor]
+        );
+
+        if (rows.length === 0) {
+            throw new Error("No autorizado o la reserva no tiene solicitud pendiente.");
+        }
+
+        const reserva = rows[0];
+
+        if (decision === 'aceptar') {
+            // Aceptar: Poner en cancelada, quitar punto de entrega, devolver stock
+            await conn.query(
+                "UPDATE reservas SET estado = 'cancelada', id_punto_entrega = NULL WHERE id = ?",
+                [idReserva]
+            );
+            await conn.query(
+                "UPDATE productos SET stock = stock + ? WHERE id = ?",
+                [reserva.cantidad, reserva.id_producto]
+            );
+        } else if (decision === 'rechazar') {
+            await conn.query(
+                "update reservas set estado = 'aceptada' where id = ?",
+                [idReserva]
+            )
+        }else {
+            throw new Error("Decisión inválida");
+        }
+
+        await conn.commit();
+
+        return {
+            success : true,
+            estado_nuevo: decision === 'aceptar' ? 'cancelada' : 'aceptada'
+        }
+    } catch (error) {
+
+        await conn.rollback();
+        
+        throw error;
+
+    } finally {
+
+        conn.release;
+
+    }
 }

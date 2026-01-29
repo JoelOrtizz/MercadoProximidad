@@ -1,4 +1,4 @@
-import {postReserva, getReserva, getReservaById, cancelReservation, updateEstado} from "../controllers/reservaController.js";
+import {postReserva, getReserva, getReservaById, cancelReservation, updateEstado, solicitarCancelacion, procesarRespuestaCancelacion } from "../controllers/reservaController.js";
 import { requireAuth } from "../middlewares/requireAuth.js";
 import express from "express";
 
@@ -9,5 +9,9 @@ router.get("/", requireAuth, getReserva);
 router.get("/:id", requireAuth, getReservaById);
 router.put('/:id/cancel', requireAuth, cancelReservation);
 router.put('/:id/status', requireAuth, updateEstado);
+
+router.post('/:id/solicitar-cancelacion', requireAuth, solicitarCancelacion);
+
+router.post('/:id/responder-cancelacion', requireAuth, procesarRespuestaCancelacion);
 
 export default router;

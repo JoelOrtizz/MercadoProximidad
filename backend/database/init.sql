@@ -97,7 +97,7 @@ CREATE TABLE reservas (
   -- Cuando una reserva se cancela / se completa, ya no nos importa mantener el punto "congelado".
   -- Por eso permitimos NULL: asi el vendedor puede reemplazar sus puntos de entrega sin romper reservas antiguas.
   id_punto_entrega INT NULL,
-  estado ENUM('pendiente', 'aceptada', 'rechazada', 'cancelada', 'completada')
+  estado ENUM('pendiente', 'aceptada', 'rechazada', 'cancelada', 'completada', 'cancelacion_solicitada')
     DEFAULT 'pendiente',
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   

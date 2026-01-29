@@ -218,6 +218,19 @@ export const putProduct = async (nombre, id_categoria, id_unidad, stock, precio,
 };
 
 export const deleteProductById = async(id) => {
+
+    // Validar que el producto no está reservado
+    const [reservas] = await pool.query(
+        `SELECT id FROM reservas 
+         WHERE id_producto = ? 
+         AND estado IN ('pendiente', 'aceptada', 'cancelacion_solicitada')`, 
+        [id]
+    );
+
+    if (reservas.length > 0){
+        throw new Error("Está reservado");
+    }
+
     const result = await pool.query(
         `delete from productos where id = ?`,
         [id]

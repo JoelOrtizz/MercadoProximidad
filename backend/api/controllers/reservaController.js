@@ -1,5 +1,5 @@
 import pool from "../config/db.js";
-import { fetchReservas, findById } from "../models/reservaModel.js";
+import { fetchReservas, findById, responderCancelacion, solicitarCancelacionReserva } from "../models/reservaModel.js";
 
 export async function getReserva(req, res, next) {
   try {
@@ -263,5 +263,51 @@ export async function updateEstado(req, res, next) {
     try {
       conn.release();
     } catch {}
+  }
+}
+
+// CANCELACIONES
+export async function solicitarCancelacion(req, res, next) {
+   
+  try {
+
+    const userId = req.user?.id;
+    const id = Number.parseInt(req.params?.id, 10);
+
+    if(!userId) {
+      return res.status(401).json({error: "No autenticado."});
+    }
+
+    await solicitarCancelacionReserva(id, userId);
+
+    res.json({message: "Solicitud de cancelaión enviada."});
+
+  }catch (err) {
+
+    next(err);
+
+  }
+}
+
+export async function procesarRespuestaCancelacion(req, res, next) {
+  try {
+    const userId = req.user?.id;
+    const id = Number.parseInt(req.params?.id, 10);
+    const {decision} = req.body; //aceptar o rechazar
+
+    if (!userId){
+      return res.status(401).json({error: "No autenticado"});
+    }
+
+    if (!decision) {
+      return res.status(400).json({error: "falta la decisión"});
+    }
+
+    const result = await responderCancelacion(id, userId, decision);
+
+    res.json(result);
+
+  }catch (err) {
+    next(err);
   }
 }

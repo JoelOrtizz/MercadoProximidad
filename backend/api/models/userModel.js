@@ -55,7 +55,6 @@ export const insertUser = async ( nombre, nickname, email, contrasena) => {
 
     if (!nombre || !nickname || !email || !contrasena) {
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
-        throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
 
     // Encriptación de la contraseña
