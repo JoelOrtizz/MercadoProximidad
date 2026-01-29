@@ -4,18 +4,28 @@ const toast = useToastStore();
 </script>
 
 <template>
+  
+  <div class="container">
   <transition name="fade">
     <div v-if="toast.visible" class="toast" :class="toast.type">
       {{ toast.message }}
     </div>
   </transition>
+  </div>
 </template>
 
 <style scoped>
+
+.container{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+}
+
 .toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  top: 100px;
   padding: 12px 18px;
   border-radius: 10px;
   color: white;
@@ -36,6 +46,6 @@ const toast = useToastStore();
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(-80px);
 }
 </style>
