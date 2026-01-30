@@ -135,7 +135,7 @@ const products = ref([]);
 const subtitle = ref('Cargando productos...');
 const selectedCategory = ref('all');
 const searchText = ref('');
-const distanceKm = ref('');
+const distanceKm = ref('10');
 
 // Reservas (simple, por producto)
 const puntosPorVendedor = reactive({}); // { [id_vendedor]: [puntos] }
