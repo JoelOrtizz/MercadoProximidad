@@ -6,6 +6,7 @@ import PerfilView from './views/PerfilView.vue';
 import LoginView from './views/LoginView.vue';
 import RegistroView from './views/RegistroView.vue';
 import CoordsView from './views/CoordsView.vue';
+import CoordsViewAuto from './views/CoordsViewAuto.vue';
 import PuntosEntregaView from './views/PuntosEntregaView.vue';
 import ReservasView from './views/ReservasView.vue';
 import MensajesView from './views/MensajesView.vue';
@@ -21,6 +22,7 @@ const router = createRouter({
     { path: '/login', component: LoginView, meta: { css: '/css/login.css' } },
     { path: '/registro', component: RegistroView, meta: { css: '/css/registro.css' } },
     { path: '/coords', component: CoordsView, meta: { css: '/css/seleccionarCords.css' } },
+    //{ path: '/coords-auto', component: CoordsViewAuto, meta: { css: '/css/seleccionarCords.css' } },
     { path: '/puntos-entrega', component: PuntosEntregaView, meta: { css: '/css/puntosEntrega.css' } },
     { path: '/reservas', component: ReservasView, meta: { css: '/css/index.css' } },
     { path: '/mensajes', component: MensajesView, meta: { css: '/css/mensajes.css' } },

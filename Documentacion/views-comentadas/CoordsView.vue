@@ -219,7 +219,7 @@ async function createMap() {
     toast.error('Leaflet no esta cargado');
     return;
   }
-
+  
   // Tavernes de la Valldigna (Safor)
   map = L.map('map').setView([39.0717, -0.2668], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
