@@ -21,7 +21,9 @@ export const findById = async (id) => {
     `
         SELECT r.*, p.nombre AS producto_nombre, pe.descripcion AS punto_descripcion
         FROM reservas r
-        JOIN productos p ON r.id_producto = p.id
+        -- Si el producto ya fue borrado, la reserva debe seguir saliendo (historial).
+        -- Por eso usamos LEFT JOIN.
+        LEFT JOIN productos p ON r.id_producto = p.id
         LEFT JOIN puntos_entrega pe ON r.id_punto_entrega = pe.id
         WHERE r.id = ?
         `,
@@ -36,7 +38,9 @@ export async function fetchReservas(userId) {
     `
         SELECT r.*, p.nombre AS producto_nombre, pe.descripcion AS punto_descripcion
         FROM reservas r
-        JOIN productos p ON r.id_producto = p.id
+        -- Si el producto ya fue borrado, la reserva debe seguir saliendo (historial).
+        -- Por eso usamos LEFT JOIN.
+        LEFT JOIN productos p ON r.id_producto = p.id
         LEFT JOIN puntos_entrega pe ON r.id_punto_entrega = pe.id
         WHERE r.id_vendedor = ? OR r.id_comprador = ?
         ORDER BY r.fecha_creacion DESC
