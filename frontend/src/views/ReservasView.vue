@@ -23,8 +23,7 @@
         <button class="btn" type="button" :class="{ 'btn-primary': tab === 'aceptadas' }" @click="tab = 'aceptadas'">
           Aceptadas ({{ aceptadas.length }})
         </button>
-        <button class="btn" type="button" :class="{ 'btn-primary': tab === 'finalizadas' }"
-          @click="tab = 'finalizadas'">
+
         <button class="btn" type="button" :class="{ 'btn-primary': tab === 'finalizadas' }"
           @click="tab = 'finalizadas'">
           Finalizadas ({{ finalizadas.length }})
@@ -110,7 +109,6 @@
           </div>
         </div>
       </div>
-    </div>
   </main>
 </template>
 
