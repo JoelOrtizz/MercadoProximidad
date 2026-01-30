@@ -23,8 +23,6 @@
         </button>
         <button class="btn" type="button" :class="{ 'btn-primary': tab === 'finalizadas' }"
           @click="tab = 'finalizadas'">
-        <button class="btn" type="button" :class="{ 'btn-primary': tab === 'finalizadas' }"
-          @click="tab = 'finalizadas'">
           Finalizadas ({{ finalizadas.length }})
         </button>
       </div>
@@ -34,7 +32,6 @@
       </div>
 
       <div v-else style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px">
-        <div v-for="r in activeList" :key="r.id" style="border: 1px solid #e7e7e7; border-radius: 12px; padding: 12px">
         <div v-for="r in activeList" :key="r.id" style="border: 1px solid #e7e7e7; border-radius: 12px; padding: 12px">
           <div style="display: flex; align-items: start; justify-content: space-between; gap: 10px">
             <div style="font-weight: 700">#{{ r.id }} · {{ r.producto_nombre || 'Producto' }}</div>

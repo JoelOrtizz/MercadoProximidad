@@ -3,7 +3,6 @@ import {
   ratingsReceived,
   ratingsSent
 } from "../models/ratingModel.js";
-import { reservaByUserId } from "../models/reservaModel.js";
 
 export async function postRating(req, res, next) {
   try {
