@@ -2,103 +2,87 @@
 
 ## 2.1 Visión general de la arquitectura
 
-La aplicación **TerretaShop** se ha diseñado siguiendo una arquitectura web basada en la separación de responsabilidades, con el objetivo de facilitar el mantenimiento, la escalabilidad y la comprensión del sistema.  
-El proyecto se estructura en tres grandes capas principales:
+La aplicación **TerretaShop** sigue una arquitectura web basada en separación de responsabilidades, con tres capas principales:
 
-- **Frontend (cliente)**  
-- **Backend (servidor / API REST)**  
-- **Base de datos**
+- **Frontend (cliente)**: interfaz y experiencia de usuario.
+- **Backend (servidor / API REST)**: lógica de negocio y acceso a datos.
+- **Base de datos**: persistencia e integridad de la información.
 
-Esta organización permite desarrollar y evolucionar cada parte del sistema de forma independiente, manteniendo una comunicación clara entre ellas mediante peticiones HTTP y formatos de intercambio de datos estandarizados.
+La comunicación entre frontend y backend se realiza mediante una **API REST** usando HTTP y JSON (y `multipart/form-data` para subida de imágenes).
 
 ---
 
-## 2.2 Arquitectura cliente–servidor
+## 2.2 Arquitectura cliente-servidor
 
-TerretaShop sigue un modelo clásico de **arquitectura cliente–servidor**:
-
-- El **frontend** se ejecuta en el navegador del usuario y se encarga de la interfaz gráfica, la interacción con el usuario y la visualización de la información (mapas, listados, filtros, etc.).
-- El **backend** actúa como intermediario entre el frontend y la base de datos, gestionando la lógica de negocio, la validación de datos, la seguridad y el acceso a la información.
-- La **base de datos** almacena de forma persistente toda la información relacionada con usuarios, productos, reservas, mensajes y demás entidades del sistema.
-
-La comunicación entre frontend y backend se realiza mediante una **API REST**, utilizando peticiones HTTP y respuestas en formato JSON.
+- El **frontend** se ejecuta en el navegador y consume la API.
+- El **backend** valida datos, aplica reglas de negocio y gestiona autenticación/autorización.
+- La **base de datos** almacena usuarios, productos, reservas, puntos de entrega y el resto de entidades.
 
 ---
 
 ## 2.3 Capa de frontend
 
-La capa de frontend es responsable de:
+Responsabilidades principales:
 
-- Mostrar la interfaz de usuario de forma clara y accesible.
-- Permitir la interacción del usuario con la aplicación (registro, búsqueda, reservas, mensajes).
-- Representar la información geográfica mediante mapas y filtros de proximidad.
-- Consumir los endpoints expuestos por la API REST.
+- Interfaz y navegación (Vue + Router).
+- Gestión de estado (Pinia), especialmente la sesión del usuario.
+- Consumo de la API (`axios`) y renderizado de listados.
+- Integración de mapas (Leaflet) y reverse geocoding (Nominatim) para mostrar direcciones.
 
-El diseño de la interfaz se plantea de forma **responsive**, adaptándose a distintos tamaños de pantalla, y siguiendo criterios de usabilidad y coherencia visual definidos en la imagen corporativa del proyecto.
+Nota: actualmente el frontend redirige a **selección de coordenadas** cuando el usuario está autenticado pero no tiene `lat/lng` guardados.
 
 ---
 
 ## 2.4 Capa de backend (API REST)
 
-El backend de TerretaShop se implementa como una **API REST**, encargada de centralizar toda la lógica del sistema. Sus principales responsabilidades son:
+El backend es una API REST (Node/Express) con estas responsabilidades:
 
-- Gestión de usuarios y roles (comprador, vendedor, administrador).
-- Gestión de productos y categorías.
-- Gestión de reservas y estados de las mismas.
-- Gestión de puntos de entrega.
-- Comunicación entre comprador y vendedor mediante mensajes.
-- Generación de notificaciones asociadas a eventos del sistema.
+- Autenticación mediante **JWT en cookie** (cookie `access_token` firmada) y middleware `requireAuth`.
+- Gestión de usuarios (`/api/usuarios`) y sesión (`/api/login`).
+- Gestión de productos (`/api/productos`) y catálogos (`/api/categorias`, `/api/unidades`).
+- Gestión de coordenadas del usuario (`/api/map/me`).
+- Gestión de puntos de entrega (`/api/puntos-entrega`).
+- Gestión de reservas (`/api/reservas`) y cambio de estado con permisos básicos (comprador/vendedor por contexto).
 
-La API actúa como única vía de acceso a la base de datos, garantizando la integridad de los datos y evitando accesos directos desde el cliente.
+Pendiente de integrar (próximo sprint):
+
+- **Chat/mensajes**.
+- **Valoraciones**.
 
 ---
 
 ## 2.5 Capa de datos
 
-La capa de datos está basada en una **base de datos relacional**, diseñada para reflejar las relaciones entre las distintas entidades del sistema.  
-El modelo de datos se ha definido siguiendo principios de normalización, evitando redundancias y asegurando la integridad referencial mediante claves primarias y foráneas.
+Base de datos relacional con claves primarias y foráneas para integridad referencial.
 
-La base de datos almacena, entre otros, los siguientes elementos:
-- usuarios y sus roles,
-- productos y categorías,
-- reservas y puntos de entrega,
-- mensajes y notificaciones,
-- valoraciones asociadas a las reservas.
+Cambios relevantes actuales:
 
-El diseño detallado del modelo entidad–relación se desarrolla en el apartado correspondiente a la base de datos.
+- Los productos ya **no** usan un campo de texto para la unidad. En su lugar usan `id_unidad` con relación a la tabla `unidades`.
 
 ---
 
 ## 2.6 Integración de geolocalización
 
-La arquitectura contempla la integración con servicios de **geolocalización y mapas**, permitiendo:
+El sistema contempla:
 
-- almacenar coordenadas geográficas (latitud y longitud),
-- mostrar productos y vendedores cercanos al usuario,
-- filtrar resultados por proximidad.
-
-La arquitectura se mantiene independiente de la API concreta utilizada, lo que permite flexibilidad en la elección del proveedor de mapas.
+- Almacenar coordenadas (`lat`, `lng`) en `usuarios`.
+- Selección de ubicación desde el frontend (mapa).
+- Uso de esa ubicación para funcionalidades futuras (proximidad, filtros, etc.).
 
 ---
 
 ## 2.7 Entornos de ejecución
 
-El proyecto se plantea para funcionar en dos entornos diferenciados:
-
-- **Entorno de desarrollo**, utilizando contenedores Docker para facilitar la reproducción del entorno local.
-- **Entorno de producción**, desplegado en un servidor con acceso público, comunicación segura mediante HTTPS y configuración adecuada de servicios.
-
-Esta separación permite un desarrollo controlado y un despliegue final acorde a los requisitos del módulo de Despliegue de Aplicaciones Web.
+- **Desarrollo**: ejecución local (Vite para frontend y Node para backend) y base de datos recreable con `init.sql`.
+- **Producción (planificado)**: despliegue con configuración de HTTPS y variables de entorno.
 
 ---
 
 ## 2.8 Justificación de la arquitectura
 
-La arquitectura adoptada en TerretaShop permite:
+Esta arquitectura permite:
 
-- una clara separación de responsabilidades,
-- facilidad de mantenimiento y ampliación,
-- reutilización de componentes,
-- alineación con buenas prácticas del desarrollo web moderno.
+- Separación clara de responsabilidades.
+- Facilidad de mantenimiento y ampliación por sprint.
+- Consistencia entre frontend/backend mediante contratos de API.
 
-Además, se adapta al contexto académico del proyecto, permitiendo al equipo aplicar de forma integrada los conocimientos adquiridos en los distintos módulos del ciclo formativo.
