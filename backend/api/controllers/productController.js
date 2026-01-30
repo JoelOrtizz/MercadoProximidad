@@ -29,6 +29,24 @@ export async function fetchProductsByVendedor(req,res,next) {
     }
 }
 
+// Lista productos de un vendedor cualquiera (perfil publico de usuario).
+// No requiere auth porque solo muestra productos y stock (no datos privados).
+export async function fetchProductsByVendedorPublic(req, res, next) {
+    try {
+        const vendedorIdRaw = req.params?.id;
+        const id_vendedor = Number.parseInt(String(vendedorIdRaw), 10);
+
+        if (!Number.isFinite(id_vendedor)) {
+            return res.status(400).json({ error: "Id de vendedor invalido" });
+        }
+
+        const result = await getProductByVendedor(id_vendedor);
+        res.status(200).json(Array.isArray(result) ? result : []);
+    } catch (error) {
+        next(error);
+    }
+}
+
 export async function fetchProductsByCategoria(req, res, next) {
     try {
         const categoriaIdRaw = req.params.id_categoria;

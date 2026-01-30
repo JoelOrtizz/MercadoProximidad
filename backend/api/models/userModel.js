@@ -51,6 +51,16 @@ export const getUser = async () => {
     return result;
 }
 
+export const getPublicUserById = async (id) => {
+    const [result] = await pool.query(
+        // Perfil publico: devolvemos datos basicos.
+        // Incluimos lat/lng para poder mostrar SOLO ciudad/comunidad en el frontend (sin enseñar coords exactas).
+        'SELECT id, nombre, nickname, email, tlf, tipo, fecha_creacion, lat, lng FROM usuarios WHERE id = ?',
+        [id]
+    );
+    return result[0] || null;
+}
+
 export const insertUser = async ( nombre, nickname, email, contrasena) => {
 
     if (!nombre || !nickname || !email || !contrasena) {

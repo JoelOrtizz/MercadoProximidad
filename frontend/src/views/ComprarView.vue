@@ -85,7 +85,13 @@
 
             <div class="field">
 
-              <label class="label">Punto de Entrega | @{{ p.nickname || 'Desconocido' }}</label>
+              <label class="label">
+                Punto de Entrega |
+                <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
+                  @{{ p.nickname || 'Desconocido' }}
+                </RouterLink>
+                <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
+              </label>
               <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input"
                 @focus="ensureReservaDefaults(p)">
                 <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
@@ -123,7 +129,7 @@
 import axios from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
-import { useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
 
 const auth = useAuthStore();
