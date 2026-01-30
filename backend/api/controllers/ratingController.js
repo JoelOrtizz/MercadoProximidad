@@ -1,7 +1,7 @@
 import {
   createRating,
-  getRatingsReceived,
-  getRatingsSent,
+  ratingsReceived,
+  ratingsSent
 } from "../models/ratingModel.js";
 import { reservaByUserId } from "../models/reservaModel.js";
 
@@ -61,7 +61,7 @@ export async function getRating(req, res, next) {
     if (!Number.isFinite(id_user)) {
       return res.status(400).json({ error: "Este usaurio no tiene reseñas" });
     }
-    const result = await getRatingsReceived(id_user);
+    const result = await ratingsReceived(id_user);
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -78,7 +78,7 @@ export async function getRatingSent(req, res, next) {
     if (id_solicitado !== id_user){
         return res.status(403).json({error: "Acceso denegado. Solo puedes ver tu propio historial de valoraciones enviadas."})
     }
-    const result = await getRatingsSent(id_solicitado);
+    const result = await ratingsSent(id_solicitado);
     res.status(200).json(result);
   } catch (err) {
     next(err);

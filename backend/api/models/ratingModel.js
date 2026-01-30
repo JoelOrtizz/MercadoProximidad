@@ -9,19 +9,19 @@ export async function createRating(id_reserva, id_autor, id_destinatario, nota_p
 }
 
 
-export async function getRatingsReceived(id) {
+export async function ratingsReceived(id) {
   const [result] = await pool.query(
-    `select *.v, u.nombre, u.nickname
+    `select v.*, u.nombre, u.nickname
     from valoraciones v
     join usuarios u on v.id_autor = u.id
     where v.id_destinatario=?`,
-    [id],
+    [id]
   );
   return result;
 }
-export async function getRatingsSent(id) {
+export async function ratingsSent(id) {
   const [result] = await pool.query(
-    `select *.v, u.nombre, u.nickname
+    `select v.*, u.nombre, u.nickname
     from valoraciones v
     join usuarios u on v.id_destinatario = u.id
     where v.id_autor=?`,
