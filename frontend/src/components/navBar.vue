@@ -11,7 +11,7 @@
         <RouterLink class="nav__pill" :class="{ 'is-active': isReservas }" to="/reservas">Reservas</RouterLink>
         <RouterLink class="nav__pill" :class="{ 'is-active': isMensajes }" to="/mensajes">Mensajes</RouterLink>
         <RouterLink class="nav__pill" :class="{ 'is-active': isValoraciones }" to="/valoraciones"
-        >Valoraciones</RouterLink
+          >Valoraciones</RouterLink
         >
       </nav>
 
