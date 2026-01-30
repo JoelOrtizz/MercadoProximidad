@@ -15,19 +15,22 @@
 
     <div v-else class="card">
       <div class="tabs" style="display: flex; gap: 8px; flex-wrap: wrap">
+
         <button class="btn" type="button" :class="{ 'btn-primary': tab === 'pendientes' }" @click="tab = 'pendientes'">
           Pendientes ({{ pendientes.length }})
         </button>
+
         <button class="btn" type="button" :class="{ 'btn-primary': tab === 'aceptadas' }" @click="tab = 'aceptadas'">
           Aceptadas ({{ aceptadas.length }})
         </button>
-        <button class="btn" type="button" :class="{ 'btn-primary': tab === 'finalizadas' }"
-          @click="tab = 'finalizadas'">
+
         <button class="btn" type="button" :class="{ 'btn-primary': tab === 'finalizadas' }"
           @click="tab = 'finalizadas'">
           Finalizadas ({{ finalizadas.length }})
         </button>
+
       </div>
+    </div>
 
       <div v-if="activeList.length === 0" class="hint" style="margin-top: 12px">
         No tienes reservas en esta categoria.
