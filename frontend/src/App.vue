@@ -10,7 +10,7 @@
 <script setup>
 import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import NavBar from './components/navBar.vue';
+import NavBar from './components/NavBar.vue';
 import Toast from './components/toast.vue';
 import Modal from './components/Modal.vue';
 import { useAuthStore } from './stores/auth.js';
