@@ -16,8 +16,9 @@
       </nav>
 
       <div class="nav__actions">
-        <button class="nav__icon" type="button" title="Notificaciones" aria-label="Notificaciones">
+        <button class="nav__icon" type="button" title="Notificaciones" aria-label="Notificaciones" @click="router.push('/notificaciones')">
           &#128276;
+          <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
         </button>
 
         <button
@@ -43,8 +44,10 @@
 import { computed } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useNotificacionesStore } from '../stores/notificacionesStore.js';
 
 const auth = useAuthStore();
+const notificaciones = useNotificacionesStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -57,6 +60,7 @@ const isPerfil = computed(() => route.path === '/perfil' || route.path === '/pun
 const isReservas = computed(() => route.path === '/reservas');
 const isMensajes = computed(() => route.path.startsWith('/mensajes'));
 const isValoraciones = computed(() => route.path === '/valoraciones');
+const unreadCount = computed(() => notificaciones.unreadCount || 0);
 
 async function handleAuthClick() {
   if (isLoggedIn.value) {
