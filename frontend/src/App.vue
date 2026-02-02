@@ -14,8 +14,10 @@ import NavBar from './components/navBar.vue';
 import Toast from './components/toast.vue';
 import Modal from './components/Modal.vue';
 import { useAuthStore } from './stores/auth.js';
+import { useNotificacionesStore } from './stores/notificacionesStore.js';
 
 const auth = useAuthStore();
+const notificaciones = useNotificacionesStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -81,6 +83,15 @@ watch(
 watch(
   () => auth.user,
   (u) => {
+    // NOTIFICACIONES (GLOBAL):
+    // Si el usuario hace login/registro -> cargamos sus notificaciones.
+    // Si hace logout -> limpiamos el store para que no se vean datos del usuario anterior.
+    if (u?.id) {
+      notificaciones.load();
+    } else {
+      notificaciones.clear();
+    }
+
     if (u?.id && !hasCoords(u) && route.path !== '/coords') {
       router.push('/coords');
     }

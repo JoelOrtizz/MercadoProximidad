@@ -51,11 +51,14 @@ export async function fetchReservas(userId) {
   return result;
 }
 
-export async function  reservaByUserId(id_reserva, id_autor){
-    const [result] = await pool.query(
-        "select * from reservas where id = ? and id_vendedor = ?",
-        [id_reserva, id_autor]
-    );
+export async function reservaByUserId(id_reserva, id_autor) {
+  // Esta consulta sirve para comprobar que el usuario que valora es el COMPRADOR de esa reserva.
+  // (En nuestro flujo, el comprador valora al vendedor cuando la reserva está completada.)
+  const [result] = await pool.query(
+    "select * from reservas where id = ? and id_comprador = ?",
+    [id_reserva, id_autor]
+  );
+  return result;
 }
 
 export const updateStatus = async (id, estado) => {

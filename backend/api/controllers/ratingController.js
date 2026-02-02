@@ -3,6 +3,8 @@ import {
   ratingsReceived,
   ratingsSent
 } from "../models/ratingModel.js";
+import { reservaByUserId } from "../models/reservaModel.js";
+import { createNotificacion } from "../models/notificacionModel.js";
 
 export async function postRating(req, res, next) {
   try {
@@ -47,6 +49,26 @@ export async function postRating(req, res, next) {
 
     const id_destinatario = reserva.id_vendedor;
     const result = await createRating(id_reserva, id_autor, id_destinatario, nota_producto, nota_entrega, nota_negociacion, comentario);
+
+    // ==============================
+    // NOTIFICACION (INICIO): el vendedor recibe una valoración
+    // ==============================
+    try {
+      await createNotificacion(
+        id_destinatario,
+        "info",
+        "Nueva valoracion",
+        "Has recibido una nueva valoracion.",
+        "/perfil",
+        id_reserva
+      );
+    } catch (e) {
+      console.error("No se pudo crear la notificacion de nueva valoracion:", e);
+    }
+    // ==============================
+    // NOTIFICACION (FIN): el vendedor recibe una valoración
+    // ==============================
+
     res.status(201).json({ success: true, id: result.insertId });
 
   } catch (err) {

@@ -13,6 +13,7 @@ import reservaRoutes from './routes/reservaRoutes.js';
 import unidadesRoutes from './routes/unidadesRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import notificacionRoutes from './routes/notificacionRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -56,6 +57,7 @@ app.use('/api/categorias', categoriasRoutes);
 app.use('/api/unidades', unidadesRoutes);
 app.use("/api/reservas", reservaRoutes, ratingRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/notificaciones', notificacionRoutes);
 
 // 404
 app.use((req, res) => {

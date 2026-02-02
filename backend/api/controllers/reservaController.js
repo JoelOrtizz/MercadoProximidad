@@ -1,5 +1,6 @@
 import pool from "../config/db.js";
 import { fetchReservas, findById, responderCancelacion, solicitarCancelacionReserva } from "../models/reservaModel.js";
+import { createNotificacion } from "../models/notificacionModel.js";
 
 export async function getReserva(req, res, next) {
   try {
@@ -81,6 +82,25 @@ export async function postReserva(req, res, next) {
 
     await conn.commit();
 
+    // ==============================
+    // NOTIFICACION (INICIO): nueva reserva para el vendedor
+    // ==============================
+    try {
+      await createNotificacion(
+        producto.id_vendedor,
+        "reserva_pendiente",
+        "Nueva reserva",
+        "Tienes una nueva reserva pendiente.",
+        "/reservas",
+        ins && ins.insertId ? ins.insertId : null
+      );
+    } catch (e) {
+      console.error("No se pudo crear la notificacion de reserva pendiente:", e);
+    }
+    // ==============================
+    // NOTIFICACION (FIN): nueva reserva para el vendedor
+    // ==============================
+
     res.status(201).json({
       success: true,
       message: "Reserva solicitada con exito.",
@@ -135,7 +155,7 @@ export async function cancelReservation(req, res, next) {
     await conn.beginTransaction();
 
     const [resRows] = await conn.query(
-      "SELECT id, id_producto, id_comprador, estado, cantidad FROM reservas WHERE id = ? FOR UPDATE",
+      "SELECT id, id_producto, id_comprador, id_vendedor, estado, cantidad FROM reservas WHERE id = ? FOR UPDATE",
       [id]
     );
     const reserva = Array.isArray(resRows) ? resRows[0] : null;
@@ -173,6 +193,25 @@ export async function cancelReservation(req, res, next) {
 
     await conn.commit();
 
+    // ==============================
+    // NOTIFICACION (INICIO): el comprador canceló una reserva pendiente
+    // ==============================
+    try {
+      await createNotificacion(
+        reserva.id_vendedor,
+        "reserva_cancelada",
+        "Reserva cancelada",
+        "El comprador ha cancelado una reserva pendiente.",
+        "/reservas",
+        id
+      );
+    } catch (e) {
+      console.error("No se pudo crear la notificacion de reserva cancelada:", e);
+    }
+    // ==============================
+    // NOTIFICACION (FIN): el comprador canceló una reserva pendiente
+    // ==============================
+
     return res.json({
       mensaje: "Reserva cancelada correctamente",
       id_reserva: id,
@@ -205,7 +244,7 @@ export async function updateEstado(req, res, next) {
     await conn.beginTransaction();
 
     const [rows] = await conn.query(
-      "SELECT id, id_vendedor, id_producto, cantidad, estado FROM reservas WHERE id = ? FOR UPDATE",
+      "SELECT id, id_vendedor, id_comprador, id_producto, cantidad, estado FROM reservas WHERE id = ? FOR UPDATE",
       [id]
     );
     const reserva = Array.isArray(rows) ? rows[0] : null;
@@ -249,6 +288,45 @@ export async function updateEstado(req, res, next) {
 
     await conn.commit();
 
+    // ==============================
+    // NOTIFICACION (INICIO): cambios de estado al comprador
+    // ==============================
+    try {
+      if (estado === "aceptada") {
+        await createNotificacion(
+          reserva.id_comprador,
+          "reserva_aceptada",
+          "Reserva aceptada",
+          "Tu reserva ha sido aceptada por el vendedor.",
+          "/reservas",
+          id
+        );
+      } else if (estado === "rechazada") {
+        await createNotificacion(
+          reserva.id_comprador,
+          "info",
+          "Reserva rechazada",
+          "Tu reserva ha sido rechazada por el vendedor.",
+          "/reservas",
+          id
+        );
+      } else if (estado === "completada") {
+        await createNotificacion(
+          reserva.id_comprador,
+          "valoracion_pendiente",
+          "Valoracion pendiente",
+          "Tu reserva se ha completado. Te falta dejar una valoracion.",
+          "/reservas",
+          id
+        );
+      }
+    } catch (e) {
+      console.error("No se pudo crear la notificacion del cambio de estado:", e);
+    }
+    // ==============================
+    // NOTIFICACION (FIN): cambios de estado al comprador
+    // ==============================
+
     return res.json({
       mensaje: `Estado actualizado a ${estado}`,
       id_reserva: id,
@@ -280,6 +358,29 @@ export async function solicitarCancelacion(req, res, next) {
 
     await solicitarCancelacionReserva(id, userId);
 
+    // ==============================
+    // NOTIFICACION (INICIO): el comprador solicita cancelación al vendedor
+    // ==============================
+    try {
+      const [rows] = await pool.query("SELECT id_vendedor FROM reservas WHERE id = ? LIMIT 1", [id]);
+      const reserva = rows && rows[0] ? rows[0] : null;
+      if (reserva && reserva.id_vendedor) {
+        await createNotificacion(
+          reserva.id_vendedor,
+          "info",
+          "Solicitud de cancelacion",
+          "El comprador ha solicitado cancelar una reserva aceptada.",
+          "/reservas",
+          id
+        );
+      }
+    } catch (e) {
+      console.error("No se pudo crear la notificacion de solicitud de cancelacion:", e);
+    }
+    // ==============================
+    // NOTIFICACION (FIN): el comprador solicita cancelación al vendedor
+    // ==============================
+
     res.json({message: "Solicitud de cancelaión enviada."});
 
   }catch (err) {
@@ -304,6 +405,40 @@ export async function procesarRespuestaCancelacion(req, res, next) {
     }
 
     const result = await responderCancelacion(id, userId, decision);
+
+    // ==============================
+    // NOTIFICACION (INICIO): respuesta del vendedor al comprador
+    // ==============================
+    try {
+      const [rows] = await pool.query("SELECT id_comprador FROM reservas WHERE id = ? LIMIT 1", [id]);
+      const reserva = rows && rows[0] ? rows[0] : null;
+      if (reserva && reserva.id_comprador) {
+        if (result && result.estado_nuevo === "cancelada") {
+          await createNotificacion(
+            reserva.id_comprador,
+            "reserva_cancelada",
+            "Cancelacion aceptada",
+            "El vendedor ha aceptado la cancelacion de la reserva.",
+            "/reservas",
+            id
+          );
+        } else {
+          await createNotificacion(
+            reserva.id_comprador,
+            "info",
+            "Cancelacion rechazada",
+            "El vendedor ha rechazado la cancelacion. La reserva sigue aceptada.",
+            "/reservas",
+            id
+          );
+        }
+      }
+    } catch (e) {
+      console.error("No se pudo crear la notificacion de respuesta de cancelacion:", e);
+    }
+    // ==============================
+    // NOTIFICACION (FIN): respuesta del vendedor al comprador
+    // ==============================
 
     res.json(result);
 
