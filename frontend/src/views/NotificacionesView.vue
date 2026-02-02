@@ -42,6 +42,7 @@
         >
           <div class="row-left">
             <input
+              v-if="!isRead(n)"
               class="checkbox"
               type="checkbox"
               :checked="isSelected(n.id)"
@@ -243,10 +244,21 @@ async function openNotification(n) {
 }
 
 onMounted(async () => {
+  // IMPORTANTE:
+  // Al recargar la página, puede pasar que `auth.user` todavía sea null porque
+  // `fetchMe()` aún no ha terminado en App.vue. Por eso aquí esperamos a recuperar
+  // la sesión antes de mandar al login.
+  if (!auth.user || !auth.user.id) {
+    try {
+      await auth.fetchMe();
+    } catch {}
+  }
+
   if (!auth.user || !auth.user.id) {
     router.push('/login');
     return;
   }
+
   await notificaciones.load();
   selectedIds.value = [];
   allSelected.value = false;
