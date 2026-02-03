@@ -1,8 +1,10 @@
 import {
   createRating,
   ratingsReceived,
-  ratingsSent
+  ratingsSent,
 } from "../models/ratingModel.js";
+
+import {reservaByUserId} from "../models/reservaModel.js"
 
 export async function postRating(req, res, next) {
   try {
@@ -37,15 +39,24 @@ export async function postRating(req, res, next) {
     if (!reserva) {
       return res.status(403).json({ error: "No tienes permiso para valorar esta reserva o no existe." });
     }
-    if (id_autor === reserva.id_vendedor) {
-      return res.status(403).json({ error: "Los vendedores no pueden emitir valoraciones, solo recibirlas." });
+    let id_destinatario;
+
+    if (id_autor === reserva.id_comprador) {
+      // Soy el COMPRADOR -> Valoro al Vendedor
+      id_destinatario = reserva.id_vendedor;
+    } else if (id_autor === reserva.id_vendedor) {
+      // Soy el VENDEDOR -> Valoro al Comprador
+      id_destinatario = reserva.id_comprador;
+    } else {
+      // Por seguridad, si no soy ninguno (no debería pasar por el filtro anterior, pero por si acaso)
+      return res.status(403).json({ error: "No participas en esta reserva." });
     }
     // si el estado estado no esta completado no se puede valorar
     if (reserva.estado !== "completada") {
       return res.status(403).json({ error: "Solo puedes valorar reservas completadas " });
     }
 
-    const id_destinatario = reserva.id_vendedor;
+    
     const result = await createRating(id_reserva, id_autor, id_destinatario, nota_producto, nota_entrega, nota_negociacion, comentario);
     res.status(201).json({ success: true, id: result.insertId });
 

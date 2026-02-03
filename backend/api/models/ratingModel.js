@@ -1,31 +1,52 @@
 import pool from "../config/db.js";
 
 export async function createRating(id_reserva, id_autor, id_destinatario, nota_producto, nota_entrega, nota_negociacion, comentario) {
-    const [result] = await pool.query(`
+  const [result] = await pool.query(`
       insert into valoraciones (id_reserva, id_autor, id_destinatario, nota_producto, nota_entrega, nota_negociacion, comentario) values (?, ?, ?,?,?,?,?)`,
-      [id_reserva, id_autor, id_destinatario, nota_producto, nota_entrega, nota_negociacion, comentario]
-    );
-    return result;
+    [id_reserva, id_autor, id_destinatario, nota_producto, nota_entrega, nota_negociacion, comentario]
+  );
+  return result;
 }
 
 
 export async function ratingsReceived(id) {
   const [result] = await pool.query(
-    `select v.*, u.nombre, u.nickname
-    from valoraciones v
-    join usuarios u on v.id_autor = u.id
-    where v.id_destinatario=?`,
+    `SELECT 
+        v.*, 
+        u.nombre, 
+        u.nickname,
+        p.nombre AS producto_nombre,   
+        p.imagen AS producto_imagen,
+        r.id_comprador,
+        r.id_vendedor
+      FROM valoraciones v
+      JOIN usuarios u ON v.id_autor = u.id
+      JOIN reservas r ON v.id_reserva = r.id     
+      JOIN productos p ON r.id_producto = p.id   
+      WHERE v.id_destinatario = ?
+      ORDER BY v.fecha_creacion DESC`, 
     [id]
   );
   return result;
 }
 export async function ratingsSent(id) {
   const [result] = await pool.query(
-    `select v.*, u.nombre, u.nickname
-    from valoraciones v
-    join usuarios u on v.id_destinatario = u.id
-    where v.id_autor=?`,
+    `SELECT 
+        v.*, 
+        u.nombre, 
+        u.nickname,
+        p.nombre AS producto_nombre,   
+        p.imagen AS producto_imagen,
+        r.id_vendedor,
+        r.id_comprador
+    FROM valoraciones v
+    JOIN usuarios u ON v.id_destinatario = u.id
+    JOIN reservas r ON v.id_reserva = r.id
+    JOIN productos p ON r.id_producto = p.id
+    WHERE v.id_autor = ?
+    ORDER BY v.fecha_creacion DESC`,
     [id]
   );
   return result;
 }
+
