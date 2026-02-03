@@ -13,6 +13,7 @@ import { useRoute, useRouter } from 'vue-router';
 import NavBar from './components/NavBar.vue';
 import Toast from './components/toast.vue';
 import Modal from './components/Modal.vue';
+import { useNotificacionesStore } from './stores/notificacionesStore';
 import { useAuthStore } from './stores/auth.js';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
