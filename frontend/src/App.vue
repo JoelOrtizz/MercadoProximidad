@@ -14,7 +14,9 @@ import NavBar from './components/NavBar.vue';
 import Toast from './components/toast.vue';
 import Modal from './components/Modal.vue';
 import { useAuthStore } from './stores/auth.js';
-import { useNotificacionesStore } from './stores/notificacionesStore.js';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const auth = useAuthStore();
 const notificaciones = useNotificacionesStore();

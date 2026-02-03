@@ -27,9 +27,7 @@ const router = createRouter({
     { path: '/reservas', component: ReservasView, meta: { css: '/css/index.css' } },
     { path: '/mensajes', component: MensajesView, meta: { css: '/css/mensajes.css' } },
     { path: '/mensajes/:id', component: MensajesView, meta: { css: '/css/mensajes.css' } },
-    { path: '/valoraciones', component: ValoracionesView, meta: { css: '/css/index.css' } },
-    { path: '/notificaciones', component: NotificacionesView, meta: { css: '/css/index.css' } },
-    { path: '/usuario/:id', component: PerfilUsuarioView, meta: { css: '/css/index.css' } },
+    { path: '/valoraciones', component: ValoracionesView, meta: { css: '/css/valoraciones.css' } },
     { path: '/:pathMatch(.*)*', redirect: '/comprar' },
   ],
 });
