@@ -34,10 +34,18 @@ export const findById = async (id) => {
 export async function fetchReservas(userId) {
   const [result] = await pool.query(
     `
-        SELECT r.*, p.nombre AS producto_nombre, pe.descripcion AS punto_descripcion
+        SELECT 
+            r.*, 
+            p.nombre AS producto_nombre, 
+            p.imagen AS producto_imagen, 
+            pe.descripcion AS punto_descripcion,
+            v.nombre AS nombre_vendedor,   
+            c.nombre AS nombre_comprador    
         FROM reservas r
         JOIN productos p ON r.id_producto = p.id
         LEFT JOIN puntos_entrega pe ON r.id_punto_entrega = pe.id
+        JOIN usuarios v ON r.id_vendedor = v.id    
+        JOIN usuarios c ON r.id_comprador = c.id   
         WHERE r.id_vendedor = ? OR r.id_comprador = ?
         ORDER BY r.fecha_creacion DESC
         `,
@@ -47,12 +55,7 @@ export async function fetchReservas(userId) {
   return result;
 }
 
-export async function  reservaByUserId(id_reserva, id_autor){
-    const [result] = await pool.query(
-        "select * from reservas where id = ? and id_vendedor = ?",
-        [id_reserva, id_autor]
-    );
-}
+
 
 export const updateStatus = async (id, estado) => {
   const [result] = await pool.query("update reservas set estado=? where id=?", [
@@ -142,3 +145,11 @@ export const responderCancelacion = async (idReserva, idVendedor, decision) => {
     conn.release;
   }
 };
+
+export async function reservaByUserId(id_reserva, id_user) {
+  const [result] = await pool.query(
+    `select * from reservas where id = ? and (id_vendedor = ? or id_comprador)`,
+    [id_reserva, id_user, id_user],
+  );
+  return result;
+}

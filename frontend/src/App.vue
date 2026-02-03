@@ -14,6 +14,9 @@ import NavBar from './components/navBar.vue';
 import Toast from './components/toast.vue';
 import Modal from './components/Modal.vue';
 import { useAuthStore } from './stores/auth.js';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const auth = useAuthStore();
 const route = useRoute();
