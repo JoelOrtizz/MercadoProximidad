@@ -7,42 +7,53 @@ import userRoutes from './routes/userRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import mapRoutes from './routes/mapRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import puntosEntregaRoutes from './routes/puntosEntregaRoutes.js';
+import categoriasRoutes from './routes/categoriasRoutes.js';
+import reservaRoutes from './routes/reservaRoutes.js';
+import unidadesRoutes from './routes/unidadesRoutes.js';
+import ratingRoutes from './routes/ratingRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 app.use(express.json());
-const corsOrigin = process.env.CORS_ORIGIN
+
+
+const corsOrigin = process.env.CORS_ORIGIN 
   ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
   : true;
+
 app.use(cors({ origin: corsOrigin, credentials: true }));
 
+// gaurdamos la palabra secreta 
 const cookieSecret = process.env.COOKIE_SECRET;
 if (!cookieSecret) {
   throw new Error('Falta configurar COOKIE_SECRET en el .env');
 }
+// activamos el parser cookie
 app.use(cookieParser(cookieSecret));
 
-// ==============================
-// HEALTH CHECK
-// ==============================
+app.use('/uploads', express.static('uploads')); // Para pintar las imágenes de /uploads
 
+
+// ruta simple para ver si el servidor esta funcionando
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'auth-backend' });
 });
 
-// ==============================
-// RUTAS
-// ==============================
 
 app.get('/', (req, res) => {
   res.send('Conexion establecida.');
 });
 
-app.use('/api/usuarios', userRoutes);
+app.use('/api/usuarios', userRoutes, ratingRoutes);
 app.use('/api/login', loginRoutes);
 app.use('/api/map', mapRoutes);
 app.use('/api/productos', productRoutes);
+app.use('/api/puntos-entrega', puntosEntregaRoutes);
+app.use('/api/categorias', categoriasRoutes);
+app.use('/api/unidades', unidadesRoutes);
+app.use("/api/reservas", reservaRoutes, ratingRoutes);
 
 // 404
 app.use((req, res) => {
@@ -70,9 +81,12 @@ app.use((err, req, res, next) => {
   let status = 500;
   let message = 'Error interno del servidor';
 
+  // Errores de JWT
   if (err?.name === 'JsonWebTokenError' || err?.name === 'TokenExpiredError') {
     status = 401;
     message = 'Token invalido o expirado';
+  
+  // Errores de Base de Datos (SQL)
   } else if (err?.code) {
     switch (err.code) {
       case 'ER_DUP_ENTRY':
@@ -103,11 +117,15 @@ app.use((err, req, res, next) => {
       default:
         message = err.message || message;
     }
+  
+  // Errores personalizados con status
   } else if (err?.status) {
     status = err.status;
     message = err.message || message;
+  
+  // Otros errores con mensaje
   } else if (err?.message) {
-    message = err.message;
+    message = err.message || message;
   }
 
   res.status(status).json({ error: message });

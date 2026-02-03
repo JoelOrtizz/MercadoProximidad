@@ -1,5 +1,6 @@
-import { getUser, insertUser, deleteUserById, updateUserById } from '../models/userModel.js';
+import { getUser, insertUser, deleteUserById, updateUserById,updateUserMyself } from '../models/userModel.js';
 
+// get de usuarios
 export const fetchUser = async (req, res, next) => {
   try {
     const users = await getUser();
@@ -34,8 +35,12 @@ export const register = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
+
+    // buscamos el id en la url
     const paramId = req.params?.id;
+    // buscamos el id en el token
     const authId = req.user?.id;
+    // si uno no esta mira el otro
     const id = paramId ?? authId;
 
     if (!id) {
@@ -66,8 +71,11 @@ export const deleteUser = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
+    // buscamos el id en la url
     const paramId = req.params?.id;
+    // buscamos el id en el token
     const authId = req.user?.id;
+    // si uno no esta mira el otro
     const id = paramId ?? authId;
 
     if (!id) {
@@ -81,7 +89,8 @@ export const updateUser = async (req, res, next) => {
       error.status = 403;
       return next(error);
     }
-
+    
+    // recogemos los parametros del body
     const { nombre, nickname, email, contrasena } = req.body;
     const result = await updateUserById(id, nombre, nickname, email, contrasena);
 
@@ -101,3 +110,36 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
+export const updateUserMe = async (req,res,next) => {
+  try{
+    const id = req.user?.id;
+
+    if (!id) {
+      const error = new Error('No autenticado.');
+      error.status = 401;
+      return next(error);
+    }
+
+
+    const {nombre,email,tlf} = req.body;
+
+    // Si llega como string vacio, lo guardamos como NULL (asi no hay "telefono = ''" raro en BD)
+    const tlfFinal = (tlf === '' || tlf === undefined) ? null : tlf;
+
+    const result = await updateUserMyself(id,nombre,email,tlfFinal)
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    return res.json({
+      id,
+      nombre,
+      email,
+      tlf: tlfFinal,
+      message: 'Usuario actualizado correctamente.',
+    });
+  } catch(error){
+      return next (error)
+  }
+}

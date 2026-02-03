@@ -18,11 +18,17 @@ erDiagram
         string descripcion
     }
 
+    UNIDADES {
+        int id PK
+        string nombre
+        string simbolo
+    }
+
     PRODUCTOS {
         int id PK
         string nombre
         int id_categoria FK
-        string tipo
+        int id_unidad FK
         decimal stock
         decimal precio
         string descripcion
@@ -48,7 +54,6 @@ erDiagram
         decimal cantidad
         int id_punto_entrega FK
         enum estado
-        date fecha_entrega
         timestamp fecha_creacion
     }
 
@@ -95,11 +100,12 @@ erDiagram
     USUARIOS ||--o{ NOTIFICACIONES : recibe
 
     CATEGORIAS ||--o{ PRODUCTOS : clasifica
+    UNIDADES ||--o{ PRODUCTOS : mide
 
     PRODUCTOS ||--o{ RESERVAS : reservado_en
-
     PUNTOS_ENTREGA ||--o{ RESERVAS : elegido_en
 
     RESERVAS ||--o{ MENSAJES : tiene
     RESERVAS ||--o{ VALORACIONES : genera
     RESERVAS ||--o{ NOTIFICACIONES : provoca
+

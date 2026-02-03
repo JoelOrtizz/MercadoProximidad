@@ -1,6 +1,7 @@
 import pool from '../config/db.js'
 import bcrypt from 'bcrypt'
 
+// error
 const badRequest = (message) => {
     const error = new Error(message);
     error.status = 400;
@@ -44,7 +45,7 @@ export const getByEmail = async (uEmail) => {
 export const getUser = async () => {
 
     const [result] = await pool.query(
-        'SELECT id,nombre, nickname, email, tipo FROM usuarios'
+        'SELECT id,nombre, nickname, email, tlf, tipo FROM usuarios'
     );
 
     return result;
@@ -83,6 +84,7 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
 
     if (!nombre || !nickname || !email || !contrasena) {
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
+        throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
 
     // Encriptación de la contraseña
@@ -94,6 +96,22 @@ export const updateUserById = async (id, nombre, nickname, email, contrasena) =>
          WHERE id = ?`,
         [nombre, nickname, email, hashedPassword, id]
     );
+
+    return result;
+}
+
+
+export const updateUserMyself = async (id,nombre,email,tlf) => {
+    
+    if (!nombre || !email){
+        throw badRequest("Por favor, rellena todos los campos")
+    }
+
+    const [result] = await pool.query(
+        `Update usuarios
+        set nombre=?,email=?,tlf=? where id=?`,
+        [nombre,email, tlf ?? null, id]
+    )
 
     return result;
 }
