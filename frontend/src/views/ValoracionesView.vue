@@ -70,24 +70,17 @@
               <div class="rating-display">
                 <div class="stars-row">
                   <span class="star-label">{{ getDisplayLabels(item)[0] }}:</span>
-                  <span class="stars">
-                    <i v-for="n in 5" :key="n" class="bi"
-                      :class="n <= item.nota_producto ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
-                  </span>
+                  <RateComponent :model-value="item.nota_producto" :readonly="true" />
                 </div>
+
                 <div class="stars-row">
                   <span class="star-label">{{ getDisplayLabels(item)[1] }}:</span>
-                  <span class="stars">
-                    <i v-for="n in 5" :key="n" class="bi"
-                      :class="n <= item.nota_entrega ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
-                  </span>
+                  <RateComponent :model-value="item.nota_entrega" :readonly="true" />
                 </div>
+
                 <div class="stars-row">
                   <span class="star-label">{{ getDisplayLabels(item)[2] }}:</span>
-                  <span class="stars">
-                    <i v-for="n in 5" :key="n" class="bi"
-                      :class="n <= item.nota_negociacion ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
-                  </span>
+                  <RateComponent :model-value="item.nota_negociacion" :readonly="true" />
                 </div>
               </div>
 
@@ -111,27 +104,21 @@
         <div class="form-group">
           <label>{{ formConfig.labels?.[0] }}</label>
           <div class="rating-stars">
-            <i v-for="i in 5" :key="'p' + i" class="bi"
-              :class="i <= form.nota_producto ? 'bi-star-fill text-warning' : 'bi-star text-muted'"
-              @click="form.nota_producto = i"></i>
+            <RateComponent v-model="form.nota_producto" :readonly="false" />
           </div>
         </div>
 
         <div class="form-group">
           <label>{{ formConfig.labels?.[1] }}</label>
           <div class="rating-stars">
-            <i v-for="i in 5" :key="'e' + i" class="bi"
-              :class="i <= form.nota_entrega ? 'bi-star-fill text-warning' : 'bi-star text-muted'"
-              @click="form.nota_entrega = i"></i>
+            <RateComponent v-model="form.nota_entrega" :readonly="false" />
           </div>
         </div>
 
         <div class="form-group">
           <label>{{ formConfig.labels?.[2] }}</label>
           <div class="rating-stars">
-            <i v-for="i in 5" :key="'n' + i" class="bi"
-              :class="i <= form.nota_negociacion ? 'bi-star-fill text-warning' : 'bi-star text-muted'"
-              @click="form.nota_negociacion = i"></i>
+            <RateComponent v-model="form.nota_negociacion" :readonly="false" />
           </div>
         </div>
 
@@ -156,6 +143,7 @@
   import { useRouter } from "vue-router";
   import { useAuthStore } from "../stores/auth.js";
   import { useToastStore } from "@/stores/toastStore.js";
+  import RateComponent from '@/components/RateComponent.vue';
 
   const auth = useAuthStore();
   const toast = useToastStore();
@@ -336,5 +324,3 @@
     }
   });
 </script>
-
-
