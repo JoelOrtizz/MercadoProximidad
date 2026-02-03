@@ -6,8 +6,6 @@ import {
 import { reservaByUserId } from "../models/reservaModel.js";
 import { createNotificacion } from "../models/notificacionModel.js";
 
-import {reservaByUserId} from "../models/reservaModel.js"
-
 export async function postRating(req, res, next) {
   try {
     // recogemos el id del token
