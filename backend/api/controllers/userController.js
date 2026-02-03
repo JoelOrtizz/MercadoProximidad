@@ -1,4 +1,4 @@
-import { getUser, insertUser, deleteUserById, updateUserById,updateUserMyself } from '../models/userModel.js';
+import { getUser, getPublicUserById, insertUser, deleteUserById, updateUserById,updateUserMyself } from '../models/userModel.js';
 
 // get de usuarios
 export const fetchUser = async (req, res, next) => {
@@ -10,6 +10,26 @@ export const fetchUser = async (req, res, next) => {
     }
 
     return res.status(200).json({ users });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const fetchUserByIdPublic = async (req, res, next) => {
+  try {
+    const idRaw = req.params?.id;
+    const id = Number.parseInt(String(idRaw), 10);
+
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ error: 'Id de usuario invalido' });
+    }
+
+    const user = await getPublicUserById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    return res.status(200).json({ user });
   } catch (error) {
     return next(error);
   }

@@ -10,6 +10,7 @@ import PuntosEntregaView from './views/PuntosEntregaView.vue';
 import ReservasView from './views/ReservasView.vue';
 import MensajesView from './views/MensajesView.vue';
 import ValoracionesView from './views/ValoracionesView.vue';
+import PerfilUsuarioView from './views/PerfilUsuarioView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -25,7 +26,8 @@ const router = createRouter({
     { path: '/reservas', component: ReservasView, meta: { css: '/css/index.css' } },
     { path: '/mensajes', component: MensajesView, meta: { css: '/css/mensajes.css' } },
     { path: '/mensajes/:id', component: MensajesView, meta: { css: '/css/mensajes.css' } },
-    { path: '/valoraciones', component: ValoracionesView, meta: { css: '/css/valoraciones.css' } },
+    { path: '/valoraciones', component: ValoracionesView, meta: { css: '/css/index.css' } },
+    { path: '/usuario/:id', component: PerfilUsuarioView, meta: { css: '/css/index.css' } },
     { path: '/:pathMatch(.*)*', redirect: '/comprar' },
   ],
 });

@@ -92,7 +92,9 @@ CREATE TABLE reservas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   id_vendedor INT NOT NULL,
   id_comprador INT NOT NULL,
-  id_producto INT NOT NULL,
+  -- Si el producto se borra, queremos conservar la reserva (historial),
+  -- pero sin depender de un producto que ya no existe.
+  id_producto INT NULL,
   cantidad DECIMAL(10,2) NOT NULL,
   -- Cuando una reserva se cancela / se completa, ya no nos importa mantener el punto "congelado".
   -- Por eso permitimos NULL: asi el vendedor puede reemplazar sus puntos de entrega sin romper reservas antiguas.
@@ -108,7 +110,8 @@ CREATE TABLE reservas (
     FOREIGN KEY (id_comprador) REFERENCES usuarios(id),
 
   CONSTRAINT fk_reserva_producto
-    FOREIGN KEY (id_producto) REFERENCES productos(id),
+    FOREIGN KEY (id_producto) REFERENCES productos(id)
+    ON DELETE SET NULL,
 
   CONSTRAINT fk_reserva_punto
     FOREIGN KEY (id_punto_entrega) REFERENCES puntos_entrega(id)

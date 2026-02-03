@@ -12,6 +12,7 @@ import categoriasRoutes from './routes/categoriasRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
 import unidadesRoutes from './routes/unidadesRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -54,6 +55,7 @@ app.use('/api/puntos-entrega', puntosEntregaRoutes);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/unidades', unidadesRoutes);
 app.use("/api/reservas", reservaRoutes, ratingRoutes);
+app.use('/api/chats', chatRoutes);
 
 // 404
 app.use((req, res) => {
