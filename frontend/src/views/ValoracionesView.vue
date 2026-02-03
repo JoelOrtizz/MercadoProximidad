@@ -15,6 +15,8 @@
       <RouterLink to="/login">Ir a login</RouterLink>
     </div>
 
+    <!--Encabezado de las pestañas-->
+
     <div v-else class="card">
       <div class="tabs">
         <button class="btn" :class="{ 'btn-primary': tab === 'pendientes' }" @click="tab = 'pendientes'">
@@ -28,9 +30,12 @@
         </button>
       </div>
 
-      <div v-if="activeList.length === 0" style="text-align: center; color: #888; padding: 20px">
+      <div v-if="activeList.length === 0">
         No hay elementos en esta lista.
       </div>
+
+
+      <!--Listas con la informacion-->
 
       <div v-else class="item-list">
         <div v-for="item in activeList" :key="item.id || item.id_reserva" class="item-card">
@@ -67,6 +72,7 @@
                 <strong>De: </strong> {{ item.nickname || item.nombre_origen || "Usuario" }}
               </p>
 
+              <!--Componente de las estrellas-->
               <div class="rating-display">
                 <div class="stars-row">
                   <span class="star-label">{{ getDisplayLabels(item)[0] }}:</span>
@@ -94,10 +100,12 @@
       </div>
     </div>
 
+    <!--Formulario de comprar-->
+
     <div v-if="showForm" class="modal-backdrop">
       <div class="modal-content">
         <h2>{{ formConfig.titulo }}</h2>
-        <p style="color: #666; margin-bottom: 20px">
+        <p>
           Reserva: {{ estrellas?.producto_nombre || estrellas?.reserva?.producto_nombre }}
         </p>
 
@@ -129,7 +137,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" @click="showForm = false">Cancelar</button>
+          <button type="button" class="btn btn-secondary" @click="showForm = false">Descartar</button>
           <button type="submit" class="btn btn-primary" :disabled="loading" @click="submitValoracion">Enviar</button>
         </div>
       </div>
@@ -175,9 +183,7 @@
     return listaPendientes.value;
   });
 
-  // --- LÓGICA DE ROLES MEJORADA ---
-
-  // Determina si YO soy el Vendedor en esta transacción
+  
   function esVenta(item) {
     const myId = String(auth.user?.id);
     // Buscamos ID vendedor en el objeto directo o en 'reserva' anidada
@@ -189,11 +195,8 @@
     return false; // Soy Comprador
   }
 
-  // Define las etiquetas para el listado (visualización estática)
   function getDisplayLabels(item) {
     const soyVendedor = esVenta(item);
-
-    // DEFINICIÓN DE ETIQUETAS
     const labelsProducto = ["Producto / Calidad", "Entrega", "Trato"];
     const labelsPersona = ["Seriedad / Pago", "Puntualidad", "Comunicación"];
 
@@ -211,17 +214,10 @@
       // Si soy Comprador -> Me valoraron como Persona
       return labelsPersona;
     }
-
-    // Fallback por defecto
     return labelsProducto;
   }
-
-  // Configuración para el FORMULARIO (Modal dinámico)
   const formConfig = computed(() => {
     if (!estrellas.value) return {};
-
-    // Nota: Aquí la lógica es "A quién voy a valorar ahora"
-    // Si es Venta (Soy vendedor) -> Voy a valorar al comprador -> Labels Persona
     if (esVenta(estrellas.value)) {
       return {
         titulo: "Valorar al Comprador",
@@ -234,8 +230,6 @@
       };
     }
   });
-
-  // --- FUNCIONES ---
 
   function abrirValorar(item) {
     estrellas.value = item;

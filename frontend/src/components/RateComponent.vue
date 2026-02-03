@@ -11,8 +11,8 @@
         ></i>
     </div>
 </template>
-<script>
-    import {ref} from 'vue'
+<script setup>
+    import {ref} from 'vue';
     const props = defineProps({
         modelValue: {
             type: Number,
