@@ -57,7 +57,7 @@
           <button class="btn" type="button" @click="loadProducts">Recargar</button>
         </div>
 
-        <div class="row row-cols-2 g-2">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
           <!-- Bucle para mostrar los productos -->
           <div v-for="p in products" :key="p.id" class="col">
             <article class="card shadow-sm h-100 product-card">
@@ -75,9 +75,10 @@
                 </div>
 
                 <!-- IMAGEN -->
-                <div v-if="p.imagen" class="my-2">
+                <div v-if="p.imagen" class="my-2 rounded border d-flex align-items-center justify-content-center"
+                  style="height:120px; width:100%; background:#fff;">
                   <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`"
-                    class="img-fluid rounded border" style="height:120px; width:100%; object-fit:cover;" />
+                    class="img-fluid" style="max-height:120px; max-width:100%; object-fit:contain;" />
                 </div>
 
                 <!-- DESCRIPCION -->
