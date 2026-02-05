@@ -3,6 +3,7 @@ import express from 'express'
 import { fetchUser, fetchUserByIdPublic, register, deleteUser, updateUser, updateUserMe } from '../controllers/userController.js'
 import { me as authMe } from '../controllers/authController.js'
 import { requireAuth } from '../middlewares/requireAuth.js';
+import { getRatingMedia } from '../controllers/ratingController.js';
 
 
 const router = express.Router();
@@ -14,6 +15,9 @@ router.post('/', register);
 router.get('/me', requireAuth, authMe);
 router.delete('/me', requireAuth, deleteUser);
 router.put('/me', requireAuth, updateUserMe);
+
+// Media de valoraciones recibidas (publico)
+router.get('/:id/ratings/media', getRatingMedia);
 
 // Perfil publico (para ver datos basicos de otro usuario)
 router.get('/:id', fetchUserByIdPublic);

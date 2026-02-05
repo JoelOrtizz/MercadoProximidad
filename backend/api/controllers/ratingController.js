@@ -2,6 +2,7 @@ import {
   createRating,
   ratingsReceived,
   ratingsSent,
+  ratingAverageReceived,
 } from "../models/ratingModel.js";
 import { reservaByUserId } from "../models/reservaModel.js";
 import { createNotificacion } from "../models/notificacionModel.js";
@@ -109,6 +110,20 @@ export async function getRatingSent(req, res, next) {
         return res.status(403).json({error: "Acceso denegado. Solo puedes ver tu propio historial de valoraciones enviadas."})
     }
     const result = await ratingsSent(id_solicitado);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getRatingMedia(req, res, next) {
+  try {
+    const id_user = Number.parseInt(req.params.id, 10);
+    if (!Number.isFinite(id_user)) {
+      return res.status(400).json({ error: "ID de usuario invalido" });
+    }
+
+    const result = await ratingAverageReceived(id_user);
     res.status(200).json(result);
   } catch (err) {
     next(err);

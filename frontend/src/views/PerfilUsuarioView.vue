@@ -406,6 +406,29 @@ async function loadProducts() {
   }
 }
 
+async function loadValoracionMedia() {
+  const idRaw = route.params && route.params.id ? String(route.params.id) : '';
+  const id = Number.parseInt(idRaw, 10);
+  if (!Number.isFinite(id)) {
+    valoracionText.value = '-';
+    return;
+  }
+
+  try {
+    const res = await axios.get(`/usuarios/${id}/ratings/media`);
+    const media = res && res.data ? res.data.media : null;
+    const total = res && res.data ? res.data.total : 0;
+
+    if (!total || media === null || media === undefined) {
+      valoracionText.value = '-';
+    } else {
+      valoracionText.value = Number(media).toFixed(1);
+    }
+  } catch {
+    valoracionText.value = '-';
+  }
+}
+
 async function loadAll() {
   await loadUser();
   await loadPoints();
@@ -419,6 +442,7 @@ onMounted(async () => {
   await loadPoints();
   await loadProducts();
   await loadCityAndRegion();
+  await loadValoracionMedia();
 });
 
 watch(
@@ -429,6 +453,7 @@ watch(
     await loadPoints();
     await loadProducts();
     await loadCityAndRegion();
+    await loadValoracionMedia();
   }
 );
 
