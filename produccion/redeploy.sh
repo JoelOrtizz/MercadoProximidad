@@ -30,11 +30,22 @@ if [[ ! -f ".env" ]]; then
   exit 1
 fi
 
-echo "==> Rebuild + up (docker-compose)"
-docker-compose up -d --build
+echo "==> Rebuild + up (docker compose / docker-compose)"
+
+# Prefer Docker Compose v2 (command: `docker compose`).
+# The old `docker-compose` (v1) can crash with newer Docker engines
+# (for example: KeyError: 'ContainerConfig').
+COMPOSE_CMD=""
+if docker compose version >/dev/null 2>&1; then
+  COMPOSE_CMD="docker compose"
+else
+  COMPOSE_CMD="docker-compose"
+fi
+
+echo "==> Usando: ${COMPOSE_CMD}"
+${COMPOSE_CMD} up -d --build
 
 echo "==> Estado contenedores"
-docker-compose ps
+${COMPOSE_CMD} ps
 
 echo "==> OK redeploy terminado"
-

@@ -23,11 +23,14 @@ cp .env.example .env
 Desde `produccion/`:
 
 ```bash
-docker-compose up -d --build
+# Recomendado (Docker Compose v2)
+docker compose up -d --build
+
+# Si solo tienes el binario antiguo (docker-compose v1), instálate el plugin v2
+# porque v1 puede fallar con Docker moderno (ej: KeyError: 'ContainerConfig').
 ```
 
 ## Notas
 
 - No se publican puertos del backend ni de la BD al exterior.
 - El acceso público lo da Traefik por `https://terreta.shop`.
-
