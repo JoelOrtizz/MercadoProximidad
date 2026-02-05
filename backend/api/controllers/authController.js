@@ -4,6 +4,21 @@ import 'dotenv/config';
 
 import { getByEmail, getById } from '../models/userModel.js';
 
+function getCookieOptions(req) {
+  const isProd = process.env.NODE_ENV === 'production';
+
+  // Con Traefik, Express puede saber si era HTTPS gracias a `trust proxy`.
+  const isSecureRequest = Boolean(req && req.secure) || String(req?.headers?.['x-forwarded-proto'] || '').includes('https');
+
+  return {
+    httpOnly: true,
+    sameSite: 'strict',
+    signed: true,
+    // En produccion, obligamos cookies seguras (solo HTTPS).
+    secure: isProd ? true : false,
+  };
+}
+
 export const login = async (req, res, next) => {
   try {
     const { email, contrasena } = req.body;
@@ -35,11 +50,7 @@ export const login = async (req, res, next) => {
     );
 
     // guardamos en la cookie el token
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      sameSite: 'strict',
-      signed: true,
-    });
+    res.cookie('access_token', token, getCookieOptions(req));
 
     return res.json({
       message: 'Login correct',
@@ -52,11 +63,7 @@ export const login = async (req, res, next) => {
 
 // cerramos sesion
 export const logout = (req, res) => {
-  res.clearCookie('access_token', {
-    httpOnly: true,
-    sameSite: 'strict',
-    signed: true,
-  });
+  res.clearCookie('access_token', getCookieOptions(req));
 
   res.status(200).json({ message: 'Sesion cerrada correctamente' });
 };

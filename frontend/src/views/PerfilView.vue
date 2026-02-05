@@ -539,7 +539,7 @@ function goToReservas() {
 }
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await loadCategorias();
   await loadUnidades();

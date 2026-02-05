@@ -309,7 +309,7 @@ async function rechazarSolicitud(r) {
   }
 
   onMounted(async () => {
-    await auth.fetchMe();
+    await auth.ensureReady();
     if (isLoggedIn.value) {
       await loadReservas();
     } else {

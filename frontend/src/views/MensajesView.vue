@@ -251,7 +251,7 @@ watch(
 );
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await loadChats();
 });

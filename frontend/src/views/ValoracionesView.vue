@@ -312,7 +312,7 @@
   }
 
   onMounted(async () => {
-    await auth.fetchMe();
+    await auth.ensureReady();
     if (isLoggedIn.value) {
       await loadReservas();
     }

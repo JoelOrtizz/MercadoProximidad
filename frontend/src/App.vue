@@ -107,7 +107,7 @@ function aplicarCssDePagina(href) {
 
 
 onMounted(async () => {
-  await auth.fetchMe(); // recupera la sesion al recargar
+  await auth.fetchMe(); // recupera la sesion al recargar (se deduplica si otras vistas llaman tambien)
   aplicarCssDePagina(route?.meta?.css); // carga el css
 
   // Si el usuario está logueado pero no tiene coords, lo mandamos a seleccionarlas

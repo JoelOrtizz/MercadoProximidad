@@ -18,6 +18,11 @@ import notificacionRoutes from './routes/notificacionRoutes.js';
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
+// IMPORTANTE (produccion con proxy inverso):
+// Traefik hace de proxy, y el backend recibe peticiones internas por HTTP.
+// Con trust proxy, Express interpreta bien `req.secure` usando X-Forwarded-Proto.
+app.set('trust proxy', 1);
+
 app.use(express.json());
 
 

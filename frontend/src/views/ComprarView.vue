@@ -304,7 +304,7 @@ async function crearReserva(p) {
 }
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   loadCategorias();
   loadProducts();
 });
