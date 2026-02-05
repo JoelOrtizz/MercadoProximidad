@@ -21,9 +21,15 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 app.use(express.json());
 
 
-const corsOrigin = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
-  : true;
+let corsOrigin = true;
+if (process.env.CORS_ORIGIN) {
+  const parsed = process.env.CORS_ORIGIN
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  // Si el env existe pero viene vacío (""), dejamos modo desarrollo (true) en vez de bloquear todo.
+  corsOrigin = parsed.length > 0 ? parsed : true;
+}
 
 app.use(cors({ origin: corsOrigin, credentials: true }));
 
