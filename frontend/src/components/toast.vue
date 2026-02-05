@@ -1,5 +1,5 @@
 <script setup>
-import { useToastStore } from "@/stores/toastStore";
+import { useToastStore } from "@/stores/toastStore.js";
 const toast = useToastStore();
 </script>
 
@@ -22,7 +22,7 @@ const toast = useToastStore();
   color: white;
   font-weight: 500;
   box-shadow: 0 10px 25px rgba(0,0,0,.2);
-  z-index: 9999;
+  z-index: 20000;
   max-width: min(520px, calc(100vw - 48px));
   text-align: center;
 }
