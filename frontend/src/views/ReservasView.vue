@@ -41,6 +41,8 @@
           <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
             <div class="d-flex align-items-center gap-2">
+              <img v-if="r.producto_imagen" :src="`/uploads/${encodeURIComponent(r.producto_imagen)}`" alt=""
+                class="rounded border" style="width: 44px; height: 44px; object-fit: cover;" />
               <i class="bi bi-basket me-1 text-warning"></i>
             <div style="font-weight: 700">#{{ r.id }} · {{ r.producto_nombre || 'Producto' }}</div>
             </div>

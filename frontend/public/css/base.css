@@ -92,7 +92,7 @@
 
 /* ---------- Botones ---------- */
 
-.btn {
+.btn:not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info):not(.btn-secondary):not(.btn-light):not(.btn-dark):not(.btn-outline-primary):not(.btn-outline-success):not(.btn-outline-danger):not(.btn-outline-warning):not(.btn-outline-info):not(.btn-outline-secondary):not(.btn-outline-light):not(.btn-outline-dark) {
   border: 1px solid var(--border);
   background: #fff;
   border-radius: 10px;
