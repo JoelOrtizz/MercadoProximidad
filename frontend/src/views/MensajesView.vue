@@ -46,7 +46,13 @@
         <template v-else>
           <header class="conv__header">
             <div>
-              <div class="conv__name">{{ selectedChat.other_nickname }}</div>
+              <RouterLink
+                :to="`/usuario/${selectedChat.other_user_id}`"
+                class="conv__name"
+                style="text-decoration: none; color: inherit; cursor: pointer;"
+              >
+                {{ selectedChat.other_nickname }}
+              </RouterLink>
               <div class="conv__sub">Chat 1 a 1</div>
             </div>
             <button class="btn" type="button" :disabled="loadingMensajes" @click="loadMensajes(selectedChat.id)">
