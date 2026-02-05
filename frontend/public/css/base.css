@@ -107,13 +107,20 @@
 }
 
 .btn-primary {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
+  /* !important para ganarle a Bootstrap aunque cambie el orden de carga */
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
 }
 
-.btn-primary:hover:not(:disabled) {
-  filter: brightness(0.95);
+.btn-primary:hover:not(:disabled),
+.btn-primary:active:not(:disabled) {
+  background: #e65e00 !important;
+  border-color: #e65e00 !important;
+}
+
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 106, 0, 0.18) !important;
 }
 
 /* ---------- Chips ---------- */
