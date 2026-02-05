@@ -45,7 +45,7 @@ app.use('/uploads', express.static('uploads')); // Para pintar las imágenes de 
 
 
 // ruta simple para ver si el servidor esta funcionando
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'auth-backend' });
 });
 
