@@ -5,7 +5,7 @@
 
       <form id="login" class="auth-form" @submit.prevent="Login">
         <div class="field">
-          <label class="label" for="email">Correo electronico</label>
+          <label class="label" for="email">Correo electrónico</label>
           <input
             v-model="email"
             class="input"
@@ -18,7 +18,7 @@
         </div>
 
         <div class="field">
-          <label class="label" for="pass">Contraseヵa</label>
+          <label class="label" for="pass">Contraseña</label>
           <input v-model="pass" class="input" type="password" name="pass" id="pass" placeholder="TuApodo123" required>
         </div>
 
@@ -26,7 +26,7 @@
           {{ auth.loading ? 'Entrando...' : 'Entrar' }}
         </button>
 
-        <p class="auth-foot">No tienes cuenta? <RouterLink to="/registro">Registrate</RouterLink></p>
+        <p class="auth-foot">¿No tienes cuenta? <RouterLink to="/registro">Regístrate</RouterLink></p>
       </form>
     </div>
   </main>
@@ -45,14 +45,14 @@
   const email = ref('');
   const pass = ref('');
 
-  // al crear esta funcion y gastar el auth.login tenemos dentro de ahi el onmounted que nos permite
-  // no ponerlo ya que lo hace el auth
+  // Al crear esta función y gastar el auth.login tenemos dentro de ahí el onMounted que nos permite
+  // no ponerlo aquí ya que lo hace el auth.
   async function Login() {
     try {
-      // Llamamos a la acciИn del store
+      // Llamamos a la acción del store
       await auth.login(email.value, pass.value);
 
-      // comprueba si tiene cordenadas el usuario
+      // Comprueba si el usuario tiene coordenadas guardadas
       const latRaw = auth.user?.lat;
       const lngRaw = auth.user?.lng;
       const hasCoords =
@@ -62,11 +62,12 @@
         lngRaw !== undefined &&
         Number.isFinite(Number(latRaw)) &&
         Number.isFinite(Number(lngRaw));
-      // si no tiene coordenadas redirecciona a coords
+
+      // Si no tiene coordenadas, redirecciona a coords
       router.push(hasCoords ? '/comprar' : '/coords');
     } catch (error) {
       console.error("Error en login:", error);
-      toast.error("Error al iniciar sesiИn. Comprueba tus credenciales.");
+      toast.error("Error al iniciar sesión. Comprueba tus credenciales.");
     }
   }
 </script>
