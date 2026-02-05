@@ -1,11 +1,11 @@
 <script setup>
-import { useModalStore } from "@/stores/modal";
+import { useModalStore } from "@/stores/modal.js";
 const modal = useModalStore();
 </script>
 
 <template>
   <div v-if="modal.visible" class="backdrop">
-    <div class="modal">
+    <div class="app-modal">
       <h3 class="modal__title">{{ modal.title }}</h3>
       <p class="modal__message">{{ modal.message }}</p>
 
@@ -28,7 +28,7 @@ const modal = useModalStore();
   padding: calc(var(--nav-height, 78px) + 12px) 16px 16px;
   z-index: 10000;
 }
-.modal {
+.app-modal {
   width: min(520px, 100%);
   background: #ffffff;
   border-radius: 14px;

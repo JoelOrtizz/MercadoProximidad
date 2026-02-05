@@ -12,6 +12,19 @@
   --content-width: 1400px;
   /* Altura aproximada del navbar (para colocar toast/modal justo debajo) */
   --nav-height: 78px;
+
+  /* =========================================================
+     Bootstrap (quitar azules)
+     =========================================================
+     La app importa Bootstrap. Para que no aparezcan tonos azules
+     (links, botones primary, focus, etc.), mapeamos las variables
+     principales de Bootstrap a nuestra paleta naranja.
+     ========================================================= */
+  --bs-primary: var(--primary);
+  --bs-primary-rgb: 255, 106, 0;
+  --bs-link-color: var(--primary);
+  --bs-link-hover-color: #e65e00;
+  --bs-focus-ring-color: rgba(255, 106, 0, 0.25);
 }
 
 * {
@@ -28,6 +41,15 @@ body {
   font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text);
+}
+
+/* Links globales (evitar hover azul) */
+a {
+  color: var(--primary) !important;
+}
+
+a:hover {
+  color: #e65e00 !important;
 }
 
 .nav {

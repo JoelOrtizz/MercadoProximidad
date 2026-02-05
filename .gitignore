@@ -2,6 +2,7 @@
 backend/.env
 despliegue/.env
 despliegue/traefik/users.htpasswd
+produccion/.env
 
 backend/node_modules
 frontend/node_modules

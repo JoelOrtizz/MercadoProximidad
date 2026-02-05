@@ -184,7 +184,7 @@ async function save() {
 }
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
 
   if (hasCoords.value && !isEditMode.value) {

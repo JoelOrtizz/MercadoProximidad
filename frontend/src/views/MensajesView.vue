@@ -46,7 +46,13 @@
         <template v-else>
           <header class="conv__header">
             <div>
-              <div class="conv__name">{{ selectedChat.other_nickname }}</div>
+              <RouterLink
+                :to="`/usuario/${selectedChat.other_user_id}`"
+                class="conv__name"
+                style="text-decoration: none; color: inherit; cursor: pointer;"
+              >
+                {{ selectedChat.other_nickname }}
+              </RouterLink>
               <div class="conv__sub">Chat 1 a 1</div>
             </div>
             <button class="btn" type="button" :disabled="loadingMensajes" @click="loadMensajes(selectedChat.id)">
@@ -165,17 +171,26 @@ async function loadChats() {
 async function loadMensajes(chatId) {
   if (!chatId) return;
   loadingMensajes.value = true;
+  let hayQueBajarScroll = false;
   try {
     const res = await axios.get(`/chats/${chatId}/mensajes`);
     mensajes.value = Array.isArray(res.data) ? res.data : [];
-    await nextTick();
-    scrollToBottom();
+    hayQueBajarScroll = true;
   } catch (err) {
     mensajes.value = [];
     const msg = err && err.response && err.response.data && (err.response.data.error || err.response.data.message);
     toast.error(`Error: ${msg || (err && err.message) || 'No se pudieron cargar los mensajes.'}`);
   } finally {
     loadingMensajes.value = false;
+
+    // IMPORTANTE:
+    // Si hacemos scroll cuando "loadingMensajes" sigue a true, el DOM todavia
+    // esta pintando "Cargando..." y el alto del contenedor es pequeño.
+    // Por eso el scroll se quedaba arriba. Bajamos el scroll DESPUES de quitar el loading.
+    if (hayQueBajarScroll) {
+      await nextTick();
+      scrollToBottom();
+    }
   }
 }
 
@@ -229,8 +244,20 @@ watch(
   }
 );
 
+// Cada vez que cambian los mensajes, dejamos el scroll abajo del todo
+// (así no "crece" la página y siempre ves el último mensaje)
+watch(
+  () => [mensajes.value.length, loadingMensajes.value],
+  async (vals) => {
+    const loading = vals && vals[1];
+    if (loading) return;
+    await nextTick();
+    scrollToBottom();
+  }
+);
+
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await loadChats();
 });

@@ -271,7 +271,7 @@ async function loadMyPuntosEntrega() {
 }
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await createMap();
   await loadMyPuntosEntrega();

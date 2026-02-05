@@ -18,12 +18,23 @@ import notificacionRoutes from './routes/notificacionRoutes.js';
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
+// IMPORTANTE (produccion con proxy inverso):
+// Traefik hace de proxy, y el backend recibe peticiones internas por HTTP.
+// Con trust proxy, Express interpreta bien `req.secure` usando X-Forwarded-Proto.
+app.set('trust proxy', 1);
+
 app.use(express.json());
 
 
-const corsOrigin = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
-  : true;
+let corsOrigin = true;
+if (process.env.CORS_ORIGIN) {
+  const parsed = process.env.CORS_ORIGIN
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  // Si el env existe pero viene vacío (""), dejamos modo desarrollo (true) en vez de bloquear todo.
+  corsOrigin = parsed.length > 0 ? parsed : true;
+}
 
 app.use(cors({ origin: corsOrigin, credentials: true }));
 
@@ -40,7 +51,7 @@ app.use('/uploads', express.static('uploads')); // Para pintar las imágenes de 
 
 
 // ruta simple para ver si el servidor esta funcionando
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'auth-backend' });
 });
 
@@ -70,7 +81,8 @@ app.use((req, res) => {
 // ==============================
 
 app.use((err, req, res, next) => {
-  console.error('Error capturado:', err);
+  // Para DAW: no queremos llenar consola con errores esperados (401/403/400).
+  // Dejamos el log "fuerte" solo para 500+.
 
   let status = 500;
   let message = 'Error interno del servidor';
@@ -120,6 +132,12 @@ app.use((err, req, res, next) => {
   // Otros errores con mensaje
   } else if (err?.message) {
     message = err.message || message;
+  }
+
+  if (status >= 500) {
+    console.error('Error capturado:', err);
+  } else {
+    console.warn(`Error ${status}: ${message}`);
   }
 
   res.status(status).json({ error: message });

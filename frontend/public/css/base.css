@@ -1,0 +1,196 @@
+/* ==========================================================================
+   BASE (estilos comunes de toda la app)
+   ==========================================================================
+   Objetivo (modo DAW):
+   - Tener un "suelo" comun para que todas las pantallas se vean iguales
+   - Evitar repetir botones/cards/inputs en cada CSS de vista
+   - Permitir que cada vista tenga SU CSS, pero usando las mismas piezas
+
+   Como usar esto en una vista nueva:
+   1) En el template, usa las clases comunes:
+      - contenedor:   <main class="page">
+      - tarjeta:      <div class="card">...</div>
+      - input:        <input class="input" ...>
+      - boton:        <button class="btn">...</button>
+      - boton prim.:  <button class="btn btn-primary">...</button>
+      - etiquetas:    <label class="label">...</label>
+      - campos:       <div class="field">...</div>
+   2) Si necesitas algo muy especifico de esa pantalla (ej: grid de productos),
+      crea/edita el CSS de ESA vista y pon solo lo que sea de esa vista.
+
+   Nota:
+   - Los colores y variables base estan en `nav.css` (:root).
+   - Este fichero se carga SIEMPRE (App.vue lo inyecta como CSS global).
+   ========================================================================== */
+
+/* ---------- Contenedores basicos ---------- */
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: #6c6c6c;
+  font-size: 13px;
+}
+
+.products-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.products-header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+/* ---------- Formularios ---------- */
+
+.field {
+  margin: 14px 0;
+}
+
+.label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.hint {
+  margin-top: 8px;
+  color: #6c6c6c;
+  font-size: 12px;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ---------- Botones ---------- */
+
+.btn:not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info):not(.btn-secondary):not(.btn-light):not(.btn-dark):not(.btn-outline-primary):not(.btn-outline-success):not(.btn-outline-danger):not(.btn-outline-warning):not(.btn-outline-info):not(.btn-outline-secondary):not(.btn-outline-light):not(.btn-outline-dark) {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary {
+  /* !important para ganarle a Bootstrap aunque cambie el orden de carga */
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-primary:active:not(:disabled) {
+  background: #e65e00 !important;
+  border-color: #e65e00 !important;
+}
+
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 106, 0, 0.18) !important;
+}
+
+/* ---------- Chips ---------- */
+
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #2a2a2a;
+  font-family: inherit;
+}
+
+.chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.chip.is-active {
+  border-color: var(--primary-border);
+  background: var(--primary-weak);
+  color: var(--primary-text);
+}
+
+/* ---------- Tabs (pestanas) ----------
+   Usadas en: Reservas / Valoraciones (y similares).
+   Se comportan como chips, pero con .btn para simplificar el HTML. */
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.tabs .btn {
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+.tabs .btn-primary {
+  border-color: var(--primary-border);
+  background: var(--primary-weak);
+  color: var(--primary-text);
+  font-weight: 700;
+}
+
+/* ---------- Etiquetas comunes ---------- */
+
+.price {
+  background: var(--primary-weak);
+  border: 1px solid var(--primary-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 800;
+  color: var(--primary-text);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.meta {
+  color: #6c6c6c;
+  font-size: 13px;
+}

@@ -28,6 +28,8 @@ services:
       - --certificatesresolvers.letsencrypt.acme.email=${LE_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      # Compatibilidad: forzamos certificado RSA (evita problemas de confianza en algunos clientes/redes con ECDSA)
+      - --certificatesresolvers.letsencrypt.acme.keytype=RSA2048
     ports:
       - 80:80
       - 443:443
@@ -45,4 +47,3 @@ volumes:
 networks:
   traefik-public:
     external: true
-

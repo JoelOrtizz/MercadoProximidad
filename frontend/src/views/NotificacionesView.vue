@@ -250,7 +250,7 @@ onMounted(async () => {
   // la sesión antes de mandar al login.
   if (!auth.user || !auth.user.id) {
     try {
-      await auth.fetchMe();
+      await auth.ensureReady();
     } catch {}
   }
 

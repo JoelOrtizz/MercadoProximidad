@@ -184,7 +184,7 @@ async function submitProduct(){
 }
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   await loadCategorias();
   await loadUnidades();
 });
