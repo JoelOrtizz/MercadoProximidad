@@ -5,6 +5,17 @@
         <h1>Reservas</h1>
         <div class="subtitle">{{ subtitle }}</div>
       </div>
+
+      <!-- Filtro simple: separar compras y ventas -->
+      <div v-if="isLoggedIn" style="flex: 1; display: flex; justify-content: center; gap: 8px">
+        <button class="btn" type="button" :class="{ 'btn-primary': tipoLista === 'compras' }" @click="tipoLista = 'compras'">
+          Compras
+        </button>
+        <button class="btn" type="button" :class="{ 'btn-primary': tipoLista === 'ventas' }" @click="tipoLista = 'ventas'">
+          Ventas
+        </button>
+      </div>
+
       <button class="btn" type="button" :disabled="loading" @click="loadReservas">Recargar</button>
     </div>
 
@@ -184,6 +195,7 @@
   const subtitle = ref('Cargando...');
   const tab = ref('pendientes'); // pendientes | aceptadas | finalizadas
   const savingById = reactive({});
+  const tipoLista = ref('compras'); // compras | ventas
 
   const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
@@ -204,13 +216,26 @@
     return String(r.id_vendedor) === String(auth.user?.id);
   }
 
-const pendientes = computed(() => (reservas.value || []).filter((r) => r.estado === 'pendiente'));
-const aceptadas = computed(() => (reservas.value || []).filter((r) =>
-  r.estado === 'aceptada' || r.estado === 'cancelacion_solicitada'
-));
-const finalizadas = computed(() =>
-  (reservas.value || []).filter((r) => r.estado === 'completada' || r.estado === 'rechazada')
-);
+  const reservasPorTipo = computed(() => {
+    const list = reservas.value || [];
+    const myId = auth.user && auth.user.id ? auth.user.id : null;
+    if (!myId) return [];
+
+    if (tipoLista.value === 'ventas') {
+      return list.filter((r) => String(r.id_vendedor) === String(myId));
+    }
+
+    // Por defecto: compras
+    return list.filter((r) => String(r.id_comprador) === String(myId));
+  });
+
+  const pendientes = computed(() => (reservasPorTipo.value || []).filter((r) => r.estado === 'pendiente'));
+  const aceptadas = computed(() => (reservasPorTipo.value || []).filter((r) =>
+    r.estado === 'aceptada' || r.estado === 'cancelacion_solicitada'
+  ));
+  const finalizadas = computed(() =>
+    (reservasPorTipo.value || []).filter((r) => r.estado === 'completada' || r.estado === 'rechazada')
+  );
 
   const activeList = computed(() => {
     if (tab.value === 'aceptadas') return aceptadas.value;
