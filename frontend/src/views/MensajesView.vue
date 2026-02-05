@@ -229,6 +229,16 @@ watch(
   }
 );
 
+// Cada vez que cambian los mensajes, dejamos el scroll abajo del todo
+// (así no "crece" la página y siempre ves el último mensaje)
+watch(
+  () => mensajes.value.length,
+  async () => {
+    await nextTick();
+    scrollToBottom();
+  }
+);
+
 onMounted(async () => {
   await auth.fetchMe();
   if (!isLoggedIn.value) return;
