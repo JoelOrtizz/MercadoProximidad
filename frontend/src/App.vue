@@ -36,6 +36,32 @@ function hasCoords(user) {
 // permite crear un css espceifico para una pagina correcta
 
 function aplicarCssDePagina(href) {
+  // ==============================
+  // CSS BASE (GLOBAL)
+  // ==============================
+  // Este CSS tiene los estilos comunes (card, btn, input, chips, tabs...).
+  // Se carga SIEMPRE en todas las paginas.
+  //
+  // Lo cargamos aqui (JS) para que se aplique DESPUES de Bootstrap,
+  // y no nos lo pise el orden de carga.
+  const baseId = 'base-css';
+  let baseLink = document.getElementById(baseId);
+  if (!baseLink) {
+    baseLink = document.createElement('link');
+    baseLink.id = baseId;
+    baseLink.rel = 'stylesheet';
+    baseLink.setAttribute('href', '/css/base.css');
+    document.head.appendChild(baseLink);
+  } else {
+    if (baseLink.getAttribute('href') !== '/css/base.css') {
+      baseLink.setAttribute('href', '/css/base.css');
+    }
+  }
+
+  // Lo movemos al final del <head> para que tenga prioridad sobre CSS importados (Bootstrap).
+  // Luego el CSS de pagina se anadira DESPUES, para poder sobreescribir lo necesario.
+  document.head.appendChild(baseLink);
+
   // busca en el head del html si ya existe un link con id page-css
   const id = 'page-css';
   let link = document.getElementById(id);
@@ -47,6 +73,9 @@ function aplicarCssDePagina(href) {
     link.rel = 'stylesheet';
     document.head.appendChild(link);
   }
+
+  // Asegura que el CSS de pagina quede por debajo (mas prioritario) que el base.
+  document.head.appendChild(link);
 
   // si no lo borra
   if (!href) {

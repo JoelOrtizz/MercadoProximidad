@@ -1,6 +1,6 @@
 <template>
 
-  <main>
+  <main class="page">
 
     <div class="market-layout">
 
