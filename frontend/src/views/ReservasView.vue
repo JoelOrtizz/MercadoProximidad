@@ -36,31 +36,81 @@
         No tienes reservas en esta categoria.
       </div>
 
-      <div v-else style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px">
-        <div v-for="r in activeList" :key="r.id" style="border: 1px solid #e7e7e7; border-radius: 12px; padding: 12px">
-          <div style="display: flex; align-items: start; justify-content: space-between; gap: 10px">
+      <div v-else class="d-flex flex-column gap-2" style="margin-top: 12px">
+        <div v-for="r in activeList" :key="r.id" class="card shadow-sm mb-3">
+          <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-basket me-1 text-warning"></i>
             <div style="font-weight: 700">#{{ r.id }} · {{ r.producto_nombre || 'Producto' }}</div>
-            <div class="price">{{ r.estado }}</div>
+            </div>
+            <span v-if="r.estado === 'pendiente'" class="badge bg-warning text-dark">
+              <i class="bi bi-hourglass-split me-1"></i>
+              {{ r.estado }}
+            </span>
+            <span v-else-if="r.estado === 'aceptada' || r.estado === 'confirmada'" class="badge bg-success">
+              <i class="bi bi-hourglass-split me-1"></i>
+              {{ r.estado }}
+            </span>
+            <span v-else-if="r.estado === 'cancelada'" class="badge bg-danger">
+              <i class="bi bi-hourglass-split me-1"></i>
+              {{ r.estado }}
+            </span>
+            <span v-else-if="r.estado === 'completada'" class="badge bg-primary">
+              <i class="bi bi-hourglass-split me-1"></i>
+              {{ r.estado }}
+            </span>
+            <span v-else class="badge bg-secondary">
+              <i class="bi bi-hourglass-split me-1"></i>
+              {{ r.estado }}
+            </span>
           </div>
 
-          <div class="meta" style="margin-top: 8px">
+          <div class="meta d-none" style="margin-top: 8px">
             Cantidad: <b>{{ r.cantidad }}</b> · Punto: {{ r.punto_descripcion || '-' }}
             <br />
             Vendedor: {{ r.id_vendedor }} · Comprador: {{ r.id_comprador }} · Fecha: {{ formatDate(r.fecha_creacion) }}
           </div>
 
-          <div class="actions" style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap">
+          <div class="row small text-muted mt-3">
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-geo-alt me-2"></i>
+              {{ r.punto_descripcion || '-' }}
+            </div>
 
-            <button class="btn" type="button" :disabled="savingById[r.id]" @click="openChat(r)">Chat</button>
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-box-seam me-2"></i>
+              {{ r.cantidad }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-person me-2"></i>
+              Vendedor: {{ r.id_vendedor }} - Comprador: {{ r.id_comprador }}
+            </div>
+
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-clock me-2"></i>
+              {{ formatDate(r.fecha_creacion) }}
+            </div>
+          </div>
+
+          <div class="actions mt-3 d-flex gap-2 flex-wrap">
+
+            <button class="btn btn-outline-primary btn-sm" type="button" :disabled="savingById[r.id]" @click="openChat(r)">
+              <i class="bi bi-chat-dots me-1"></i>
+              Chat
+            </button>
 
             <template v-if="isComprador(r)">
-              <button v-if="r.estado === 'pendiente'" class="btn btn-primary" type="button" :disabled="savingById[r.id]"
+              <button v-if="r.estado === 'pendiente'" class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]"
                 @click="cancelar(r)">
+                <i class="bi bi-x-circle me-1"></i>
                 {{ savingById[r.id] ? 'Cancelando...' : 'Cancelar' }}
               </button>
 
-              <button v-if="r.estado === 'aceptada'" class="btn" type="button"
+              <button v-if="r.estado === 'aceptada'" class="btn btn-outline-warning btn-sm" type="button"
                 style="border: 1px solid #f59e0b; color: #f59e0b;" :disabled="savingById[r.id]" @click="cancelar(r)">
+                <i class="bi bi-x-circle me-1"></i>
                 {{ savingById[r.id] ? 'Enviando...' : 'Solicitar Cancelación' }}
               </button>
 
@@ -73,21 +123,22 @@
             <template v-if="isVendedor(r)">
 
               <template v-if="r.estado === 'pendiente'">
-                <button class="btn btn-primary" type="button" :disabled="savingById[r.id]"
+                <button class="btn btn-success btn-sm" type="button" :disabled="savingById[r.id]"
                   @click="cambiarEstado(r, 'aceptada')">
                   {{ savingById[r.id] ? 'Guardando...' : 'Aceptar' }}
                 </button>
-                <button class="btn" type="button" :disabled="savingById[r.id]" @click="cambiarEstado(r, 'rechazada')">
+                <button class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]" @click="cambiarEstado(r, 'rechazada')">
                   {{ savingById[r.id] ? 'Guardando...' : 'Rechazar' }}
                 </button>
               </template>
 
               <template v-if="r.estado === 'aceptada'">
-                <button class="btn btn-primary" type="button" :disabled="savingById[r.id]"
+                <button class="btn btn-primary btn-sm" type="button" :disabled="savingById[r.id]"
                   @click="cambiarEstado(r, 'completada')">
                   {{ savingById[r.id] ? 'Guardando...' : 'Marcar completada' }}
                 </button>
-                <button class="btn" type="button" :disabled="savingById[r.id]" @click="cancelar(r)">
+                <button class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]" @click="cancelar(r)">
+                  <i class="bi bi-x-circle me-1"></i>
                   {{ savingById[r.id] ? 'Cancelando...' : 'Cancelar' }}
                 </button>
               </template>
@@ -96,16 +147,17 @@
                 <div style="width: 100%; font-size: 0.85em; color: #d97706; margin-bottom: 2px;">
                   ⚠ Solicitud de cancelación
                 </div>
-                <button class="btn btn-primary" type="button" style="background-color: #d97706; border-color: #d97706;"
+                <button class="btn btn-warning btn-sm" type="button" style="background-color: #d97706; border-color: #d97706;"
                   :disabled="savingById[r.id]" @click="cancelar(r)">
                   {{ savingById[r.id] ? 'Procesando...' : 'Aceptar Cancelación' }}
                 </button>
-                <button class="btn" type="button" :disabled="savingById[r.id]" @click="rechazarSolicitud(r)">
+                <button class="btn btn-outline-secondary btn-sm" type="button" :disabled="savingById[r.id]" @click="rechazarSolicitud(r)">
                   {{ savingById[r.id] ? 'Procesando...' : 'Rechazar' }}
                 </button>
               </template>
 
             </template>
+          </div>
           </div>
         </div>
       </div>
