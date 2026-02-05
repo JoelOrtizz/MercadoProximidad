@@ -148,19 +148,32 @@ CREATE TABLE valoraciones (
 -- ======================================
 CREATE TABLE notificaciones (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  id_reserva INT NOT NULL,
   id_usuario INT NOT NULL,
-  tipo ENUM('aceptada', 'recibido', 'cancelada', 'pendiente') NOT NULL,
-  leida BOOLEAN DEFAULT FALSE,
+  tipo ENUM(
+    'reserva_pendiente',
+    'reserva_aceptada',
+    'reserva_cancelada',
+    'mensaje_nuevo',
+    'valoracion_pendiente',
+    'info'
+  ) NOT NULL,
+  titulo VARCHAR(120) NULL,
+  mensaje VARCHAR(255) NULL,
+  url VARCHAR(255) NULL,
+  id_reserva INT NULL,
+  leida TINYINT(1) DEFAULT 0,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT fk_notificacion_reserva
     FOREIGN KEY (id_reserva) REFERENCES reservas(id)
-    ON DELETE CASCADE,
+    ON DELETE SET NULL,
 
   CONSTRAINT fk_notificacion_usuario
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
     ON DELETE CASCADE
+
+  ,INDEX idx_notificaciones_usuario_fecha (id_usuario, fecha_creacion)
+  ,INDEX idx_notificaciones_usuario_leida (id_usuario, leida)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

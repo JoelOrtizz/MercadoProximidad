@@ -1,7 +1,11 @@
 .env
 backend/.env
+despliegue/.env
+despliegue/traefik/users.htpasswd
 
 backend/node_modules
 frontend/node_modules
 frontend/dist
 frontend/.vite
+node_modules
+

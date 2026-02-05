@@ -31,7 +31,7 @@
       </div>
 
       <div v-if="activeList.length === 0">
-        No hay elementos en esta lista.
+        No hay valoraciones pendientes.
       </div>
 
 
