@@ -47,11 +47,28 @@ function aplicarCssDePagina(href) {
   const baseId = 'base-css';
   let baseLink = document.getElementById(baseId);
   if (!baseLink) {
-    baseLink = document.createElement('link');
-    baseLink.id = baseId;
-    baseLink.rel = 'stylesheet';
-    baseLink.setAttribute('href', '/css/base.css');
-    document.head.appendChild(baseLink);
+    // Si ya existe (por ejemplo cargado desde index.html), lo reutilizamos
+    const links = document.querySelectorAll('link[rel="stylesheet"]');
+    let found = null;
+    for (let i = 0; i < links.length; i++) {
+      const l = links[i];
+      const hrefValue = l && l.getAttribute ? l.getAttribute('href') : '';
+      if (hrefValue === '/css/base.css') {
+        found = l;
+        break;
+      }
+    }
+
+    if (found) {
+      baseLink = found;
+      baseLink.id = baseId;
+    } else {
+      baseLink = document.createElement('link');
+      baseLink.id = baseId;
+      baseLink.rel = 'stylesheet';
+      baseLink.setAttribute('href', '/css/base.css');
+      document.head.appendChild(baseLink);
+    }
   } else {
     if (baseLink.getAttribute('href') !== '/css/base.css') {
       baseLink.setAttribute('href', '/css/base.css');
