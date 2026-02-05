@@ -57,100 +57,97 @@
           <button class="btn" type="button" @click="loadProducts">Recargar</button>
         </div>
 
-        <div class="product-grid">
+        <div class="row row-cols-2 g-2">
           <!-- Bucle para mostrar los productos -->
-          <article v-for="p in products" :key="p.id" class="product-card card shadow-sm border-0">
+          <div v-for="p in products" :key="p.id" class="col">
+            <article class="card shadow-sm h-100 product-card">
 
-            <div class="card-body d-flex flex-column">
+              <div class="card-body p-3 d-flex flex-column">
 
-              <div class="d-flex justify-content-between align-items-start gap-2">
-                <div>
-                  <h4 class="fw-bold mb-0">
-                    <i class="bi bi-basket me-2 text-warning"></i>
+                <!-- CABECERA -->
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div class="text-truncate fw-bold mb-1" style="max-width: 70%;">
                     {{ p.nombre || 'Producto' }}
-                  </h4>
-
-                  <span class="badge bg-light text-dark border mt-2">
-                    <i class="bi bi-tag me-1"></i>
-                    <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
-                    <span v-else-if="p.categoria">{{ p.categoria }}</span>
-                    <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
-                    <span v-else>
-                      <template v-for="c in categorias" :key="c.id">
-                        <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
-                      </template>
-                      <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
-                    </span>
+                  </div>
+                  <span class="badge bg-warning text-dark">
+                    {{ formatPrice(p.precio) }}
                   </span>
                 </div>
 
-                <span class="badge bg-warning text-dark fs-6">
-                  {{ formatPrice(p.precio) }}
+                <!-- IMAGEN -->
+                <div v-if="p.imagen" class="my-2">
+                  <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`"
+                    class="img-fluid rounded border" style="height:120px; width:100%; object-fit:cover;" />
+                </div>
+
+                <!-- DESCRIPCION -->
+                <p class="small mb-1">
+                  <i class="bi bi-card-text me-1"></i>
+                  {{ p.descripcion || 'Sin descripcion.' }}
+                </p>
+
+                <!-- CATEGORIA -->
+                <span class="badge bg-light text-dark border mb-2 align-self-start">
+                  <i class="bi bi-tag me-1"></i>
+                  <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
+                  <span v-else-if="p.categoria">{{ p.categoria }}</span>
+                  <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
+                  <span v-else>
+                    <template v-for="c in categorias" :key="c.id">
+                      <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
+                    </template>
+                    <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
+                  </span>
                 </span>
+
+                <!-- STOCK -->
+                <p class="small text-muted mb-1">
+                  <i class="bi bi-box-seam me-1"></i>
+                  {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
+                </p>
+
+                <!-- CANTIDAD -->
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <label for="label" class="small mb-0">
+                    <i class="bi bi-123 me-1"></i>
+                    Cant.
+                  </label>
+                  <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm"
+                    style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                </div>
+
+                <!-- PUNTO DE ENTREGA -->
+                <label class="form-label small mb-1">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  Entrega
+                  <span class="text-warning">
+                    <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
+                      @{{ p.nickname || 'Desconocido' }}
+                    </RouterLink>
+                    <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
+                  </span>
+                </label>
+
+                <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm"
+                  @focus="ensureReservaDefaults(p)">
+                  <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
+                    pt.descripcion || `Punto #${pt.id}` }}</option>
+                </select>
+
+                <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
+                  de entrega.</div>
+
+                <!-- BOTON RESERVAR -->
+                <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click="crearReserva(p)"
+                  :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                  <i class="bi bi-cart-plus me-1"></i>
+                  {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
+                </button>
+
               </div>
 
-            <div v-if="p.imagen" class="text-center my-3">
-              <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`"
-                class="img-fluid rounded shadow-sm border" style="max-height:200px; object-fit:contain;" />
-            </div>
-
-            <p class="mb-2">
-              <i class="bi bi-card-text me-2 text-muted"></i>
-              <strong>Descripcion:</strong>
-              {{ p.descripcion || 'Sin descripcion.' }}
-            </p>
-
-            <p class="text-muted small mb-3">
-              <i class="bi bi-box-seam me-2"></i>
-              Stock disponible: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
-            </p>
-
-            <!-- Reservar directamente (cantidad + punto) -->
-            <div class="card p-3 mb-3 bg-light border-0">
-              <label for="label" class="form-label fw-semibold">
-                <i class="bi bi-123 me-2"></i>
-                Cantidad
-              </label>
-              <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control" type="number"
-                min="1" @focus="ensureReservaDefaults(p)" />
-            </div>
-
-            <div class="field">
-
-              <label class="form-label fw-semibold">
-                <i class="bi bi-geo-alt me-2"></i>
-                Punto de Entrega
-                <span class="text-warning">
-                  <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
-                    @{{ p.nickname || 'Desconocido' }}
-                  </RouterLink>
-                  <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
-                </span>
-              </label>
-              <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select"
-                @focus="ensureReservaDefaults(p)">
-                <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
-                  pt.descripcion || `Punto #${pt.id}` }}</option>
-              </select>
-
-              <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
-                de entrega.</div>
-
-            </div>
-
-            <div class="mt-3">
-
-              <button class="btn btn-warning btn-lg w-100 mt-3 shadow-sm" type="button" @click="crearReserva(p)"
-                :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
-                <i class="bi bi-cart-plus me-2"></i>
-                {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
-              </button>
-
-            </div>
-
-            </div>
-
-          </article>
+            </article>
+          </div>
 
         </div>
 
