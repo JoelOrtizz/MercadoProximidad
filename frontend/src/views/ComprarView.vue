@@ -59,40 +59,75 @@
 
         <div class="product-grid">
           <!-- Bucle para mostrar los productos -->
-          <article v-for="p in products" :key="p.id" class="product-card">
+          <article v-for="p in products" :key="p.id" class="product-card card shadow-sm border-0">
 
-            <div class="product-top">
-              <h3>{{ p.nombre || 'Producto' }}</h3>
-              <div class="price">{{ formatPrice(p.precio) }}</div>
+            <div class="card-body d-flex flex-column">
+
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div>
+                  <h4 class="fw-bold mb-0">
+                    <i class="bi bi-basket me-2 text-warning"></i>
+                    {{ p.nombre || 'Producto' }}
+                  </h4>
+
+                  <span class="badge bg-light text-dark border mt-2">
+                    <i class="bi bi-tag me-1"></i>
+                    <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
+                    <span v-else-if="p.categoria">{{ p.categoria }}</span>
+                    <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
+                    <span v-else>
+                      <template v-for="c in categorias" :key="c.id">
+                        <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
+                      </template>
+                      <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
+                    </span>
+                  </span>
+                </div>
+
+                <span class="badge bg-warning text-dark fs-6">
+                  {{ formatPrice(p.precio) }}
+                </span>
+              </div>
+
+            <div v-if="p.imagen" class="text-center my-3">
+              <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`"
+                class="img-fluid rounded shadow-sm border" style="max-height:200px; object-fit:contain;" />
             </div>
 
-            <div v-if="p.imagen" class="product-media">
-              <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`">
-            </div>
+            <p class="mb-2">
+              <i class="bi bi-card-text me-2 text-muted"></i>
+              <strong>Descripcion:</strong>
+              {{ p.descripcion || 'Sin descripcion.' }}
+            </p>
 
-            <p class="desc"><span style="font-weight: bold;">Descripción:</span> {{ p.descripcion || 'Sin descripción.' }}</p>
-
-            <div class="meta">Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}</div>
+            <p class="text-muted small mb-3">
+              <i class="bi bi-box-seam me-2"></i>
+              Stock disponible: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
+            </p>
 
             <!-- Reservar directamente (cantidad + punto) -->
-            <div class="card" style="margin-top: 12px; padding: 12px">
-              <div class="field">
-                <label for="label">Cantidad</label>
-                <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input" type="number"
-                  min="1" @focus="ensureReservaDefaults(p)" />
-              </div>
+            <div class="card p-3 mb-3 bg-light border-0">
+              <label for="label" class="form-label fw-semibold">
+                <i class="bi bi-123 me-2"></i>
+                Cantidad
+              </label>
+              <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control" type="number"
+                min="1" @focus="ensureReservaDefaults(p)" />
             </div>
 
             <div class="field">
 
-              <label class="label">
-                Punto de Entrega |
-                <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
-                  @{{ p.nickname || 'Desconocido' }}
-                </RouterLink>
-                <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
+              <label class="form-label fw-semibold">
+                <i class="bi bi-geo-alt me-2"></i>
+                Punto de Entrega
+                <span class="text-warning">
+                  <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
+                    @{{ p.nickname || 'Desconocido' }}
+                  </RouterLink>
+                  <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
+                </span>
               </label>
-              <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input"
+              <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select"
                 @focus="ensureReservaDefaults(p)">
                 <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
                   pt.descripcion || `Punto #${pt.id}` }}</option>
@@ -103,12 +138,15 @@
 
             </div>
 
-            <div class="actions">
+            <div class="mt-3">
 
-              <button class="btn btn-primary" type="button" @click="crearReserva(p)"
+              <button class="btn btn-warning btn-lg w-100 mt-3 shadow-sm" type="button" @click="crearReserva(p)"
                 :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                <i class="bi bi-cart-plus me-2"></i>
                 {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
               </button>
+
+            </div>
 
             </div>
 
