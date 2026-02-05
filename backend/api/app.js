@@ -35,7 +35,8 @@ if (!cookieSecret) {
 // activamos el parser cookie
 app.use(cookieParser(cookieSecret));
 
-app.use('/uploads', express.static('uploads')); // Para pintar las imágenes de /uploads
+app.use('/uploads', express.static('uploads')); // Para pintar las imágenes de /uploads. 
+                                                // "Si alguien pide un archivo que existe en la carpeta uploads, dáselo directamente.
 
 
 // ruta simple para ver si el servidor esta funcionando
