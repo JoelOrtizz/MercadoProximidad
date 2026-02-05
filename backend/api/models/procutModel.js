@@ -65,13 +65,23 @@ const buildProductsQuery = ({ category, text, lat, lng, distance }) => {
 
     const hasGeo = Number.isFinite(lat) && Number.isFinite(lng) && Number.isFinite(distance);
     if (hasGeo) {
-        join += " JOIN puntos_entrega pe ON pe.id_vendedor = p.id_vendedor";
+        // Importante (modo DAW):
+        // - Antes solo calculabamos distancia usando puntos_entrega (pe.lat/pe.lng).
+        // - Si un vendedor NO tenia puntos de entrega, su producto desaparecia al filtrar por distancia.
+        // Solucion simple: LEFT JOIN a puntos_entrega y si no existe, usamos la ubicacion del usuario vendedor (u.lat/u.lng).
+        join += " LEFT JOIN puntos_entrega pe ON pe.id_vendedor = p.id_vendedor";
 
+        const latExpr = "COALESCE(pe.lat, u.lat)";
+        const lngExpr = "COALESCE(pe.lng, u.lng)";
+
+        // Si no hay coordenadas (ni puntos, ni coords de usuario), ponemos una distancia enorme para que no pase el HAVING.
         const distanceExpr =
-            "(6371 * acos(" +
-            "cos(radians(?)) * cos(radians(pe.lat)) * cos(radians(pe.lng) - radians(?)) +" +
-            "sin(radians(?)) * sin(radians(pe.lat))" +
-            "))";
+            "(CASE " +
+            `WHEN ${latExpr} IS NULL OR ${lngExpr} IS NULL THEN 999999 ` +
+            "ELSE (6371 * acos(" +
+            `cos(radians(?)) * cos(radians(${latExpr})) * cos(radians(${lngExpr}) - radians(?)) +` +
+            `sin(radians(?)) * sin(radians(${latExpr}))` +
+            ")) END)";
 
         select = `${PRODUCT_SELECT_COLUMNS}, MIN(${distanceExpr}) AS distance_km`;
         groupBy = ` GROUP BY ${PRODUCT_GROUP_BY_COLUMNS}`;

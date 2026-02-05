@@ -75,7 +75,8 @@ app.use((req, res) => {
 // ==============================
 
 app.use((err, req, res, next) => {
-  console.error('Error capturado:', err);
+  // Para DAW: no queremos llenar consola con errores esperados (401/403/400).
+  // Dejamos el log "fuerte" solo para 500+.
 
   let status = 500;
   let message = 'Error interno del servidor';
@@ -125,6 +126,12 @@ app.use((err, req, res, next) => {
   // Otros errores con mensaje
   } else if (err?.message) {
     message = err.message || message;
+  }
+
+  if (status >= 500) {
+    console.error('Error capturado:', err);
+  } else {
+    console.warn(`Error ${status}: ${message}`);
   }
 
   res.status(status).json({ error: message });
