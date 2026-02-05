@@ -5,14 +5,14 @@ const toast = useToastStore();
 
 <template>
   <transition name="fade">
-    <div v-if="toast.visible" class="toast" :class="toast.type">
+    <div v-if="toast.visible" class="app-toast" :class="toast.type">
       {{ toast.message }}
     </div>
   </transition>
 </template>
 
 <style scoped>
-.toast {
+.app-toast {
   position: fixed;
   top: calc(var(--nav-height, 78px) + 12px);
   left: 50%;
