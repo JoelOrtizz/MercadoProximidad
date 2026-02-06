@@ -163,7 +163,7 @@
 
 <script setup>
 import axios from 'axios';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
 import { RouterLink, useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
@@ -186,6 +186,35 @@ const reservaPuntoId = reactive({}); // { [id_producto]: string }
 const reservandoLoadingId = ref(null);
 
 const isLoggedIn = () => Boolean(auth.user?.id);
+
+// ===============================
+// CARGA REACTIVA (busqueda / filtros)
+// ===============================
+
+// Timer simple para no llamar al backend en cada tecla
+let timerBusqueda = null;
+
+watch(
+  () => [
+    selectedCategory.value,
+    searchText.value,
+    distanceKm.value,
+    auth.user ? auth.user.lat : null,
+    auth.user ? auth.user.lng : null,
+  ],
+  () => {
+    // Cancelamos el timer anterior
+    if (timerBusqueda) {
+      clearTimeout(timerBusqueda);
+      timerBusqueda = null;
+    }
+
+    // Esperamos un poco a que el usuario termine de escribir
+    timerBusqueda = setTimeout(() => {
+      loadProducts();
+    }, 400);
+  }
+);
 
 function resolveImageSrc(value) {
   if (!value) return '';
