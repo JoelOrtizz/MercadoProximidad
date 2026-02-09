@@ -15,8 +15,11 @@
   border-bottom: 1px solid #f2e3d8;
 }
 
-.legal-hero-content {
-  text-align: left;
+.legal-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .legal-hero h1 {
@@ -29,6 +32,23 @@
   color: #6d6d6d;
   font-size: 16px;
   max-width: 720px;
+}
+
+.legal-lang {
+  display: flex;
+  gap: 10px;
+}
+
+.legal-lang-btn {
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: #9b9b9b;
+  cursor: pointer;
+}
+
+.legal-lang-btn.is-active {
+  color: var(--primary);
 }
 
 .legal-section {
@@ -71,5 +91,9 @@
 @media (max-width: 600px) {
   .legal-shell {
     padding: 0 18px;
+  }
+  .legal-hero-top {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
