@@ -137,4 +137,14 @@
   .footer {
     padding: 28px 18px 24px;
   }
+  .footer__inner,
+  .footer__brand,
+  .footer__col,
+  .footer__social {
+    text-align: center;
+    align-items: center;
+  }
+  .footer__social-row {
+    justify-content: center;
+  }
 }

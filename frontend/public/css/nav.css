@@ -53,6 +53,9 @@ a:hover {
 }
 
 .nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   padding: 12px 0;
   border-bottom: 1px solid #eaeaea;
   background: #fff;
@@ -99,6 +102,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   flex: 1;
+  flex-wrap: wrap;
 }
 
 .nav__pill {
@@ -254,5 +258,66 @@ a:hover {
   }
   .header-top__actions {
     justify-content: center;
+  }
+}
+
+@media (max-width: 1024px) {
+  .nav__inner {
+    flex-wrap: wrap;
+  }
+  .nav__brand {
+    order: 1;
+  }
+  .nav__actions {
+    order: 2;
+  }
+  .nav__menu {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .nav__pill {
+    min-width: 0;
+    flex: 1 1 140px;
+  }
+}
+
+@media (max-width: 700px) {
+  .nav {
+    padding: 10px 0;
+  }
+  .nav__inner {
+    padding: 0 14px;
+    gap: 10px;
+  }
+  .nav__logo-img {
+    height: 42px;
+  }
+  .nav__pill {
+    font-size: 13px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .nav__actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .nav__cta,
+  .nav__user {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-top__inner {
+    padding: 14px 16px;
+  }
+  .header-top__brand img {
+    width: 96px;
+    height: 58px;
+  }
+  .header-top__tagline {
+    font-size: 15px;
   }
 }

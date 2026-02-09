@@ -214,3 +214,27 @@
   }
 }
 
+@media (max-width: 700px) {
+  .mensajes-layout {
+    height: calc(100dvh - 140px);
+  }
+  .chats__header,
+  .conv__header,
+  .conv__composer {
+    padding: 10px;
+  }
+  .conv__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .conv__composer {
+    flex-direction: column;
+  }
+  .conv__composer button {
+    width: 100%;
+  }
+  .bubble {
+    max-width: 92%;
+  }
+}
+
