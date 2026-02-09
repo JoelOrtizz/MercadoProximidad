@@ -185,3 +185,74 @@ a:hover {
   margin: 0 auto;
   padding: 24px;
 }
+
+/* ---------- Header global (logo + frase) ---------- */
+
+.header-global {
+  background: #fff;
+}
+
+.header-top {
+  border-bottom: 1px solid #f0e6dd;
+  background: linear-gradient(135deg, #fff6ef 0%, #ffffff 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+
+.header-top__inner {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.header-top__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.header-top__brand img {
+  width: 120px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+.header-top__tagline {
+  font-size: 20px;
+  color: #4f4f4f;
+  font-weight: 700;
+  text-align: center;
+}
+
+.header-top__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav__menu {
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .header-top__inner {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .header-top__tagline {
+    font-size: 16px;
+  }
+  .header-top__actions {
+    justify-content: center;
+  }
+}
