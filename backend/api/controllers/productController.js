@@ -222,7 +222,7 @@ export async function insertProduct(req, res, next) {
         const result = await postProduct(
             nombre,
             id_categoria,
-	            idUnidadInt,
+	        idUnidadInt,
             stockInt,
             precioFloat,
             descripcion,
