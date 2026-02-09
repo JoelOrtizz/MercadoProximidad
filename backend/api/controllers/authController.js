@@ -70,19 +70,19 @@ export const logout = (req, res) => {
 
 export const me = async (req, res, next) => {
   try {
-    const id = req.user?.id;
+    const id = req.user?.id; // recoge el id del token
     if (!id) {
       const error = new Error('No autenticado');
       error.status = 401;
       return next(error);
     }
 
-    const user = await getById(id);
+    const user = await getById(id); // busca el usuario por su id
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-
-    const { contrasena, ...safeUser } = user;
+    // con user crea safeUser quitando la contraseña para que no viaje.
+    const { contrasena, ...safeUser } = user; // saca contrasena y guarda todo lo demas en safeUser
     return res.json({ user: safeUser });
   } catch (error) {
     return next(error);
