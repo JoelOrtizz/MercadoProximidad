@@ -236,7 +236,7 @@ function formatStock(stock, tipo) {
 
 function selectCategory(value) {
   selectedCategory.value = value;
-  loadProducts();
+  // loadProducts();
 }
 
 function clearFilters() {

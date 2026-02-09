@@ -1,18 +1,20 @@
 <template>
   <!-- Unico componente global para el nav -->
-  <NavBar />
+  <HeaderGlobal v-if="!route.meta?.hideNav" />
   <Toast />
   <Modal />
   <!-- Aqui se pinta cada “pagina” -->
   <router-view />
+  <Footer />
 </template>
 
 <script setup>
 import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import NavBar from './components/NavBar.vue';
+import HeaderGlobal from './components/HeaderGlobal.vue';
 import Toast from './components/toast.vue';
 import Modal from './components/Modal.vue';
+import Footer from './components/Footer.vue';
 import { useNotificacionesStore } from './stores/notificacionesStore';
 import { useAuthStore } from './stores/auth.js';
 import 'bootstrap/dist/css/bootstrap.min.css'
