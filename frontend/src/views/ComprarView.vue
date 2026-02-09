@@ -59,7 +59,7 @@
 
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
           <!-- Bucle para mostrar los productos -->
-          <div v-for="p in products" :key="p.id" class="col">
+          <div v-for="p in visibleProducts" :key="p.id" class="col">
             <article class="card shadow-sm h-100 product-card">
 
               <div class="card-body p-3 d-flex flex-column">
@@ -149,7 +149,14 @@
 
             </article>
           </div>
-
+        </div>
+        <!--Boton de ver mas -->
+        <div v-if="hasMoreProducts" class="text-center mt-4 mb-5">
+          <button class="btn btn-outline-primary" type="button" @click="handleLoadMore"
+            style="border: 1px solid #ddd; background: white; padding: 10px 20px; border-radius: 20px;">
+            Ver más productos ({{ visibleProducts.length }} de {{ products.length }})
+            <i class="bi bi-chevron-down ms-1"></i>
+          </button>
         </div>
 
       </section>
@@ -163,7 +170,7 @@
 
 <script setup>
 import axios from 'axios';
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
 import { RouterLink, useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
@@ -186,6 +193,21 @@ const reservaPuntoId = reactive({}); // { [id_producto]: string }
 const reservandoLoadingId = ref(null);
 
 const isLoggedIn = () => Boolean(auth.user?.id);
+
+// "paginacion"
+const itemsPerPage = 21;
+const visibleCount = ref(itemsPerPage);
+// corta el array original y devuelve solo los que deben verse
+const visibleProducts = computed(() => {
+  return products.value.slice(0, visibleCount.value);
+});
+// Calcula si quedan productos ocultos para mostrar el botón
+const hasMoreProducts = computed(() => {
+  return visibleCount.value < products.value.length;
+});
+function handleLoadMore() {
+  visibleCount.value += itemsPerPage;
+}
 
 // ===============================
 // CARGA REACTIVA (busqueda / filtros)
@@ -289,7 +311,7 @@ async function preloadPuntosEntrega(productsList) {
 
 async function loadProducts() {
   subtitle.value = 'Cargando productos...';
-  products.value = [];
+  
 
   try {
     const params = {};
@@ -311,6 +333,7 @@ async function loadProducts() {
     const list = Array.isArray(res.data) ? res.data : [];
 
     products.value = list;
+    visibleCount.value = itemsPerPage;
     subtitle.value = list.length ? `${list.length} producto(s)` : 'No hay productos publicados todavia.';
 
     await preloadPuntosEntrega(list);
