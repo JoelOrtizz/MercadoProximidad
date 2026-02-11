@@ -191,20 +191,5 @@ onMounted(async () => {
 
 </script>
 
-<style scoped>
-.image-preview-wrap {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-start;
-}
 
-.image-preview {
-  width: min(360px, 100%);
-  max-height: 220px;
-  border-radius: 12px;
-  border: 1px solid rgba(2, 6, 23, 0.12);
-  object-fit: cover;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  background: #fff;
-}
-</style>
+
