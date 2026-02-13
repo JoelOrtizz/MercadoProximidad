@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="page">
     <h1>Selecciona tu ubicacion</h1>
 
@@ -59,6 +59,7 @@ const blockedBecauseAlreadyHasCoords = ref(false);
 
 let map = null;
 let marker = null;
+let markerIcon = null;
 const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
@@ -121,7 +122,7 @@ async function setSelected(lat, lng) {
   if (marker) {
     marker.setLatLng([lat, lng]);
   } else {
-    marker = L.marker([lat, lng]).addTo(map);
+    marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
   }
 
   addressText.value = 'Buscando direccion...';
@@ -145,6 +146,13 @@ async function createMap() {
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '',
   }).addTo(map);
+
+  markerIcon = L.icon({
+    iconUrl: '/assets/pin_sin_fondo.png',
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
+    popupAnchor: [0, -34],
+  });
 
   map.on('click', async (e) => {
     const lat = e?.latlng?.lat;
@@ -222,3 +230,10 @@ onBeforeUnmount(() => {
   marker = null;
 });
 </script>
+
+
+
+
+
+
+

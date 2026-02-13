@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="page">
     <div class="header">
       <div>
@@ -72,6 +72,7 @@ const MAX_PUNTOS = 5;
 const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 let map = null;
+let markerIcon = null;
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
@@ -154,6 +155,13 @@ async function createMap() {
     attribution: '',
   }).addTo(map);
 
+  markerIcon = L.icon({
+    iconUrl: '/assets/pin_sin_fondo.png',
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
+    popupAnchor: [0, -34],
+  });
+
   map.on('click', async (e) => {
     const lat = e?.latlng?.lat;
     const lng = e?.latlng?.lng;
@@ -181,7 +189,7 @@ function myLocation() {
         return;
       }
       map.setView([latitude, longitude], 14);
-      toast.success('Ubicacion detectada.');
+      toast.success('ubicacion detectada.');
     },
     () => {
       map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
@@ -199,7 +207,7 @@ async function addPoint(lat, lng) {
 
   setStatus('');
   const L = window.L;
-  const marker = L.marker([lat, lng]).addTo(map);
+  const marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
   const point = reactive({ lat, lng, marker, descripcion: '', displayName: '' });
   points.value.push(point);
   fitToPoints();
@@ -269,7 +277,7 @@ async function loadMyPuntosEntrega() {
       const lat = Number(r?.lat);
       const lng = Number(r?.lng);
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      const marker = L.marker([lat, lng]).addTo(map);
+      const marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
       points.value.push({
         lat,
         lng,
@@ -303,3 +311,7 @@ onBeforeUnmount(() => {
   points.value = [];
 });
 </script>
+
+
+
+

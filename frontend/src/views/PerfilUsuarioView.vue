@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="page">
     <div class="block-perfil-publico">
       <div v-if="errorText" class="card" style="grid-column: 1 / -1">
@@ -54,7 +54,7 @@
 
             <div class="info-row">
               <div class="info-label">Valoracion</div>
-              <div class="info-value">{{ valoracionText }} 🍊</div>
+              <div class="info-value">{{ valoracionText }} ðŸŠ</div>
             </div>
 
             <div class="actions-row">
@@ -104,7 +104,7 @@
                   <span :class="Number(p.stock) > 0 ? 'stock-ok' : 'stock-out'">
                     {{ Number(p.stock) > 0 ? 'En stock' : 'Fuera de stock' }}
                   </span>
-                  <span class="producto-meta__sep">·</span>
+                  <span class="producto-meta__sep">Â·</span>
                   Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
                 </div>
               </div>
@@ -153,6 +153,7 @@ const sendingMessage = ref(false);
 const valoracionText = ref('-');
 
 let map = null;
+let markerIcon = null;
 let markers = [];
 
 function goBack() {
@@ -172,7 +173,7 @@ function resolveImageSrc(value) {
 function formatPrice(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} €`;
+  return `${n.toFixed(2)} â‚¬`;
 }
 
 function formatStock(stock, tipo) {
@@ -289,7 +290,14 @@ async function createMap() {
       attribution: '',
     }).addTo(map);
 
-    // Leaflet a veces necesita recalcular tamaño al estar en grids
+    markerIcon = L.icon({
+      iconUrl: '/assets/pin_sin_fondo.png',
+      iconSize: [30, 40],
+      iconAnchor: [15, 40],
+      popupAnchor: [0, -34],
+    });
+
+    // Leaflet a veces necesita recalcular tamaÃ±o al estar en grids
     try {
       setTimeout(() => {
         try {
@@ -335,7 +343,7 @@ function paintPoints() {
     const lat = Number(p && p.lat);
     const lng = Number(p && p.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    const m = L.marker([lat, lng]).addTo(map);
+    const m = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
     if (p && p.descripcion) {
       try {
         m.bindPopup(String(p.descripcion));
@@ -501,6 +509,10 @@ onBeforeUnmount(() => {
   markers = [];
 });
 </script>
+
+
+
+
 
 
 

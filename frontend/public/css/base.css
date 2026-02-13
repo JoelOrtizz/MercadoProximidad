@@ -79,6 +79,12 @@
   font-family: inherit;
 }
 
+/* ---------- Mapas ---------- */
+
+.leaflet-marker-icon[src*="pin_sin_fondo.png"] {
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+}
+
 .input:focus {
   outline: none;
   border-color: var(--primary);
