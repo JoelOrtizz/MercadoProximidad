@@ -5,7 +5,7 @@
 
       <form id="register" class="auth-form" @submit.prevent="Register">
         <div class="field">
-          <label class="label" for="email">Correo electronico</label>
+          <label class="label" for="email">Correo electrónico</label>
           <input
             v-model="email"
             class="input"
@@ -28,7 +28,7 @@
         </div>
 
         <div class="field">
-          <label class="label" for="pass">Contraseヵa</label>
+          <label class="label" for="pass">Contraseña</label>
           <input v-model="pass" class="input" type="password" name="pass" id="pass" placeholder="TuApodo123" required>
         </div>
 
@@ -36,7 +36,7 @@
           {{ auth.loading ? 'Creando...' : 'Registrarse' }}
         </button>
 
-        <p class="auth-foot">tienes cuenta? <RouterLink to="/login">Inicia SesiИn</RouterLink></p>
+        <p class="auth-foot">¿Tienes cuenta? <RouterLink to="/login">Inicia sesión</RouterLink></p>
       </form>
     </div>
   </main>
@@ -54,12 +54,11 @@
 
   const email = ref('');
   const pass = ref('');
-  const  nom = ref('');
+  const nom = ref('');
   const nick = ref('');
 
-
   async function Register() {
-    try{
+    try {
       await auth.register({
         nombre: nom.value,
         nickname: nick.value,
@@ -68,7 +67,7 @@
       });
 
       router.push('/coords');
-    }catch(error){
+    } catch (error) {
       console.error("Error al crear la cuenta:", error);
       toast.error("Error al crear la cuenta. Comprueba tus credenciales.");
     }

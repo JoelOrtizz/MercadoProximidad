@@ -6,7 +6,10 @@
   border-radius: 14px;
   overflow: hidden;
   background: #fff;
-  min-height: calc(100vh - 120px);
+  /* Tamaño fijo para que el scroll sea interno (tipo WhatsApp Web) */
+  height: calc(100vh - 120px);
+  height: calc(100dvh - 120px);
+  min-height: 0;
 }
 
 .chats {
@@ -15,6 +18,8 @@
   display: flex;
   flex-direction: column;
   min-width: 260px;
+  /* Importante para que el overflow del hijo funcione en flex */
+  min-height: 0;
 }
 
 .chats__header {
@@ -41,6 +46,8 @@
 .chats__list {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
 }
 
@@ -92,7 +99,7 @@
   background: #f8fafc;
   display: flex;
   flex-direction: column;
-  min-height: 480px;
+  min-height: 0;
 }
 
 .conv__header {
@@ -204,6 +211,30 @@
     border-right: 0;
     border-bottom: 1px solid var(--border);
     max-height: 40vh;
+  }
+}
+
+@media (max-width: 700px) {
+  .mensajes-layout {
+    height: calc(100dvh - 140px);
+  }
+  .chats__header,
+  .conv__header,
+  .conv__composer {
+    padding: 10px;
+  }
+  .conv__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .conv__composer {
+    flex-direction: column;
+  }
+  .conv__composer button {
+    width: 100%;
+  }
+  .bubble {
+    max-width: 92%;
   }
 }
 

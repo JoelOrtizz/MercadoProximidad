@@ -1,6 +1,6 @@
 <template>
 
-  <main>
+  <main class="page">
 
     <div class="market-layout">
 
@@ -57,63 +57,106 @@
           <button class="btn" type="button" @click="loadProducts">Recargar</button>
         </div>
 
-        <div class="product-grid">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
           <!-- Bucle para mostrar los productos -->
-          <article v-for="p in products" :key="p.id" class="product-card">
+          <div v-for="p in visibleProducts" :key="p.id" class="col">
+            <article class="card shadow-sm h-100 product-card">
 
-            <div class="product-top">
-              <h3>{{ p.nombre || 'Producto' }}</h3>
-              <div class="price">{{ formatPrice(p.precio) }}</div>
-            </div>
+              <div class="card-body p-3 d-flex flex-column">
 
-            <div v-if="p.imagen" class="product-media">
-              <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`">
-            </div>
+                <!-- CABECERA -->
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div class="text-truncate fw-bold mb-1" style="max-width: 70%;">
+                    {{ p.nombre || 'Producto' }}
+                  </div>
+                  <span class="badge bg-warning text-dark">
+                    {{ formatPrice(p.precio) }}
+                  </span>
+                </div>
 
-            <p class="desc"><span style="font-weight: bold;">Descripción:</span> {{ p.descripcion || 'Sin descripción.' }}</p>
+                <!-- IMAGEN -->
+                <div v-if="p.imagen" class="my-2 rounded border d-flex align-items-center justify-content-center"
+                  style="height:120px; width:100%; background:#fff;">
+                  <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`"
+                    class="img-fluid" style="max-height:120px; max-width:100%; object-fit:contain;" />
+                </div>
 
-            <div class="meta">Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}</div>
+                <!-- DESCRIPCION -->
+                <p class="small mb-1">
+                  <i class="bi bi-card-text me-1"></i>
+                  {{ p.descripcion || 'Sin descripcion.' }}
+                </p>
 
-            <!-- Reservar directamente (cantidad + punto) -->
-            <div class="card" style="margin-top: 12px; padding: 12px">
-              <div class="field">
-                <label for="label">Cantidad</label>
-                <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input" type="number"
-                  min="1" @focus="ensureReservaDefaults(p)" />
+                <!-- CATEGORIA -->
+                <span class="badge bg-light text-dark border mb-2 align-self-start">
+                  <i class="bi bi-tag me-1"></i>
+                  <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
+                  <span v-else-if="p.categoria">{{ p.categoria }}</span>
+                  <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
+                  <span v-else>
+                    <template v-for="c in categorias" :key="c.id">
+                      <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
+                    </template>
+                    <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
+                  </span>
+                </span>
+
+                <!-- STOCK -->
+                <p class="small text-muted mb-1">
+                  <i class="bi bi-box-seam me-1"></i>
+                  {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
+                </p>
+
+                <!-- CANTIDAD -->
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <label for="label" class="small mb-0">
+                    <i class="bi bi-123 me-1"></i>
+                    Cant.
+                  </label>
+                  <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm"
+                    style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                </div>
+
+                <!-- PUNTO DE ENTREGA -->
+                <label class="form-label small mb-1">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  Entrega
+                  <span class="text-warning">
+                    <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
+                      @{{ p.nickname || 'Desconocido' }}
+                    </RouterLink>
+                    <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
+                  </span>
+                </label>
+
+                <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm"
+                  @focus="ensureReservaDefaults(p)">
+                  <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
+                    pt.descripcion || `Punto #${pt.id}` }}</option>
+                </select>
+
+                <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
+                  de entrega.</div>
+
+                <!-- BOTON RESERVAR -->
+                <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click="crearReserva(p)"
+                  :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                  <i class="bi bi-cart-plus me-1"></i>
+                  {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
+                </button>
+
               </div>
-            </div>
 
-            <div class="field">
-
-              <label class="label">
-                Punto de Entrega |
-                <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
-                  @{{ p.nickname || 'Desconocido' }}
-                </RouterLink>
-                <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
-              </label>
-              <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input"
-                @focus="ensureReservaDefaults(p)">
-                <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
-                  pt.descripcion || `Punto #${pt.id}` }}</option>
-              </select>
-
-              <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
-                de entrega.</div>
-
-            </div>
-
-            <div class="actions">
-
-              <button class="btn btn-primary" type="button" @click="crearReserva(p)"
-                :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
-                {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
-              </button>
-
-            </div>
-
-          </article>
-
+            </article>
+          </div>
+        </div>
+        <!--Boton de ver mas -->
+        <div v-if="hasMoreProducts" class="text-center mt-4 mb-5">
+          <button class="btn btn-outline-primary" type="button" @click="handleLoadMore"
+            style="border: 1px solid #ddd; background: white; padding: 10px 20px; border-radius: 20px;">
+            Ver más productos ({{ visibleProducts.length }} de {{ products.length }})
+            <i class="bi bi-chevron-down ms-1"></i>
+          </button>
         </div>
 
       </section>
@@ -127,7 +170,7 @@
 
 <script setup>
 import axios from 'axios';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
 import { RouterLink, useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
@@ -151,6 +194,50 @@ const reservandoLoadingId = ref(null);
 
 const isLoggedIn = () => Boolean(auth.user?.id);
 
+// "paginacion"
+const itemsPerPage = 21;
+const visibleCount = ref(itemsPerPage);
+// corta el array original y devuelve solo los que deben verse
+const visibleProducts = computed(() => {
+  return products.value.slice(0, visibleCount.value);
+});
+// Calcula si quedan productos ocultos para mostrar el botón
+const hasMoreProducts = computed(() => {
+  return visibleCount.value < products.value.length;
+});
+function handleLoadMore() {
+  visibleCount.value += itemsPerPage;
+}
+
+// ===============================
+// CARGA REACTIVA (busqueda / filtros)
+// ===============================
+
+// Timer simple para no llamar al backend en cada tecla
+let timerBusqueda = null;
+
+watch(
+  () => [
+    selectedCategory.value,
+    searchText.value,
+    distanceKm.value,
+    auth.user ? auth.user.lat : null,
+    auth.user ? auth.user.lng : null,
+  ],
+  () => {
+    // Cancelamos el timer anterior
+    if (timerBusqueda) {
+      clearTimeout(timerBusqueda);
+      timerBusqueda = null;
+    }
+
+    // Esperamos un poco a que el usuario termine de escribir
+    timerBusqueda = setTimeout(() => {
+      loadProducts();
+    }, 400);
+  }
+);
+
 function resolveImageSrc(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
@@ -171,7 +258,7 @@ function formatStock(stock, tipo) {
 
 function selectCategory(value) {
   selectedCategory.value = value;
-  loadProducts();
+  // loadProducts();
 }
 
 function clearFilters() {
@@ -224,7 +311,7 @@ async function preloadPuntosEntrega(productsList) {
 
 async function loadProducts() {
   subtitle.value = 'Cargando productos...';
-  products.value = [];
+  
 
   try {
     const params = {};
@@ -246,6 +333,7 @@ async function loadProducts() {
     const list = Array.isArray(res.data) ? res.data : [];
 
     products.value = list;
+    visibleCount.value = itemsPerPage;
     subtitle.value = list.length ? `${list.length} producto(s)` : 'No hay productos publicados todavia.';
 
     await preloadPuntosEntrega(list);
@@ -304,7 +392,7 @@ async function crearReserva(p) {
 }
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   loadCategorias();
   loadProducts();
 });

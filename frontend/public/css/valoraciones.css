@@ -1,313 +1,189 @@
+/* ==========================================================================
+   VALORACIONES (solo lo especifico de esta vista)
+   ==========================================================================
+   Importante:
+   - Botones, cards, inputs, tabs, etc. vienen de `/css/base.css`
+   - Aqui dejamos unicamente lo que es propio de "Valoraciones"
+   ========================================================================== */
 
-
-/* =========================================
-   1. LAYOUT Y TIPOGRAFÍA GENERAL
-   ========================================= */
-.page {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px;
-    font-family: system-ui, -apple-system, sans-serif;
-    color: #2a2a2a;
-}
-
-.products-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 700;
-    color: #2a2a2a;
-}
-
-.subtitle {
-    margin-top: 4px;
-    color: #6c6c6c;
-    font-size: 14px;
-}
-
-/* =========================================
-   2. PESTAÑAS TIPO "CHIPS"
-   ========================================= */
-.tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-}
-
-.tabs .btn {
-    /* Estilo base del Chip */
-    border: 1px solid #e7e7e7;
-    background: #fff;
-    border-radius: 999px;
-    /* Píldora */
-    padding: 8px 16px;
-    cursor: pointer;
-    color: #2a2a2a;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.tabs .btn:hover {
-    background: #f9f9f9;
-}
-
-/* Estado Activo (Chip.is-active) */
-.tabs .btn-primary {
-    border-color: #ffd2b3;
-    background: #fff3e6;
-    color: #7c2d12;
-    font-weight: 600;
-}
-
-/* =========================================
-   3. TARJETAS (ITEMS)
-   ========================================= */
+/* Tarjetas (items de la lista) */
 .item-card {
-    border: 1px solid #e7e7e7;
-    border-radius: 12px;
-    background: #fff;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .item-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
 }
 
 .product-title {
-    margin: 0 0 12px 0;
-    font-size: 18px;
-    font-weight: 700;
-    color: #2a2a2a;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #2a2a2a;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .date {
-    font-size: 13px;
-    color: #999;
-    font-weight: normal;
+  font-size: 13px;
+  color: #999;
+  font-weight: normal;
 }
 
 .card-details p {
-    margin: 6px 0;
-    font-size: 14px;
-    color: #444;
+  margin: 6px 0;
+  font-size: 14px;
+  color: #444;
 }
 
-/* =========================================
-   4. BADGES (ETIQUETAS)
-   ========================================= */
+/* Badges (si se usan en el futuro) */
 .badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
 }
 
 .badge-compra {
-    background: #e0f2fe;
-    /* Azul muy suave */
-    color: #0369a1;
+  background: #fff3e6;
+  color: var(--primary-text);
+  border: 1px solid var(--primary-border);
 }
 
 .badge-venta {
-    background: #dcfce7;
-    /* Verde muy suave */
-    color: #15803d;
+  background: #fff3e6;
+  color: var(--primary-text);
+  border: 1px solid var(--primary-border);
 }
 
-/* =========================================
-   5. RESUMEN DE ESTRELLAS
-   ========================================= */
+/* Bloque de estrellas + comentario */
 .rating-summary {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px dashed #e7e7e7;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
 }
 
 .stars-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 260px;
-    margin-bottom: 6px;
-    font-size: 14px;
-    color: #6c6c6c;
-}
-
-.text-warning {
-    color: #ffc107;
-}
-
-/* Amarillo estándar para estrellas */
-.text-muted {
-    color: #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 320px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #6c6c6c;
+  gap: 12px;
 }
 
 .comment-box {
-    margin-top: 14px;
-    background: #fafafa;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #f0f0f0;
-    font-style: italic;
-    color: #555;
-    font-size: 13px;
+  margin-top: 14px;
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  font-style: italic;
+  color: #555;
+  font-size: 13px;
 }
 
-/* =========================================
-   6. BOTONES GENERALES (ACCIONES)
-   ========================================= */
-/* Botón genérico */
-button.btn {
-    border: 1px solid #e7e7e7;
-    background: #fff;
-    border-radius: 10px;
-    padding: 10px 16px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-/* Botón Primario (Naranja Terreta) para acciones como "Valorar" o "Enviar" */
-.item-card .btn-primary,
-.form-actions .btn-primary,
-.products-header .btn {
-    /* El botón recargar */
-    background: #ff6a00;
-    border-color: #ff6a00;
-    color: #fff;
-}
-
-.item-card .btn-primary:hover,
-.form-actions .btn-primary:hover {
-    background: #e65e00;
-}
-
-.btn-secondary {
-    background: #f3f3f3;
-    color: #666;
-    border: none;
-}
-
-/* =========================================
-   7. MODAL (FORMULARIO)
-   ========================================= */
+/* Modal (formulario de valoracion) */
 .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    backdrop-filter: blur(2px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {
-    background: #fff;
-    padding: 24px;
-    border-radius: 16px;
-    /* Bordes redondeados estilo card */
-    width: 90%;
-    max-width: 480px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    animation: slideUp 0.3s ease-out;
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease-out;
 }
 
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-content h2 {
-    margin: 0 0 8px 0;
-    font-size: 20px;
-    color: #2a2a2a;
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  color: #2a2a2a;
 }
 
 .form-group {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: #2a2a2a;
-}
-
-/* Estrellas grandes en el modal */
-.rating-stars {
-    display: flex;
-    gap: 8px;
-}
-
-.rating-stars i {
-    font-size: 24px;
-    cursor: pointer;
-    color: #e7e7e7;
-    transition: transform 0.1s, color 0.2s;
-}
-
-.rating-stars i.bi-star-fill {
-    color: #ffc107;
-}
-
-.rating-stars i:hover {
-    transform: scale(1.1);
-    color: #ffca2c;
+  display: block;
+  font-weight: 800;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #2a2a2a;
 }
 
 .form-control {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid #e7e7e7;
-    border-radius: 10px;
-    padding: 12px;
-    font-family: inherit;
-    font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
 }
 
 .form-control:focus {
-    outline: none;
-    border-color: #ff6a00;
+  outline: none;
+  border-color: var(--primary);
 }
 
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
 }
 
+@media (max-width: 700px) {
+  .item-card {
+    padding: 16px;
+  }
+  .stars-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

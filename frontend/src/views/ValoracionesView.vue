@@ -15,6 +15,8 @@
       <RouterLink to="/login">Ir a login</RouterLink>
     </div>
 
+    <!--Encabezado de las pestañas-->
+
     <div v-else class="card">
       <div class="tabs">
         <button class="btn" :class="{ 'btn-primary': tab === 'pendientes' }" @click="tab = 'pendientes'">
@@ -28,9 +30,12 @@
         </button>
       </div>
 
-      <div v-if="activeList.length === 0" style="text-align: center; color: #888; padding: 20px">
-        No hay elementos en esta lista.
+      <div v-if="activeList.length === 0">
+        No hay valoraciones pendientes.
       </div>
+
+
+      <!--Listas con la informacion-->
 
       <div v-else class="item-list">
         <div v-for="item in activeList" :key="item.id || item.id_reserva" class="item-card">
@@ -67,27 +72,21 @@
                 <strong>De: </strong> {{ item.nickname || item.nombre_origen || "Usuario" }}
               </p>
 
+              <!--Componente de las estrellas-->
               <div class="rating-display">
                 <div class="stars-row">
                   <span class="star-label">{{ getDisplayLabels(item)[0] }}:</span>
-                  <span class="stars">
-                    <i v-for="n in 5" :key="n" class="bi"
-                      :class="n <= item.nota_producto ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
-                  </span>
+                  <RateComponent :model-value="item.nota_producto" :readonly="true" />
                 </div>
+
                 <div class="stars-row">
                   <span class="star-label">{{ getDisplayLabels(item)[1] }}:</span>
-                  <span class="stars">
-                    <i v-for="n in 5" :key="n" class="bi"
-                      :class="n <= item.nota_entrega ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
-                  </span>
+                  <RateComponent :model-value="item.nota_entrega" :readonly="true" />
                 </div>
+
                 <div class="stars-row">
                   <span class="star-label">{{ getDisplayLabels(item)[2] }}:</span>
-                  <span class="stars">
-                    <i v-for="n in 5" :key="n" class="bi"
-                      :class="n <= item.nota_negociacion ? 'bi-star-fill text-warning' : 'bi-star text-muted'"></i>
-                  </span>
+                  <RateComponent :model-value="item.nota_negociacion" :readonly="true" />
                 </div>
               </div>
 
@@ -101,37 +100,33 @@
       </div>
     </div>
 
+    <!--Formulario de comprar-->
+
     <div v-if="showForm" class="modal-backdrop">
       <div class="modal-content">
         <h2>{{ formConfig.titulo }}</h2>
-        <p style="color: #666; margin-bottom: 20px">
+        <p>
           Reserva: {{ estrellas?.producto_nombre || estrellas?.reserva?.producto_nombre }}
         </p>
 
         <div class="form-group">
           <label>{{ formConfig.labels?.[0] }}</label>
           <div class="rating-stars">
-            <i v-for="i in 5" :key="'p' + i" class="bi"
-              :class="i <= form.nota_producto ? 'bi-star-fill text-warning' : 'bi-star text-muted'"
-              @click="form.nota_producto = i"></i>
+            <RateComponent v-model="form.nota_producto" :readonly="false" />
           </div>
         </div>
 
         <div class="form-group">
           <label>{{ formConfig.labels?.[1] }}</label>
           <div class="rating-stars">
-            <i v-for="i in 5" :key="'e' + i" class="bi"
-              :class="i <= form.nota_entrega ? 'bi-star-fill text-warning' : 'bi-star text-muted'"
-              @click="form.nota_entrega = i"></i>
+            <RateComponent v-model="form.nota_entrega" :readonly="false" />
           </div>
         </div>
 
         <div class="form-group">
           <label>{{ formConfig.labels?.[2] }}</label>
           <div class="rating-stars">
-            <i v-for="i in 5" :key="'n' + i" class="bi"
-              :class="i <= form.nota_negociacion ? 'bi-star-fill text-warning' : 'bi-star text-muted'"
-              @click="form.nota_negociacion = i"></i>
+            <RateComponent v-model="form.nota_negociacion" :readonly="false" />
           </div>
         </div>
 
@@ -142,7 +137,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" @click="showForm = false">Cancelar</button>
+          <button type="button" class="btn btn-secondary" @click="showForm = false">Descartar</button>
           <button type="submit" class="btn btn-primary" :disabled="loading" @click="submitValoracion">Enviar</button>
         </div>
       </div>
@@ -156,6 +151,7 @@
   import { useRouter } from "vue-router";
   import { useAuthStore } from "../stores/auth.js";
   import { useToastStore } from "@/stores/toastStore.js";
+  import RateComponent from '@/components/RateComponent.vue';
 
   const auth = useAuthStore();
   const toast = useToastStore();
@@ -187,9 +183,7 @@
     return listaPendientes.value;
   });
 
-  // --- LÓGICA DE ROLES MEJORADA ---
-
-  // Determina si YO soy el Vendedor en esta transacción
+  
   function esVenta(item) {
     const myId = String(auth.user?.id);
     // Buscamos ID vendedor en el objeto directo o en 'reserva' anidada
@@ -201,11 +195,8 @@
     return false; // Soy Comprador
   }
 
-  // Define las etiquetas para el listado (visualización estática)
   function getDisplayLabels(item) {
     const soyVendedor = esVenta(item);
-
-    // DEFINICIÓN DE ETIQUETAS
     const labelsProducto = ["Producto / Calidad", "Entrega", "Trato"];
     const labelsPersona = ["Seriedad / Pago", "Puntualidad", "Comunicación"];
 
@@ -223,17 +214,10 @@
       // Si soy Comprador -> Me valoraron como Persona
       return labelsPersona;
     }
-
-    // Fallback por defecto
     return labelsProducto;
   }
-
-  // Configuración para el FORMULARIO (Modal dinámico)
   const formConfig = computed(() => {
     if (!estrellas.value) return {};
-
-    // Nota: Aquí la lógica es "A quién voy a valorar ahora"
-    // Si es Venta (Soy vendedor) -> Voy a valorar al comprador -> Labels Persona
     if (esVenta(estrellas.value)) {
       return {
         titulo: "Valorar al Comprador",
@@ -246,8 +230,6 @@
       };
     }
   });
-
-  // --- FUNCIONES ---
 
   function abrirValorar(item) {
     estrellas.value = item;
@@ -330,11 +312,9 @@
   }
 
   onMounted(async () => {
-    await auth.fetchMe();
+    await auth.ensureReady();
     if (isLoggedIn.value) {
       await loadReservas();
     }
   });
 </script>
-
-

@@ -1,0 +1,150 @@
+.footer {
+  margin-top: 0;
+  background: linear-gradient(315deg, #fff6ef 0%, #ffffff 70%);
+  border-top: 1px solid #f0e6dd;
+  padding: 36px 24px 28px;
+}
+
+.footer__inner {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  gap: 28px;
+}
+
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.footer__title {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.footer__tagline {
+  color: #6c6c6c;
+  margin: 0;
+}
+
+.footer__heading {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.footer__heading--spaced {
+  margin-top: 18px;
+}
+
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer__link {
+  text-decoration: none;
+  color: #6c6c6c;
+}
+
+.footer__link:hover {
+  color: var(--primary);
+}
+
+.footer__link--brand {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.footer__lang {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footer__pill {
+  border: 1px solid var(--border);
+  background: #f6f6f6;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.footer__pill.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.footer__social {
+  max-width: var(--content-width);
+  margin: 28px auto 0;
+  text-align: center;
+}
+
+.footer__social-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.footer__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #f6f6f6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c6c6c;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.footer__icon:hover {
+  color: var(--primary);
+  border-color: var(--primary-border);
+}
+
+@media (max-width: 1100px) {
+  .footer__inner {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .footer__inner {
+    grid-template-columns: 1fr;
+  }
+  .footer {
+    padding: 28px 18px 24px;
+  }
+  .footer__inner,
+  .footer__brand,
+  .footer__col,
+  .footer__social {
+    text-align: center;
+    align-items: center;
+  }
+  .footer__social-row {
+    justify-content: center;
+  }
+}

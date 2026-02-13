@@ -50,3 +50,22 @@ export async function ratingsSent(id) {
   return result;
 }
 
+export async function ratingAverageReceived(id) {
+  const [rows] = await pool.query(
+    `
+    SELECT
+      AVG((v.nota_producto + v.nota_entrega + v.nota_negociacion) / 3) AS media,
+      COUNT(*) AS total
+    FROM valoraciones v
+    WHERE v.id_destinatario = ?
+    `,
+    [id]
+  );
+
+  const row = rows && rows[0] ? rows[0] : {};
+  return {
+    media: row && row.media != null ? Number(row.media) : null,
+    total: row && row.total != null ? Number(row.total) : 0,
+  };
+}
+

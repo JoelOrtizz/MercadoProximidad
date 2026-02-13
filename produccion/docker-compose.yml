@@ -1,0 +1,80 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: terretashop-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ../backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-internal
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ../backend
+    container_name: terretashop-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      JWT_SECRET: ${JWT_SECRET}
+      COOKIE_SECRET: ${COOKIE_SECRET}
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-internal
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.api.rule=(Host(`${APP_DOMAIN}`) || Host(`${APP_DOMAIN_WWW}`)) && (PathPrefix(`/api`) || PathPrefix(`/uploads`))
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls.certresolver=letsencrypt
+      - traefik.http.routers.api.priority=100
+      - traefik.http.services.api.loadbalancer.server.port=3000
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: terretashop-frontend
+    restart: unless-stopped
+    networks:
+      - traefik-public
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.http.routers.front.rule=Host(`${APP_DOMAIN}`) || Host(`${APP_DOMAIN_WWW}`)
+      - traefik.http.routers.front.entrypoints=websecure
+      - traefik.http.routers.front.tls.certresolver=letsencrypt
+      - traefik.http.routers.front.priority=1
+      - traefik.http.services.front.loadbalancer.server.port=80
+
+volumes:
+  db_data:
+  backend_uploads:
+
+networks:
+  app-internal:
+    driver: bridge
+  traefik-public:
+    external: true
+

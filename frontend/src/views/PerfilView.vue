@@ -29,7 +29,7 @@
             <p class="info_content">Total de compras</p>
           </div>
           <div class="content_vendedor">
-            <p id="valor_gen" class="dest_content">-</p>
+            <p id="valor_gen" class="dest_content">{{ valoracionMediaText }} 🍊</p>
             <p class="info_content">Valoracion general</p>
           </div>
         </div>
@@ -254,6 +254,7 @@ const coordsTexto = computed(() => {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 });
 const ubicacionTexto = ref('Cargando...');
+const valoracionMediaText = ref('-');
 
 const ventasActivas = computed(() => {
   return (myProducts.value || []).reduce((acc, p) => {
@@ -459,6 +460,27 @@ async function loadMyPoints() {
   }
 }
 
+async function loadValoracionMedia() {
+  if (!auth.user || !auth.user.id) {
+    valoracionMediaText.value = '-';
+    return;
+  }
+
+  try {
+    const res = await axios.get(`/usuarios/${auth.user.id}/ratings/media`);
+    const media = res && res.data ? res.data.media : null;
+    const total = res && res.data ? res.data.total : 0;
+
+    if (!total || media === null || media === undefined) {
+      valoracionMediaText.value = '-';
+    } else {
+      valoracionMediaText.value = Number(media).toFixed(1);
+    }
+  } catch {
+    valoracionMediaText.value = '-';
+  }
+}
+
 function startEdit(p) {
   editingId.value = p.id;
   editFile.value = null;
@@ -539,7 +561,7 @@ function goToReservas() {
 }
 
 onMounted(async () => {
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await loadCategorias();
   await loadUnidades();
@@ -547,6 +569,7 @@ onMounted(async () => {
   await loadMyProducts();
   await loadMyReservas();
   await loadMyPoints();
+  await loadValoracionMedia();
 });
 
 watch(isLoggedIn, async (v) => {
