@@ -135,23 +135,6 @@
   border-color: #f1c9aa;
 }
 
-.map-product__thumb {
-  width: 100%;
-  height: 90px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #eee;
-  background: #fff;
-  margin-bottom: 8px;
-}
-
-.map-product__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 .map-product__top {
   display: flex;
   align-items: flex-start;
@@ -164,6 +147,101 @@
   font-weight: 800;
   font-size: 13px;
   line-height: 1.2;
+}
+
+.product-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.product-title {
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.2;
+  color: #222;
+}
+
+.product-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff3e6;
+  border: 1px solid #ffd6b8;
+  color: #ff6a00;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.product-desc {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0 0 8px 0;
+}
+
+.product-thumb {
+  width: 100%;
+  height: 110px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+.product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12px;
+  color: #4b5563;
+  margin-bottom: 10px;
+}
+
+.product-meta .meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-meta a {
+  color: #ff6a00;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.product-meta a:hover {
+  color: #e65e00;
+  text-decoration: underline;
+}
+
+.product-actions-row {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #374151;
 }
 
 .product-card {

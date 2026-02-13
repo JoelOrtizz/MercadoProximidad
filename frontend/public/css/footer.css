@@ -59,10 +59,12 @@
 .footer__link {
   text-decoration: none;
   color: #6c6c6c;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .footer__link:hover {
   color: var(--primary);
+  transform: translateX(2px);
 }
 
 .footer__link--brand {
@@ -84,6 +86,13 @@
   font-weight: 700;
   font-size: 12px;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.footer__pill:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-border);
+  box-shadow: 0 6px 12px rgba(255, 106, 0, 0.12);
 }
 
 .footer__pill.is-active {
@@ -117,11 +126,14 @@
   color: #6c6c6c;
   text-decoration: none;
   font-size: 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .footer__icon:hover {
   color: var(--primary);
   border-color: var(--primary-border);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(255, 106, 0, 0.12);
 }
 
 @media (max-width: 1100px) {

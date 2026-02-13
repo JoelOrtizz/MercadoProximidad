@@ -74,59 +74,61 @@
                   Selecciona un punto en el mapa para ver sus productos.
                 </div>
 
-            <div v-for="p in (selectedMapPoint?.productos || [])" :key="p.id" class="map-product" @click="goToDetails(p)">
-                  <div class="map-product__thumb">
+                <div v-for="p in (selectedMapPoint?.productos || [])" :key="p.id" class="map-product" @click="goToDetails(p)">
+
+                  <div class="product-head">
+                    <div class="product-title">{{ p.nombre || 'Producto' }}</div>
+                    <div class="product-price">
+                      <i class="bi bi-currency-euro"></i>
+                      {{ formatPrice(p.precio) }}
+                    </div>
+                  </div>
+
+                  <div class="product-thumb">
                     <img :src="p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg'" :alt="p.nombre || 'Producto'" />
                   </div>
-                  <div class="map-product__top">
-                    <div class="map-product__name">{{ p.nombre || 'Producto' }}</div>
-                    <span class="badge bg-warning text-dark">{{ formatPrice(p.precio) }}</span>
-                  </div>
 
-                  <p class="small mb-1">
-                    <i class="bi bi-card-text me-1"></i>
-                    {{ p.descripcion || 'Sin descripcion.' }}
-                  </p>
+                  <p class="product-desc">{{ p.descripcion || 'Sin descripcion.' }}</p>
 
-                  <p class="small text-muted mb-1">
-                    <i class="bi bi-box-seam me-1"></i>
-                    {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
-                  </p>
-
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <label class="small mb-0">
-                      <i class="bi bi-123 me-1"></i>
-                      Cant.
-                    </label>
-                  <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
-                    style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
-                  </div>
-
-                  <label class="form-label small mb-1">
-                    <i class="bi bi-geo-alt me-1"></i>
-                    Entrega
-                    <span class="text-warning">
-                    <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop style="text-decoration: none; color: #ff6a00; font-weight: 700;">
-                      @{{ p.nickname || 'Desconocido' }}
-                    </RouterLink>
+                  <div class="product-meta">
+                    <span class="meta-item">
+                      <i class="bi bi-tag"></i>
+                      <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
+                      <span v-else-if="p.categoria">{{ p.categoria }}</span>
+                      <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
+                      <span v-else>
+                        <template v-for="c in categorias" :key="c.id">
+                          <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
+                        </template>
+                        <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
+                      </span>
+                    </span>
+                    <span class="meta-item">
+                      <i class="bi bi-box-seam"></i>
+                      {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="bi bi-person"></i>
+                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop>
+                        @{{ p.nickname || 'Desconocido' }}
+                      </RouterLink>
                       <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
                     </span>
-                  </label>
+                  </div>
 
-                  <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm" @click.stop
-                    @focus="ensureReservaDefaults(p)">
-                    <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
-                      pt.descripcion || `Punto #${pt.id}` }}</option>
-                  </select>
-
-                  <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
-                    de entrega.</div>
-
-                  <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click.stop="crearReserva(p)"
-                    :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
-                    <i class="bi bi-cart-plus me-1"></i>
-                    {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
-                  </button>
+                  <div class="product-actions-row">
+                    <div class="product-qty">
+                      <i class="bi bi-123"></i>
+                      <span>Cant:</span>
+                      <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                        style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
+                      :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                      <i class="bi bi-cart-plus me-1"></i>
+                      {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </aside>
@@ -140,86 +142,59 @@
 
                 <div class="card-body p-3 d-flex flex-column">
 
-                  <!-- CABECERA -->
-                  <div class="d-flex justify-content-between align-items-start gap-2">
-                    <div class="text-truncate fw-bold mb-1" style="max-width: 70%;">
-                      {{ p.nombre || 'Producto' }}
-                    </div>
-                    <span class="badge bg-warning text-dark">
+                  <div class="product-head">
+                    <div class="product-title">{{ p.nombre || 'Producto' }}</div>
+                    <div class="product-price">
+                      <i class="bi bi-currency-euro"></i>
                       {{ formatPrice(p.precio) }}
+                    </div>
+                  </div>
+
+                  <div class="product-thumb">
+                    <img :src="p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg'" :alt="p.nombre || 'Producto'" />
+                  </div>
+
+                  <p class="product-desc">{{ p.descripcion || 'Sin descripcion.' }}</p>
+
+                  <div class="product-meta">
+                    <span class="meta-item">
+                      <i class="bi bi-tag"></i>
+                      <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
+                      <span v-else-if="p.categoria">{{ p.categoria }}</span>
+                      <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
+                      <span v-else>
+                        <template v-for="c in categorias" :key="c.id">
+                          <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
+                        </template>
+                        <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
+                      </span>
                     </span>
-                  </div>
-
-                  <!-- IMAGEN -->
-                  <div v-if="p.imagen" class="my-2 rounded border d-flex align-items-center justify-content-center"
-                    style="height:120px; width:100%; background:#fff;">
-                    <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`"
-                      class="img-fluid" style="max-height:120px; max-width:100%; object-fit:contain;" />
-                  </div>
-
-                  <!-- DESCRIPCION -->
-                  <p class="small mb-1">
-                    <i class="bi bi-card-text me-1"></i>
-                    {{ p.descripcion || 'Sin descripcion.' }}
-                  </p>
-
-                  <!-- CATEGORIA -->
-                  <span class="badge bg-light text-dark border mb-2 align-self-start">
-                    <i class="bi bi-tag me-1"></i>
-                    <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
-                    <span v-else-if="p.categoria">{{ p.categoria }}</span>
-                    <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
-                    <span v-else>
-                      <template v-for="c in categorias" :key="c.id">
-                        <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
-                      </template>
-                      <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
+                    <span class="meta-item">
+                      <i class="bi bi-box-seam"></i>
+                      {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
                     </span>
-                  </span>
-
-                  <!-- STOCK -->
-                  <p class="small text-muted mb-1">
-                    <i class="bi bi-box-seam me-1"></i>
-                    {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
-                  </p>
-
-                  <!-- CANTIDAD -->
-                  <div class="d-flex align-items-center gap-2 mb-2">
-                    <label for="label" class="small mb-0">
-                      <i class="bi bi-123 me-1"></i>
-                      Cant.
-                    </label>
-                    <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
-                      style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
-                  </div>
-
-                  <!-- PUNTO DE ENTREGA -->
-                  <label class="form-label small mb-1">
-                    <i class="bi bi-geo-alt me-1"></i>
-                    Entrega
-                    <span class="text-warning">
-                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop style="text-decoration: none; color: #ff6a00; font-weight: 700;">
+                    <span class="meta-item">
+                      <i class="bi bi-person"></i>
+                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop>
                         @{{ p.nickname || 'Desconocido' }}
                       </RouterLink>
                       <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
                     </span>
-                  </label>
+                  </div>
 
-                  <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm" @click.stop
-                    @focus="ensureReservaDefaults(p)">
-                    <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
-                      pt.descripcion || `Punto #${pt.id}` }}</option>
-                  </select>
-
-                  <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
-                    de entrega.</div>
-
-                  <!-- BOTON RESERVAR -->
-                  <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click.stop="crearReserva(p)"
-                    :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
-                    <i class="bi bi-cart-plus me-1"></i>
-                    {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
-                  </button>
+                  <div class="product-actions-row">
+                    <div class="product-qty">
+                      <i class="bi bi-123"></i>
+                      <span>Cant:</span>
+                      <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                        style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
+                      :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                      <i class="bi bi-cart-plus me-1"></i>
+                      {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
+                    </button>
+                  </div>
 
                 </div>
 
@@ -249,11 +224,12 @@
 import axios from 'axios';
 import { onMounted, reactive, ref, watch, computed, onBeforeUnmount, nextTick } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink, useRouter, useRoute } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
 
 const auth = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 const toast = useToastStore();
 const mapPanelRef = ref(null);
 
@@ -265,6 +241,7 @@ const searchText = ref('');
 const distanceKm = ref('10');
 const mapMode = ref(false);
 const selectedMapPoint = ref(null);
+const selectedMapPointKey = ref('');
 
 // Reservas (simple, por producto)
 const puntosPorVendedor = reactive({}); // { [id_vendedor]: [puntos] }
@@ -295,7 +272,20 @@ function handleLoadMore() {
 
 function goToDetails(p) {
   if (!p?.id) return;
+  if (mapMode.value && selectedMapPointKey.value) {
+    sessionStorage.setItem('comprar_map_mode', '1');
+    sessionStorage.setItem('comprar_map_point', selectedMapPointKey.value);
+    router.push({ path: `/producto/${p.id}`, query: { map: '1', point: selectedMapPointKey.value } });
+    return;
+  }
+  sessionStorage.removeItem('comprar_map_mode');
+  sessionStorage.removeItem('comprar_map_point');
   router.push(`/producto/${p.id}`);
+}
+
+function pointKey(pt) {
+  if (!pt) return '';
+  return `${pt.vendedorId}-${pt.id}`;
 }
 
 const mapPoints = computed(() => {
@@ -363,7 +353,7 @@ function resolveImageSrc(value) {
 function formatPrice(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} €`;
+  return `${n.toFixed(2)} \u20AC`;
 }
 
 function formatStock(stock, tipo) {
@@ -456,6 +446,7 @@ async function renderMapPoints() {
     );
     marker.on('click', () => {
       selectedMapPoint.value = pt;
+      selectedMapPointKey.value = pointKey(pt);
       nextTick(() => {
         mapPanelRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
@@ -617,15 +608,31 @@ onMounted(async () => {
   await auth.ensureReady();
   loadCategorias();
   loadProducts();
+  const mapFromQuery = route.query?.map === '1';
+  const mapFromSession = sessionStorage.getItem('comprar_map_mode') === '1';
+  if (mapFromQuery || mapFromSession) {
+    mapMode.value = true;
+  } else {
+    mapMode.value = false;
+  }
 });
 
 watch(
   () => mapMode.value,
   async (value) => {
     if (value) {
+      sessionStorage.setItem('comprar_map_mode', '1');
       await initMap();
+      setTimeout(() => {
+        try {
+          map?.invalidateSize();
+        } catch {}
+      }, 50);
     } else {
       selectedMapPoint.value = null;
+      selectedMapPointKey.value = '';
+      sessionStorage.removeItem('comprar_map_mode');
+      sessionStorage.removeItem('comprar_map_point');
       destroyMap();
     }
   }
@@ -635,6 +642,24 @@ watch(
   () => [products.value.length, Object.keys(puntosPorVendedor).length],
   () => {
     if (mapMode.value) renderMapPoints();
+  }
+);
+
+watch(
+  () => [mapMode.value, route.query?.map, route.query?.point, mapPoints.value.length],
+  () => {
+    const pointFromQuery = route.query?.point;
+    const pointFromSession = sessionStorage.getItem('comprar_map_point');
+    const wantedPoint = pointFromQuery || pointFromSession;
+    if (!mapMode.value || !wantedPoint) return;
+    const match = mapPoints.value.find((p) => pointKey(p) === wantedPoint);
+    if (match) {
+      selectedMapPoint.value = match;
+      selectedMapPointKey.value = wantedPoint;
+      if (map) {
+        map.setView([match.lat, match.lng], 14);
+      }
+    }
   }
 );
 

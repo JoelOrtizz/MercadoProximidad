@@ -30,6 +30,27 @@
   border-radius: 12px;
   background: #fff;
   padding: 16px;
+  box-shadow: var(--elevated-shadow);
+}
+
+/* Profundidad global para cajas comunes (formularios, panels, tarjetas, etc.) */
+:where(
+  .auth-card,
+  .coords-card,
+  .contact-card,
+  .item-card,
+  .landing-card,
+  .landing-image-card,
+  .product-detail__card,
+  .map-panel,
+  .comment-box,
+  .card-info,
+  .productos-card,
+  .puntos-card
+) {
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--elevated-shadow);
 }
 
 .subtitle {

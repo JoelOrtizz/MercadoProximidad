@@ -104,7 +104,7 @@
                   <span :class="Number(p.stock) > 0 ? 'stock-ok' : 'stock-out'">
                     {{ Number(p.stock) > 0 ? 'En stock' : 'Fuera de stock' }}
                   </span>
-                  <span class="producto-meta__sep">Â·</span>
+                  <span class="producto-meta__sep">&middot;</span>
                   Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
                 </div>
               </div>
@@ -173,7 +173,7 @@ function resolveImageSrc(value) {
 function formatPrice(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} â‚¬`;
+  return `${n.toFixed(2)} \u20AC`;
 }
 
 function formatStock(stock, tipo) {

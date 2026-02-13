@@ -2,7 +2,7 @@
     <div class="rate-container" @mouseleave="resetHover">
         <span v-for="i in maxRate" :key="i" class="orange" :class="getOrangeState(i)"
             :style="{ cursor: readonly ? 'default' : 'pointer' }" @click="onStarClick(i)" @mouseover="onHover(i)">
-            🍊
+            &#x1F34A;
         </span>
     </div>
 </template>

@@ -29,7 +29,7 @@
             <p class="info_content">Total de compras</p>
           </div>
           <div class="content_vendedor">
-            <p id="valor_gen" class="dest_content">{{ valoracionMediaText }} 🍊</p>
+            <p id="valor_gen" class="dest_content">{{ valoracionMediaText }} &#x1F34A;</p>
             <p class="info_content">Valoracion general</p>
           </div>
         </div>
@@ -364,7 +364,7 @@ function resolveImageSrc(value) {
 function formatPrice(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} €`;
+  return `${n.toFixed(2)} \u20AC`;
 }
 
 function formatStock(stock, unidad) {

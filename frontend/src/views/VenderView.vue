@@ -10,61 +10,62 @@
                 Necessitas iniciar session para publicar <RouterLink to="/login">Ir al Login</RouterLink>
             </p>
 
-            <form v-else id="form_producto" enctype="multipart/form-data" @submit.prevent="submitProduct">
-                <div class="form-group">
-                    <label for="nombre">Nombre del producto</label>
-                    <input id="nombre" v-model="form.nombre" type="text" name="nombre" placeholder="Ej: Tomate Valenciano">
-                </div>
-
-                <div class="form-group row">
-                    <div class="col">
-                        <label for="precio">Precio (€)</label>
-                        <input type="number" id="precio" v-model="form.precio" name="precio" min="0" step="0.01">
-                    </div>
-                    <div class="col">
-                        <label for="stock">Stock disponible</label>                
-                        <input type="number" name="stock" id="stock" v-model="form.stock" min="0">
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <div class="col">
-                        <label for="unidad">Unidad</label>
-                        <select id="unidad" v-model="form.id_unidad" name="id_unidad" required>
-                            <option value="">Seleccione una unidad</option>
-                            <option v-for="u in unidades" :key="u.id" :value="String(u.id)">
-                                {{ u.nombre }} ({{ u.simbolo }})
-                            </option>
-                        </select>
+            <form v-else id="form_producto" class="form-grid" enctype="multipart/form-data" @submit.prevent="submitProduct">
+                <div class="form-group form-group--full">
+                    <div class="form-pair">
+                        <div class="form-col">
+                            <label for="nombre">Nombre del producto</label>
+                            <input id="nombre" v-model="form.nombre" type="text" name="nombre" placeholder="Ej: Tomate Valenciano">
+                        </div>
+                        <div class="form-col">
+                            <label for="categoria">Categoria</label>
+                            <select name="categoria" id="categoria" v-model="form.categoria">
+                                <option value="">Seleccione una categoria</option>
+                                <option v-for="c in categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <div  class="form-group">
-                    <label for="categoria">Categoria</label>
-                    <select name="categoria" id="categoria" v-model="form.categoria">
-                        <option value="">Seleccione una categoria</option>
-                        <option v-for="c in categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion">Descripcion</label>
-                    <textarea name="descripcion" id="descripcion" v-model="form.descripcion" placeholder="Detalles del producto"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="imagen">Imagen</label>
-                    <div class="file-input-wrapper">
-                        <input ref="fileInput" type="file" id="imagen" name="imagen" accept="image/*" @change="onFileChange">
-                    </div>
-                    <small class="helper-text">Se enviara la primera imagen seleccionada</small>
-
-                    <div v-if="previewSrc" class="image-preview-wrap">
-                      <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
+                <div class="form-group form-group--full">
+                    <div class="form-pair">
+                        <div class="form-col">
+                            <label for="stock">Stock disponible</label>                
+                            <input type="number" name="stock" id="stock" v-model="form.stock" min="0">
+                        </div>
+                        <div class="form-col">
+                            <label for="unidad">Unidad</label>
+                            <select id="unidad" v-model="form.id_unidad" name="id_unidad" required>
+                                <option value="">Seleccione una unidad</option>
+                                <option v-for="u in unidades" :key="u.id" :value="String(u.id)">
+                                    {{ u.nombre }} ({{ u.simbolo }})
+                                </option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <button class="btn-submit" type="submit" :disabled="loading">
+                <div class="form-group form-group--full">
+                    <div class="form-pair">
+                        <div class="form-col">
+                            <label for="descripcion">Descripcion</label>
+                            <textarea name="descripcion" id="descripcion" v-model="form.descripcion" placeholder="Detalles del producto"></textarea>
+                        </div>
+                        <div class="form-col">
+                            <label for="imagen">Imagen</label>
+                            <div class="file-input-wrapper">
+                                <input ref="fileInput" type="file" id="imagen" name="imagen" accept="image/*" @change="onFileChange">
+                            </div>
+                            <small class="helper-text">Se enviara la primera imagen seleccionada</small>
+
+                            <div v-if="previewSrc" class="image-preview-wrap">
+                              <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-submit form-group--full" type="submit" :disabled="loading">
                     {{ loading ? 'Publicando ...' : 'Publicar' }}
                 </button>
             </form>

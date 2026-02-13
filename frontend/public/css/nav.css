@@ -12,6 +12,7 @@
   --content-width: 1400px;
   /* Altura aproximada del navbar (para colocar toast/modal justo debajo) */
   --nav-height: 78px;
+  --elevated-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
 
   /* =========================================================
      Bootstrap (quitar azules)
