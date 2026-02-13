@@ -207,7 +207,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { RouterLink } from 'vue-router';
 
 const lang = ref('es');
@@ -359,8 +359,60 @@ const text = {
   },
 };
 
+
+//SCRIPT PARA SIMULAR PARALLAX EN DISPOSITIVO MOVIL
+//MUEVE EL BACKGROUND DE LA SECCION PARALLAX A LA 
+//VEZ QUE SE HACE SCROLL EN LA PANTALLA 
 const t = computed(() => text[lang.value]);
+let rafId = null;
+
+function updateParallax() {
+  const sections = document.querySelectorAll('.landing-parallax, .landing-parallax-alt');
+  const scrollY = window.scrollY || window.pageYOffset || 0;
+  const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  sections.forEach((section) => {
+    if (!isTouch) {
+      section.style.backgroundPosition = 'center';
+      return;
+    }
+    const rect = section.getBoundingClientRect();
+    const offsetTop = scrollY + rect.top;
+    const factor = 0.4;
+    const rawY = (scrollY - offsetTop) * factor;
+    const maxShift = section.offsetHeight * 0.12;
+    const y = Math.max(-maxShift, Math.min(maxShift, rawY));
+    section.style.backgroundPosition = `center ${y}px`;
+  });
+}
+
+function onScroll() {
+  if (rafId) return;
+  rafId = requestAnimationFrame(() => {
+    updateParallax();
+    rafId = null;
+  });
+}
+
+onMounted(() => {
+  updateParallax();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', updateParallax);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll);
+  window.removeEventListener('resize', updateParallax);
+  if (rafId) cancelAnimationFrame(rafId);
+});
 </script>
+
+
+
+
+
+
+
+
 
 
 

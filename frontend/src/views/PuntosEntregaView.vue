@@ -59,14 +59,17 @@ import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
 
 const auth = useAuthStore();
 const router = useRouter();
+const toast = useToastStore();
 
 const points = ref([]);
 const statusText = ref('');
 const saving = ref(false);
 const MAX_PUNTOS = 5;
+const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 let map = null;
 
@@ -146,7 +149,7 @@ function fitToPoints() {
 async function createMap() {
   const L = await loadLeaflet();
 
-  map = L.map('map').setView([39.0717, -0.2668], 13);
+  map = L.map('map').setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '',
   }).addTo(map);
@@ -160,16 +163,30 @@ async function createMap() {
 }
 
 function myLocation() {
-  if (!('geolocation' in navigator)) return;
   if (!map) return;
+  toast.show('Localizando tu ubicacion...', 'info', 15000);
+
+  if (!('geolocation' in navigator)) {
+    map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+    toast.warning('No se pudo localizar. Usando predeterminadas.');
+    return;
+  }
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const { latitude, longitude } = pos.coords;
-      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+        toast.warning('No se pudo localizar. Usando predeterminadas.');
+        return;
+      }
       map.setView([latitude, longitude], 14);
+      toast.success('Ubicacion detectada.');
     },
-    () => {},
+    () => {
+      map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+      toast.warning('No se pudo localizar. Usando predeterminadas.');
+    },
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
   );
 }
@@ -274,6 +291,7 @@ onMounted(async () => {
   await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await createMap();
+  myLocation();
   await loadMyPuntosEntrega();
 });
 

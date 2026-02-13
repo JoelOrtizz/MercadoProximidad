@@ -256,6 +256,7 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  background-repeat: no-repeat;
   position: relative;
 }
 
@@ -312,6 +313,7 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  background-repeat: no-repeat;
   position: relative;
 }
 
@@ -393,11 +395,18 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  .landing-parallax {
-    background-attachment: scroll;
-  }
+  .landing-parallax,
   .landing-parallax-alt {
     background-attachment: scroll;
+    background-position: center;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .landing-parallax,
+  .landing-parallax-alt {
+    background-attachment: scroll;
+    background-position: center;
   }
 }
 

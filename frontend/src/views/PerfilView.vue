@@ -29,7 +29,7 @@
             <p class="info_content">Total de compras</p>
           </div>
           <div class="content_vendedor">
-            <p id="valor_gen" class="dest_content">{{ valoracionMediaText }}</p>
+            <p id="valor_gen" class="dest_content">{{ valoracionMediaText }} 🍊</p>
             <p class="info_content">Valoracion general</p>
           </div>
         </div>
