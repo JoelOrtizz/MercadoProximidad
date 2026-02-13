@@ -25,15 +25,10 @@ export const useAuthStore = defineStore("auth", () => {
         const res = await axios.get("/usuarios/me");
         // actualiza los datos de user que vienen del backend
         user.value = res.data && res.data.user ? res.data.user : null;
-        // si el usuario tiene nickname lo guarda en localStorage para recordar todos los datos
-        if (user.value && user.value.nickname) {
-          localStorage.setItem('user_nickname', user.value.nickname);
-        }
         // devuelve el usuario encontrado
         return user.value;
       } catch {
         user.value = null;
-        localStorage.removeItem('user_nickname');
         return null;
       } finally {
         // desactiva el estado de carga
@@ -70,7 +65,6 @@ export const useAuthStore = defineStore("auth", () => {
       await axios.post('/login/logout');
     } finally {
       user.value = null;
-      localStorage.removeItem('user_nickname');
       ready.value = true;
     }
   }

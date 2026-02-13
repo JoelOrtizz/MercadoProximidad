@@ -36,7 +36,7 @@ const auth = useAuthStore();
 const router = useRouter();
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
-const nickname = computed(() => auth.user?.nickname || localStorage.getItem('user_nickname') || '');
+const nickname = computed(() => auth.user?.nickname || '');
 
 async function handleAuthClick() {
   if (isLoggedIn.value) {
