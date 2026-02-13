@@ -100,7 +100,7 @@ a:hover {
   display: flex;
   gap: 10px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
   flex-wrap: wrap;
 }
@@ -115,6 +115,15 @@ a:hover {
   text-decoration: none;
   min-width: 92px;
   text-align: center;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav__pill:hover {
+  border-color: var(--primary-border);
+  background: var(--primary-weak);
+  color: var(--primary-text);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
 }
 
 .nav__pill.is-active {
@@ -127,6 +136,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-left: auto;
 }
 
 .nav__icon {
@@ -140,6 +150,13 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.nav__icon:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-border);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
 }
 
 .nav__badge {
@@ -167,6 +184,13 @@ a:hover {
   color: #fff;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.nav__cta:hover {
+  transform: translateY(-1px);
+  background: #e65e00;
+  box-shadow: 0 8px 16px rgba(255, 106, 0, 0.25);
 }
 
 .nav__user {
@@ -177,6 +201,13 @@ a:hover {
   color: var(--primary-text);
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.nav__user:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-border);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
 }
 
 .nav__user.is-active {

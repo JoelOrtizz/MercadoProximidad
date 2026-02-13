@@ -1,4 +1,4 @@
-import { getProduct, postProduct, putProduct, deleteProductById, getProductByVendedor, getProductByCategoria, getProductByPrecio,getProductByUbicacion } from '../models/procutModel.js'
+import { getProduct, postProduct, putProduct, deleteProductById, getProductById, getProductByVendedor, getProductByCategoria, getProductByPrecio,getProductByUbicacion } from '../models/procutModel.js'
 
 export async function fetchProducts(req, res, next) {
     try {
@@ -7,6 +7,22 @@ export async function fetchProducts(req, res, next) {
     } catch (error) {
         next(error);
     } 
+}
+
+export async function fetchProductById(req, res, next) {
+    try {
+        const idRaw = req.params?.id;
+        const id = Number.parseInt(String(idRaw), 10);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ error: 'Id de producto invalido' });
+        }
+        const result = await getProductById(id);
+        const product = Array.isArray(result) ? result[0] : null;
+        if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
+        res.status(200).json(product);
+    } catch (error) {
+        next(error);
+    }
 }
 
 export async function fetchProductsByVendedor(req,res,next) {

@@ -74,7 +74,7 @@
                   Selecciona un punto en el mapa para ver sus productos.
                 </div>
 
-                <div v-for="p in (selectedMapPoint?.productos || [])" :key="p.id" class="map-product">
+            <div v-for="p in (selectedMapPoint?.productos || [])" :key="p.id" class="map-product" @click="goToDetails(p)">
                   <div class="map-product__thumb">
                     <img :src="p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg'" :alt="p.nombre || 'Producto'" />
                   </div>
@@ -98,22 +98,22 @@
                       <i class="bi bi-123 me-1"></i>
                       Cant.
                     </label>
-                    <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm"
-                      style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                  <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                    style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
                   </div>
 
                   <label class="form-label small mb-1">
                     <i class="bi bi-geo-alt me-1"></i>
                     Entrega
                     <span class="text-warning">
-                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
-                        @{{ p.nickname || 'Desconocido' }}
-                      </RouterLink>
+                    <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop style="text-decoration: none; color: #ff6a00; font-weight: 700;">
+                      @{{ p.nickname || 'Desconocido' }}
+                    </RouterLink>
                       <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
                     </span>
                   </label>
 
-                  <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm"
+                  <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm" @click.stop
                     @focus="ensureReservaDefaults(p)">
                     <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
                       pt.descripcion || `Punto #${pt.id}` }}</option>
@@ -122,7 +122,7 @@
                   <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
                     de entrega.</div>
 
-                  <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click="crearReserva(p)"
+                  <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click.stop="crearReserva(p)"
                     :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
                     <i class="bi bi-cart-plus me-1"></i>
                     {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
@@ -136,7 +136,7 @@
           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
             <!-- Bucle para mostrar los productos -->
             <div v-for="p in visibleProducts" :key="p.id" class="col">
-              <article class="card shadow-sm h-100 product-card">
+              <article class="card shadow-sm h-100 product-card" @click="goToDetails(p)">
 
                 <div class="card-body p-3 d-flex flex-column">
 
@@ -189,7 +189,7 @@
                       <i class="bi bi-123 me-1"></i>
                       Cant.
                     </label>
-                    <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm"
+                    <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
                       style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
                   </div>
 
@@ -198,14 +198,14 @@
                     <i class="bi bi-geo-alt me-1"></i>
                     Entrega
                     <span class="text-warning">
-                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" style="text-decoration: none; color: #ff6a00; font-weight: 700;">
+                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop style="text-decoration: none; color: #ff6a00; font-weight: 700;">
                         @{{ p.nickname || 'Desconocido' }}
                       </RouterLink>
                       <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
                     </span>
                   </label>
 
-                  <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm"
+                  <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input form-select form-select-sm" @click.stop
                     @focus="ensureReservaDefaults(p)">
                     <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
                       pt.descripcion || `Punto #${pt.id}` }}</option>
@@ -215,7 +215,7 @@
                     de entrega.</div>
 
                   <!-- BOTON RESERVAR -->
-                  <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click="crearReserva(p)"
+                  <button class="btn btn-warning w-100 mt-2 btn-sm" type="button" @click.stop="crearReserva(p)"
                     :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
                     <i class="bi bi-cart-plus me-1"></i>
                     {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
@@ -291,6 +291,11 @@ const hasMoreProducts = computed(() => {
 });
 function handleLoadMore() {
   visibleCount.value += itemsPerPage;
+}
+
+function goToDetails(p) {
+  if (!p?.id) return;
+  router.push(`/producto/${p.id}`);
 }
 
 const mapPoints = computed(() => {

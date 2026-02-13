@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="header-global">
     <section class="header-top">
       <div class="header-top__inner">
@@ -7,6 +7,7 @@
         </RouterLink>
         <div class="header-top__tagline">El mercado local que te queda a mano</div>
         <div class="header-top__actions">
+
           <button
             v-if="isLoggedIn"
             class="nav__user"
@@ -47,3 +48,4 @@ async function handleAuthClick() {
   router.push('/login');
 }
 </script>
+

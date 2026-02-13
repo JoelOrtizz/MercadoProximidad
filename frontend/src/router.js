@@ -15,6 +15,7 @@ import NotificacionesView from './views/NotificacionesView.vue';
 import LandingView from './views/LandingView.vue';
 import LegalView from './views/LegalView.vue';
 import ContactoView from './views/ContactoView.vue';
+import ProductoView from './views/ProductoView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -105,6 +106,7 @@ const router = createRouter({
     { path: '/usuario/:id', component: PerfilUsuarioView, meta: { css: '/css/perfilUsuario.css' } },
     { path: '/legal', component: LegalView, meta: { css: '/css/legal.css', hideNav: true } },
     { path: '/contacto', component: ContactoView, meta: { css: '/css/contacto.css', hideNav: true } },
+    { path: '/producto/:id', component: ProductoView, meta: { css: '/css/producto.css' } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });

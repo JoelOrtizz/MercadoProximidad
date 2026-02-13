@@ -111,7 +111,7 @@
 
               <div class="producto-actions">
                 <div class="producto-precio producto-precio--right">{{ formatPrice(p.precio) }}</div>
-                <button class="btn" type="button" disabled>Ver detalles</button>
+                <RouterLink class="btn" :to="`/producto/${p.id}`">Ver detalles</RouterLink>
               </div>
             </article>
           </div>
@@ -124,7 +124,7 @@
 <script setup>
 import axios from 'axios';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
 import { useAuthStore } from '@/stores/auth.js';
 
