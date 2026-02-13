@@ -1,6 +1,16 @@
-<template>
+ï»¿<template>
   <div class="landing">
     <section class="landing-hero">
+      <div class="landing-hero-bg" aria-hidden="true">
+        <video
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          src="/assets/hero-background.mp4"
+        ></video>
+      </div>
       <div class="landing-shell">
         <header class="landing-header">
           <div class="landing-brand">
@@ -72,7 +82,7 @@
       </div>
     </section>
 
-    <section class="landing-section landing-soft">
+    <section class="landing-section landing-soft landing-parallax-alt">
       <div class="landing-shell">
         <div class="landing-center">
           <h2>{{ t.buyTitle }}</h2>
@@ -114,7 +124,7 @@
       </div>
     </section>
 
-    <section class="landing-section landing-gradient" id="como-funciona">
+    <section class="landing-section landing-gradient landing-parallax" id="como-funciona">
       <div class="landing-shell">
         <div class="landing-center">
           <h2>{{ t.howTitle }}</h2>
@@ -266,7 +276,7 @@ const text = {
     whatCard3Title: 'Impacte local',
     whatCard3Text: 'Dones suport a la gent del teu entorn.',
     buyTitle: 'Compra diferent. Compra local.',
-    buySubtitle: 'Menys soroll, mes confiança. Descobreix productes fets a prop de tu.',
+    buySubtitle: 'Menys soroll, mes confianÃ§a. Descobreix productes fets a prop de tu.',
     buyCard1Title: 'Prop de tu',
     buyCard1Text: 'Troba productes fets a la teua ciutat.',
     buyCard2Title: 'Mes huma',
@@ -281,7 +291,7 @@ const text = {
     how1Title: 'Registra t',
     how1Text: 'Crea el teu compte en menys d un minut.',
     how2Title: 'Explora o publica',
-    how2Text: 'Compra productes propers o comença a vendre els teus.',
+    how2Text: 'Compra productes propers o comenÃ§a a vendre els teus.',
     how3Title: 'Connecta amb la teua ciutat',
     how3Text: 'Dona suport a l economia local de manera directa.',
     odsTitle: 'Compromis amb l entorn',
@@ -351,3 +361,6 @@ const text = {
 
 const t = computed(() => text[lang.value]);
 </script>
+
+
+

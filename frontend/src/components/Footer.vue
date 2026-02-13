@@ -23,7 +23,10 @@
         <RouterLink class="footer__link" to="/info">Que es TerretaShop</RouterLink>
         <RouterLink class="footer__link" to="/info">Como funciona</RouterLink>
         <RouterLink class="footer__link" to="/info">Sostenibilidad (ODS)</RouterLink>
-        <RouterLink class="footer__link" to="/info">Tutorial</RouterLink>
+        <a class="footer__link" href="/assets/tutorial.pdf" download>
+          Tutorial (PDF)
+          <i class="bi bi-download" aria-hidden="true"></i>
+        </a>
         <RouterLink class="footer__link" to="/info">Contacto</RouterLink>
       </div>
 
