@@ -72,3 +72,13 @@
   }
 }
 
+@media (max-width: 700px) {
+  #map {
+    height: 48vh;
+    min-height: 300px;
+  }
+  .coords-card {
+    padding: 10px;
+  }
+}
+

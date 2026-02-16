@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="page">
     <div class="block-perfil-publico">
       <div v-if="errorText" class="card" style="grid-column: 1 / -1">
@@ -54,7 +54,7 @@
 
             <div class="info-row">
               <div class="info-label">Valoracion</div>
-              <div class="info-value">{{ valoracionText }}</div>
+              <div class="info-value">{{ valoracionText }} ðŸŠ</div>
             </div>
 
             <div class="actions-row">
@@ -104,14 +104,14 @@
                   <span :class="Number(p.stock) > 0 ? 'stock-ok' : 'stock-out'">
                     {{ Number(p.stock) > 0 ? 'En stock' : 'Fuera de stock' }}
                   </span>
-                  <span class="producto-meta__sep">·</span>
+                  <span class="producto-meta__sep">&middot;</span>
                   Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
                 </div>
               </div>
 
               <div class="producto-actions">
                 <div class="producto-precio producto-precio--right">{{ formatPrice(p.precio) }}</div>
-                <button class="btn" type="button" disabled>Ver detalles</button>
+                <RouterLink class="btn" :to="`/producto/${p.id}`">Ver detalles</RouterLink>
               </div>
             </article>
           </div>
@@ -124,7 +124,7 @@
 <script setup>
 import axios from 'axios';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
 import { useAuthStore } from '@/stores/auth.js';
 
@@ -153,6 +153,7 @@ const sendingMessage = ref(false);
 const valoracionText = ref('-');
 
 let map = null;
+let markerIcon = null;
 let markers = [];
 
 function goBack() {
@@ -172,7 +173,7 @@ function resolveImageSrc(value) {
 function formatPrice(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} €`;
+  return `${n.toFixed(2)} \u20AC`;
 }
 
 function formatStock(stock, tipo) {
@@ -289,7 +290,14 @@ async function createMap() {
       attribution: '',
     }).addTo(map);
 
-    // Leaflet a veces necesita recalcular tamaño al estar en grids
+    markerIcon = L.icon({
+      iconUrl: '/assets/pin_sin_fondo.png',
+      iconSize: [30, 40],
+      iconAnchor: [15, 40],
+      popupAnchor: [0, -34],
+    });
+
+    // Leaflet a veces necesita recalcular tamaÃ±o al estar en grids
     try {
       setTimeout(() => {
         try {
@@ -335,7 +343,7 @@ function paintPoints() {
     const lat = Number(p && p.lat);
     const lng = Number(p && p.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-    const m = L.marker([lat, lng]).addTo(map);
+    const m = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
     if (p && p.descripcion) {
       try {
         m.bindPopup(String(p.descripcion));
@@ -502,296 +510,9 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
-.block-perfil-publico {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
-}
 
-.card {
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: #fff;
-  padding: 18px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
 
-.card-title {
-  margin: 0 0 12px;
-  font-size: 16px;
-  font-weight: 700;
-}
 
-.muted {
-  color: #6b7280;
-  font-size: 14px;
-}
 
-.header {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
 
-.header__left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
 
-.avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff6a00, #f59e0b);
-  object-fit: cover;
-}
-
-.nick {
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.name {
-  color: #6b7280;
-  font-size: 13px;
-  margin-top: 2px;
-}
-
-.btn {
-  border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.btn-primary {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
-}
-
-.actions-row {
-  margin-top: 14px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.two-cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-.card-info {
-  /* Para poder “pegar” el botón abajo dentro de la caja */
-  display: flex;
-  flex-direction: column;
-}
-
-.card-info .actions-row {
-  /* Empuja el botón al final de la tarjeta (abajo) */
-  margin-top: auto;
-  padding-top: 14px;
-}
-
-.info-row {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 10px;
-  padding: 10px 0;
-  border-top: 1px solid rgba(2, 6, 23, 0.06);
-}
-
-.info-row:first-of-type {
-  border-top: 0;
-  padding-top: 0;
-}
-
-.info-label {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.info-value {
-  font-weight: 600;
-  color: #111827;
-  word-break: break-word;
-}
-
-.puntos-card {
-  grid-column: 1 / -1;
-}
-
-.puntos-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.map {
-  height: 320px;
-  border-radius: 12px;
-  border: 1px solid rgba(2, 6, 23, 0.08);
-  overflow: hidden;
-  margin-top: 12px;
-}
-
-.puntos-lista {
-  margin: 10px 0 0;
-  padding-left: 18px;
-  color: #374151;
-  font-size: 14px;
-}
-
-.puntos-item {
-  margin: 4px 0;
-}
-
-.productos-card {
-  grid-column: 1 / -1;
-}
-
-.productos-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.productos-grid {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.producto {
-  border: 1px solid rgba(2, 6, 23, 0.08);
-  border-radius: 14px;
-  background: #fff;
-  padding: 12px;
-  display: grid;
-  grid-template-columns: 140px 1fr 160px;
-  gap: 12px;
-  /* Hacemos que las 3 columnas ocupen el mismo alto */
-  align-items: stretch;
-}
-
-.producto-img {
-  width: 140px;
-  height: 96px;
-  border-radius: 12px;
-  object-fit: cover;
-  background: #f3f4f6;
-  border: 1px solid rgba(2, 6, 23, 0.06);
-}
-
-.producto-body {
-  padding: 0;
-}
-
-.producto-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-}
-
-.producto-nombre {
-  font-weight: 800;
-}
-
-.producto-precio {
-  background: var(--primary-weak);
-  border: 1px solid var(--primary-border);
-  color: var(--primary-text);
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-weight: 800;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.producto-precio--right {
-  /* El precio va en la columna derecha, encima del botón */
-  width: fit-content;
-}
-
-.producto-desc {
-  margin-top: 8px;
-  color: #4b5563;
-  font-size: 13px;
-  min-height: 34px;
-}
-
-.producto-meta {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #6b7280;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.producto-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.producto-meta__sep {
-  opacity: 0.6;
-}
-
-.stock-ok {
-  color: #16a34a;
-  font-weight: 800;
-}
-
-.stock-out {
-  color: #dc2626;
-  font-weight: 800;
-}
-
-@media (max-width: 1000px) {
-  .two-cols {
-    grid-template-columns: 1fr;
-  }
-  .producto {
-    grid-template-columns: 120px 1fr;
-    grid-template-rows: auto auto;
-  }
-  .producto-actions {
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 650px) {
-  .producto {
-    grid-template-columns: 1fr;
-  }
-  .producto-img {
-    width: 100%;
-    height: 170px;
-  }
-  .producto-actions {
-    justify-content: flex-start;
-  }
-}
-</style>

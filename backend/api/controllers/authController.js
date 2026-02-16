@@ -50,7 +50,11 @@ export const login = async (req, res, next) => {
     );
 
     // guardamos en la cookie el token
-    res.cookie('access_token', token, getCookieOptions(req));
+    res.cookie('access_token', token, {
+      httpOnly: true, // La cookie solo viaja por http al servidor
+      sameSite: 'strict', // Controla cuándo se envía la cookie si la petición viene de otra web
+      signed: true, // La firma de la cookie, para comprobar que es la misma cookie
+    });
 
     return res.json({
       message: 'Login correct',

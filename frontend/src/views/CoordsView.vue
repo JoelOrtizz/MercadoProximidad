@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="page">
     <h1>Selecciona tu ubicacion</h1>
 
@@ -59,6 +59,8 @@ const blockedBecauseAlreadyHasCoords = ref(false);
 
 let map = null;
 let marker = null;
+let markerIcon = null;
+const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const isEditMode = computed(() => route.query?.edit === '1');
@@ -120,7 +122,7 @@ async function setSelected(lat, lng) {
   if (marker) {
     marker.setLatLng([lat, lng]);
   } else {
-    marker = L.marker([lat, lng]).addTo(map);
+    marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
   }
 
   addressText.value = 'Buscando direccion...';
@@ -140,10 +142,17 @@ async function createMap() {
   }
 
   // Tavernes de la Valldigna (Safor)
-  map = L.map('map').setView([39.0717, -0.2668], 13);
+  map = L.map('map').setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '',
   }).addTo(map);
+
+  markerIcon = L.icon({
+    iconUrl: '/assets/pin_sin_fondo.png',
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
+    popupAnchor: [0, -34],
+  });
 
   map.on('click', async (e) => {
     const lat = e?.latlng?.lat;
@@ -154,16 +163,33 @@ async function createMap() {
 }
 
 function myLocation() {
-  if (!('geolocation' in navigator)) return;
   if (!map) return;
+  toast.show('Localizando tu ubicacion...', 'info', 15000);
+  if (!('geolocation' in navigator)) {
+    map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+    setSelected(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+    toast.warning('No se pudo localizar. Usando predeterminadas.');
+    return;
+  }
 
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
+    async (pos) => {
       const { latitude, longitude } = pos.coords;
-      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+        await setSelected(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+        toast.warning('No se pudo localizar. Usando predeterminadas.');
+        return;
+      }
       map.setView([latitude, longitude], 14);
+      await setSelected(latitude, longitude);
+      toast.success('Ubicacion detectada.');
     },
-    () => {},
+    async () => {
+      map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+      await setSelected(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+      toast.warning('No se pudo localizar. Usando predeterminadas.');
+    },
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
   );
 }
@@ -193,6 +219,7 @@ onMounted(async () => {
   }
 
   await createMap();
+  await myLocation();
 });
 
 onBeforeUnmount(() => {
@@ -203,3 +230,10 @@ onBeforeUnmount(() => {
   marker = null;
 });
 </script>
+
+
+
+
+
+
+

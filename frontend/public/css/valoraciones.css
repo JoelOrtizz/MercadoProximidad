@@ -173,3 +173,20 @@
   gap: 12px;
   margin-top: 24px;
 }
+<<<<<<< HEAD
+=======
+
+@media (max-width: 700px) {
+  .item-card {
+    padding: 16px;
+  }
+  .stars-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5

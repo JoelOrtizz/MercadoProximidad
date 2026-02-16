@@ -12,25 +12,121 @@ import MensajesView from './views/MensajesView.vue';
 import ValoracionesView from './views/ValoracionesView.vue';
 import PerfilUsuarioView from './views/PerfilUsuarioView.vue';
 import NotificacionesView from './views/NotificacionesView.vue';
+<<<<<<< HEAD
+=======
+import LandingView from './views/LandingView.vue';
+import LegalView from './views/LegalView.vue';
+import ContactoView from './views/ContactoView.vue';
+import ProductoView from './views/ProductoView.vue';
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 
 const router = createRouter({
   history: createWebHistory(),
+  scrollBehavior(to) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        top: 0,
+        behavior: 'smooth',
+      };
+    }
+    return { top: 0 };
+  },
   routes: [
+<<<<<<< HEAD
     { path: '/', redirect: '/comprar' },
     { path: '/comprar', component: ComprarView, meta: { css: '/css/comprar.css' } },
     { path: '/vender', component: VenderView, meta: { css: '/css/vender.css' } },
     { path: '/perfil', component: PerfilView, meta: { css: '/css/perfil.css' } },
+=======
+    { path: '/', component: LandingView, meta: { css: '/css/landing.css', hideNav: true } },
+    {
+      path: '/comprar',
+      component: ComprarView,
+      meta: {
+        css: '/css/comprar.css',
+        header: {
+          title: 'Compra local, sin intermediarios',
+          subtitle: 'Productos cercanos, trato directo y confianza en tu ciudad.',
+          ctaText: 'Publicar producto',
+          ctaTo: '/vender',
+        },
+      },
+    },
+    {
+      path: '/vender',
+      component: VenderView,
+      meta: {
+        css: '/css/vender.css',
+        header: {
+          title: 'Vende lo tuyo, sin complicaciones',
+          subtitle: 'Muestra tus productos y conecta con gente cercana.',
+          ctaText: 'Ver productos',
+          ctaTo: '/comprar',
+        },
+      },
+    },
+    {
+      path: '/perfil',
+      component: PerfilView,
+      meta: {
+        css: '/css/perfil.css',
+        header: {
+          title: 'Tu perfil, tu espacio',
+          subtitle: 'Gestiona tus datos, productos y puntos de entrega.',
+          ctaText: 'Ir a reservas',
+          ctaTo: '/reservas',
+        },
+      },
+    },
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
     { path: '/login', component: LoginView, meta: { css: '/css/login.css' } },
     { path: '/registro', component: RegistroView, meta: { css: '/css/registro.css' } },
     { path: '/coords', component: CoordsView, meta: { css: '/css/seleccionarCords.css' } },
     { path: '/puntos-entrega', component: PuntosEntregaView, meta: { css: '/css/puntosEntrega.css' } },
+<<<<<<< HEAD
     { path: '/reservas', component: ReservasView, meta: { css: '/css/reservas.css' } },
     { path: '/mensajes', component: MensajesView, meta: { css: '/css/mensajes.css' } },
+=======
+    {
+      path: '/reservas',
+      component: ReservasView,
+      meta: {
+        css: '/css/reservas.css',
+        header: {
+          title: 'Reservas claras y ordenadas',
+          subtitle: 'Compras y ventas en un solo lugar.',
+          ctaText: 'Abrir mensajes',
+          ctaTo: '/mensajes',
+        },
+      },
+    },
+    {
+      path: '/mensajes',
+      component: MensajesView,
+      meta: {
+        css: '/css/mensajes.css',
+        header: {
+          title: 'Mensajes directos',
+          subtitle: 'Habla con compradores y vendedores en un clic.',
+          ctaText: 'Ver reservas',
+          ctaTo: '/reservas',
+        },
+      },
+    },
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
     { path: '/mensajes/:id', component: MensajesView, meta: { css: '/css/mensajes.css' } },
     { path: '/valoraciones', component: ValoracionesView, meta: { css: '/css/valoraciones.css' } },
     { path: '/notificaciones', component: NotificacionesView, meta: { css: '/css/notificaciones.css' } },
     { path: '/usuario/:id', component: PerfilUsuarioView, meta: { css: '/css/perfilUsuario.css' } },
+<<<<<<< HEAD
     { path: '/:pathMatch(.*)*', redirect: '/comprar' },
+=======
+    { path: '/legal', component: LegalView, meta: { css: '/css/legal.css', hideNav: true } },
+    { path: '/contacto', component: ContactoView, meta: { css: '/css/contacto.css', hideNav: true } },
+    { path: '/producto/:id', component: ProductoView, meta: { css: '/css/producto.css' } },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
   ],
 });
 

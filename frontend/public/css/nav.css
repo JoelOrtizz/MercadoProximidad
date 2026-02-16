@@ -12,6 +12,10 @@
   --content-width: 1400px;
   /* Altura aproximada del navbar (para colocar toast/modal justo debajo) */
   --nav-height: 78px;
+<<<<<<< HEAD
+=======
+  --elevated-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 
   /* =========================================================
      Bootstrap (quitar azules)
@@ -53,6 +57,9 @@ a:hover {
 }
 
 .nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   padding: 12px 0;
   border-bottom: 1px solid #eaeaea;
   background: #fff;
@@ -97,8 +104,9 @@ a:hover {
   display: flex;
   gap: 10px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex: 1;
+  flex-wrap: wrap;
 }
 
 .nav__pill {
@@ -111,6 +119,15 @@ a:hover {
   text-decoration: none;
   min-width: 92px;
   text-align: center;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav__pill:hover {
+  border-color: var(--primary-border);
+  background: var(--primary-weak);
+  color: var(--primary-text);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
 }
 
 .nav__pill.is-active {
@@ -123,6 +140,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-left: auto;
 }
 
 .nav__icon {
@@ -136,6 +154,16 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
+=======
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.nav__icon:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-border);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 }
 
 .nav__badge {
@@ -163,6 +191,13 @@ a:hover {
   color: #fff;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.nav__cta:hover {
+  transform: translateY(-1px);
+  background: #e65e00;
+  box-shadow: 0 8px 16px rgba(255, 106, 0, 0.25);
 }
 
 .nav__user {
@@ -173,6 +208,13 @@ a:hover {
   color: var(--primary-text);
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.nav__user:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-border);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
 }
 
 .nav__user.is-active {
@@ -184,4 +226,136 @@ a:hover {
   max-width: var(--content-width);
   margin: 0 auto;
   padding: 24px;
+}
+
+/* ---------- Header global (logo + frase) ---------- */
+
+.header-global {
+  background: #fff;
+}
+
+.header-top {
+  border-bottom: 1px solid #f0e6dd;
+  background: linear-gradient(135deg, #fff6ef 0%, #ffffff 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+
+.header-top__inner {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.header-top__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.header-top__brand img {
+  width: 120px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+.header-top__tagline {
+  font-size: 20px;
+  color: #4f4f4f;
+  font-weight: 700;
+  text-align: center;
+}
+
+.header-top__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav__menu {
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .header-top__inner {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .header-top__tagline {
+    font-size: 16px;
+  }
+  .header-top__actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 1024px) {
+  .nav__inner {
+    flex-wrap: wrap;
+  }
+  .nav__brand {
+    order: 1;
+  }
+  .nav__actions {
+    order: 2;
+  }
+  .nav__menu {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .nav__pill {
+    min-width: 0;
+    flex: 1 1 140px;
+  }
+}
+
+@media (max-width: 700px) {
+  .nav {
+    padding: 10px 0;
+  }
+  .nav__inner {
+    padding: 0 14px;
+    gap: 10px;
+  }
+  .nav__logo-img {
+    height: 42px;
+  }
+  .nav__pill {
+    font-size: 13px;
+    padding: 8px 10px;
+    min-width: 0;
+  }
+  .nav__actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .nav__cta,
+  .nav__user {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-top__inner {
+    padding: 14px 16px;
+  }
+  .header-top__brand img {
+    width: 96px;
+    height: 58px;
+  }
+  .header-top__tagline {
+    font-size: 15px;
+  }
 }

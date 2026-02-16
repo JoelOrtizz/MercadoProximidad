@@ -30,6 +30,30 @@
   border-radius: 12px;
   background: #fff;
   padding: 16px;
+<<<<<<< HEAD
+=======
+  box-shadow: var(--elevated-shadow);
+}
+
+/* Profundidad global para cajas comunes (formularios, panels, tarjetas, etc.) */
+:where(
+  .auth-card,
+  .coords-card,
+  .contact-card,
+  .item-card,
+  .landing-card,
+  .landing-image-card,
+  .product-detail__card,
+  .map-panel,
+  .comment-box,
+  .card-info,
+  .productos-card,
+  .puntos-card
+) {
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: var(--elevated-shadow);
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 }
 
 .subtitle {
@@ -77,6 +101,27 @@
   padding: 10px 12px;
   background: #fff;
   font-family: inherit;
+<<<<<<< HEAD
+=======
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:hover {
+  border-color: var(--primary-border);
+  box-shadow: 0 0 0 0.15rem rgba(255, 106, 0, 0.12);
+}
+
+/* ---------- Mapas ---------- */
+
+.leaflet-marker-icon[src*="pin_sin_fondo.png"] {
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+  transition: transform 0.2s ease, filter 0.2s ease;
+  transform-origin: 50% 100%;
+}
+
+.leaflet-marker-icon.leaflet-interactive[src*="pin_sin_fondo.png"]:hover {
+  filter: drop-shadow(0 0 10px rgba(255, 106, 0, 0.6)) drop-shadow(0 10px 16px rgba(0, 0, 0, 0.35));
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 }
 
 .input:focus {
@@ -99,6 +144,16 @@
   padding: 10px 14px;
   cursor: pointer;
   font-family: inherit;
+<<<<<<< HEAD
+=======
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.btn:not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info):not(.btn-secondary):not(.btn-light):not(.btn-dark):not(.btn-outline-primary):not(.btn-outline-success):not(.btn-outline-danger):not(.btn-outline-warning):not(.btn-outline-info):not(.btn-outline-secondary):not(.btn-outline-light):not(.btn-outline-dark):hover {
+  transform: translateY(-1px);
+  border-color: var(--primary-border);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 }
 
 .btn:disabled {
@@ -139,6 +194,17 @@
   cursor: pointer;
   color: #2a2a2a;
   font-family: inherit;
+<<<<<<< HEAD
+=======
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.chip:hover {
+  border-color: var(--primary-border);
+  background: var(--primary-weak);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 }
 
 .chip:disabled {
@@ -194,3 +260,19 @@
   color: #6c6c6c;
   font-size: 13px;
 }
+<<<<<<< HEAD
+=======
+
+@media (max-width: 700px) {
+  .page {
+    padding: 16px;
+  }
+  .products-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .actions {
+    flex-wrap: wrap;
+  }
+}
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5

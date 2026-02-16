@@ -1,10 +1,6 @@
 <template>
   <header class="nav">
     <div class="nav__inner">
-      <RouterLink class="nav__brand" to="/comprar">
-        <img class="nav__logo-img" src="/assets/logo.jpeg" alt="TerretaShop" />
-      </RouterLink>
-
       <nav class="nav__menu" aria-label="Principal">
         <RouterLink class="nav__pill" :class="{ 'is-active': isComprar }" to="/comprar">Comprar</RouterLink>
         <RouterLink class="nav__pill" :class="{ 'is-active': isVender }" to="/vender">Vender</RouterLink>
@@ -16,6 +12,7 @@
       </nav>
 
       <div class="nav__actions">
+<<<<<<< HEAD
         <button
           class="nav__icon"
           type="button"
@@ -27,19 +24,17 @@
           <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
         </button>
 
+=======
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
         <button
-          v-if="isLoggedIn"
-          class="nav__user"
-          :class="{ 'is-active': isPerfil }"
+          class="nav__icon"
           type="button"
-          title="Perfil"
-          @click="router.push('/perfil')"
+          title="Notificaciones"
+          aria-label="Notificaciones"
+          @click="router.push('/notificaciones')"
         >
-          {{ nickname }}
-        </button>
-
-        <button class="nav__cta" type="button" @click="handleAuthClick">
-          {{ isLoggedIn ? 'Logout' : 'Login' }}
+          &#128276;
+          <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
         </button>
       </div>
     </div>
@@ -58,23 +53,16 @@ const route = useRoute();
 const router = useRouter();
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
+<<<<<<< HEAD
 const nickname = computed(() => auth.user?.nickname || localStorage.getItem('user_nickname') || '');
+=======
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 const unreadCount = computed(() => notificaciones.unreadCount || 0);
 
 const isComprar = computed(() => route.path === '/comprar' || route.path === '/');
 const isVender = computed(() => route.path === '/vender');
-const isPerfil = computed(() => route.path === '/perfil' || route.path === '/puntos-entrega');
 const isReservas = computed(() => route.path === '/reservas');
 const isMensajes = computed(() => route.path.startsWith('/mensajes'));
 const isValoraciones = computed(() => route.path === '/valoraciones');
-
-async function handleAuthClick() {
-  if (isLoggedIn.value) {
-    await auth.logout();
-    router.push('/login');
-    return;
-  }
-  router.push('/login');
-}
 </script>
 

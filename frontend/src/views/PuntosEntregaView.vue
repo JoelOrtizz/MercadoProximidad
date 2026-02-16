@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="page">
     <div class="header">
       <div>
@@ -59,16 +59,20 @@ import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
 
 const auth = useAuthStore();
 const router = useRouter();
+const toast = useToastStore();
 
 const points = ref([]);
 const statusText = ref('');
 const saving = ref(false);
 const MAX_PUNTOS = 5;
+const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 let map = null;
+let markerIcon = null;
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
@@ -146,10 +150,17 @@ function fitToPoints() {
 async function createMap() {
   const L = await loadLeaflet();
 
-  map = L.map('map').setView([39.0717, -0.2668], 13);
+  map = L.map('map').setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '',
   }).addTo(map);
+
+  markerIcon = L.icon({
+    iconUrl: '/assets/pin_sin_fondo.png',
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
+    popupAnchor: [0, -34],
+  });
 
   map.on('click', async (e) => {
     const lat = e?.latlng?.lat;
@@ -160,16 +171,30 @@ async function createMap() {
 }
 
 function myLocation() {
-  if (!('geolocation' in navigator)) return;
   if (!map) return;
+  toast.show('Localizando tu ubicacion...', 'info', 15000);
+
+  if (!('geolocation' in navigator)) {
+    map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+    toast.warning('No se pudo localizar. Usando predeterminadas.');
+    return;
+  }
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const { latitude, longitude } = pos.coords;
-      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+        toast.warning('No se pudo localizar. Usando predeterminadas.');
+        return;
+      }
       map.setView([latitude, longitude], 14);
+      toast.success('ubicacion detectada.');
     },
-    () => {},
+    () => {
+      map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+      toast.warning('No se pudo localizar. Usando predeterminadas.');
+    },
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
   );
 }
@@ -182,7 +207,7 @@ async function addPoint(lat, lng) {
 
   setStatus('');
   const L = window.L;
-  const marker = L.marker([lat, lng]).addTo(map);
+  const marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
   const point = reactive({ lat, lng, marker, descripcion: '', displayName: '' });
   points.value.push(point);
   fitToPoints();
@@ -252,7 +277,7 @@ async function loadMyPuntosEntrega() {
       const lat = Number(r?.lat);
       const lng = Number(r?.lng);
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      const marker = L.marker([lat, lng]).addTo(map);
+      const marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
       points.value.push({
         lat,
         lng,
@@ -274,6 +299,7 @@ onMounted(async () => {
   await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await createMap();
+  myLocation();
   await loadMyPuntosEntrega();
 });
 
@@ -285,3 +311,7 @@ onBeforeUnmount(() => {
   points.value = [];
 });
 </script>
+
+
+
+

@@ -22,7 +22,7 @@ export function requireAuth(req, res, next) {
     // verifica que el token tenga la clave secreta
     const payload = jwt.verify(token, jwtSecret);
     // saca el id del token
-    req.user = payload;
+    req.user = payload; // id + nickname
     return next();
   } catch (err) {
     // Token mal o expirado -> 401 sin pasar por el handler global (evitamos spam de logs)

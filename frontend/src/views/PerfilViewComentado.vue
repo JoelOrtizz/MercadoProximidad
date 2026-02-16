@@ -478,11 +478,11 @@ function resolveImageSrc(value) {
   return `/uploads/${encodeURIComponent(value)}`;
 }
 
-function formatPrice(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} €`;
-}
+  function formatPrice(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '-';
+    return `${n.toFixed(2)} \u20AC`;
+  }
 
 function formatStock(stock, unidad) {
   const s = stock == null ? '-' : String(stock);
