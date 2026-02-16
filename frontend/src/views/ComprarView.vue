@@ -185,15 +185,11 @@ const reservaCantidad = reactive({}); // { [id_producto]: number }
 const reservaPuntoId = reactive({}); // { [id_producto]: string }
 const reservandoLoadingId = ref(null);
 
+// funcion para saber si hay usuario logeado
 const isLoggedIn = () => Boolean(auth.user?.id);
 
-// ===============================
-// CARGA REACTIVA (busqueda / filtros)
-// ===============================
-
-// Timer simple para no llamar al backend en cada tecla
 let timerBusqueda = null;
-
+// vigila cambios en cualquiera de estas variables (filtros o ubicacion)
 watch(
   () => [
     selectedCategory.value,
@@ -203,48 +199,59 @@ watch(
     auth.user ? auth.user.lng : null,
   ],
   () => {
-    // Cancelamos el timer anterior
+    // si el usuario sigue escribiendo, cancelamos la petición 
     if (timerBusqueda) {
       clearTimeout(timerBusqueda);
       timerBusqueda = null;
     }
-
-    // Esperamos un poco a que el usuario termine de escribir
+    // Esperamos 400ms antes de llamar al rervicio loadProducts 
+    // Esto evita saturar al servidor con una peticion por cada letra escrita
     timerBusqueda = setTimeout(() => {
       loadProducts();
     }, 400);
   }
 );
 
+// FUNCIONES DE FORMATO
+
+// si la imagen empieza por http, la usa tal cual. Si no, le añade la ruta base '/uploads/'
 function resolveImageSrc(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
   return `/uploads/${encodeURIComponent(value)}`;
 }
 
+// Formate un numero como precio (10.50 €)
 function formatPrice(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '-';
   return `${n.toFixed(2)} €`;
 }
 
+// cambia cantidad y unidad
 function formatStock(stock, tipo) {
   const s = stock == null ? '-' : String(stock);
   const t = tipo ? String(tipo) : '';
   return t ? `${s} ${t}` : s;
 }
 
+// FILTROS
+
+// cambia la categoria seleccionada. El watch lo detecta y recargará la pagina
 function selectCategory(value) {
   selectedCategory.value = value;
   loadProducts();
 }
-
+// resetea los filtros a sus valores por defecto
 function clearFilters() {
   selectedCategory.value = 'all';
   searchText.value = '';
   loadProducts();
 }
 
+// CARGA DE DATOS
+
+// llama a la ruta categorias del backend
 async function loadCategorias() {
   try {
     const res = await axios.get('/categorias');
@@ -254,25 +261,39 @@ async function loadCategorias() {
   }
 }
 
+// devuelve los puntos de entrega de un vendedor especifico
 function puntosEntregaDeVendedor(idVendedor) {
+  // accedemos a la variable reactiva de puntos de entrega usando el id como clave
   const list = puntosPorVendedor[String(idVendedor)];
+  // si hay un array lo devuelve si no lo envia vacio
   return Array.isArray(list) ? list : [];
 }
-
+// Se ejecuta cuando el usuario hace clic o foco en un input de reserva. Asegura que los campos no estén null o vacíos.
 function ensureReservaDefaults(p) {
+  // convertimos el id del producto a string para usarlo en el diccionario
   const pid = String(p.id);
+  // si no hay cantidad definida para este rpoducto pone 1 por defecto
   if (reservaCantidad[pid] == null) reservaCantidad[pid] = 1;
-
+  // obtemos los puntos de entrega del vendedor
   const puntos = puntosEntregaDeVendedor(p.id_vendedor);
+  // si no hay punto seleccionado para este producto
   if (reservaPuntoId[pid] == null) {
+    // seleccionaos automaticamente el primero de la lista si existe
+    // Si la lista está vacía, ponemos cadena vacía ''.
     reservaPuntoId[pid] = puntos.length ? String(puntos[0].id) : '';
   }
 }
-
+// Esta es una función de optimización. Carga los puntos de entrega de todos los vendedores que aparecen en pantalla de una sola vez.
 async function preloadPuntosEntrega(productsList) {
+  // extrae los id de los vendedores .map crea una lista solo con los id del vendedor
+  // .filter(boolean) elimina nulos o undefined
+  // newSet() elimina duplicados (si hay 10 productos del mismo vendedor solo guarda un id)
+  // convierte el set en un array otra vez
   const vendedores = Array.from(new Set((productsList || []).map((p) => String(p?.id_vendedor)).filter(Boolean)));
+  // solo cargamos los que tiene en la memoria(puntosPorVendedor)
   const toLoad = vendedores.filter((id) => puntosPorVendedor[id] == null);
 
+  // permite lanzar todas las peticiones a la vez
   await Promise.all(
     toLoad.map(async (idV) => {
       try {
@@ -283,7 +304,8 @@ async function preloadPuntosEntrega(productsList) {
       }
     })
   );
-
+  //Una vez cargados los datos, inicializamos los valores por defecto (cantidad 1, punto 0)
+  // para todos los productos de la lista.
   (productsList || []).forEach((p) => ensureReservaDefaults(p));
 }
 
@@ -293,9 +315,12 @@ async function loadProducts() {
 
   try {
     const params = {};
+    // añadimos el filtro de categoria si no es all
     if (selectedCategory.value !== 'all') params.category = selectedCategory.value;
+    // si el usuario escribió algo se añade al filtro
     if (searchText.value) params.text = searchText.value;
 
+    // geolocalizacion / validacion
     const dist = Number.parseFloat(String(distanceKm.value));
     const latRaw = auth.user?.lat;
     const lngRaw = auth.user?.lng;
@@ -306,13 +331,13 @@ async function loadProducts() {
       params.lng = lng;
       params.distance = dist;
     }
-
+    // peticion al backend
     const res = await axios.get('/productos', { params });
     const list = Array.isArray(res.data) ? res.data : [];
 
     products.value = list;
     subtitle.value = list.length ? `${list.length} producto(s)` : 'No hay productos publicados todavia.';
-
+    // llamamos a la precarga de los puntos
     await preloadPuntosEntrega(list);
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
@@ -321,6 +346,7 @@ async function loadProducts() {
   }
 }
 
+// validacion de si puede reservar
 function canReserve(p) {
   if (!isLoggedIn()) return false;
   if (!p) return false;
@@ -329,13 +355,15 @@ function canReserve(p) {
   return Number.isFinite(stock) ? stock > 0 : true;
 }
 
+
 async function crearReserva(p) {
+  // validacion
   if (!isLoggedIn()) {
     toast.warning('Tienes que iniciar sesion');
     router.push('/login');
     return;
   }
-
+  // aseguramos que los valores internos funcionan
   ensureReservaDefaults(p);
   const pid = String(p.id);
 
@@ -350,8 +378,10 @@ async function crearReserva(p) {
     return;
   }
 
+  // guardamos el id del producto
   reservandoLoadingId.value = p.id;
   try {
+    // peticion al backend
     await axios.post('/reservas', {
       id_producto: p.id,
       cantidad,
@@ -369,7 +399,8 @@ async function crearReserva(p) {
 }
 
 onMounted(async () => {
-  await auth.ensureReady();
+  // espera a que pina verifique si hay token
+  await auth.ensureReady(); 
   loadCategorias();
   loadProducts();
 });
