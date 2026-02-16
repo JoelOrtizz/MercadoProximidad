@@ -16,7 +16,7 @@ Impacto esperado:
 - Endpoints para seguir, dejar de seguir y listar seguidos.
 - Boton de seguir en perfil publico.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tabla `seguimientos` con `id_seguidor`, `id_vendedor`, `fecha_creacion` y `UNIQUE`.
 - Por que: no permitir duplicados y guardar relaciones.
@@ -35,7 +35,7 @@ CREATE TABLE seguimientos (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Modelo
 Crear `seguimientosModel.js` en `backend/api/models` con funciones para:
 - Crear seguimiento.
@@ -65,7 +65,7 @@ Registrar en `backend/api/app.js` con prefijo `/api/seguimientos`.
 - `frontend/src/views/PerfilUsuarioView.vue` para el boton Seguir.
 - Opcional: endpoint para productos de seguidos.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 1) Boton en perfil publico
 Modificar `frontend/src/views/PerfilUsuarioView.vue` para mostrar Seguir/Dejar de seguir.
 
@@ -89,14 +89,15 @@ await s.load();
 const siguiendo = s.isSiguiendo(vendedorId);
 ```
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Usuario sigue -> Front llama a `/api/seguimientos` -> Backend guarda -> Front actualiza estado.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tabla `seguimientos` creada.
 - Modelo, controlador y rutas creadas.
 - Boton visible en perfil publico.
 - Store conecta estado.
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Repetir flujo de datos y conexiones entre vistas y store.
+

@@ -16,7 +16,7 @@ Impacto esperado:
 - Endpoints para crear y validar cupon.
 - Ajuste del precio en reserva.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tabla `cupones` con `codigo`, `id_vendedor`, `porcentaje`, `activo`, `fecha_expiracion`.
 - Por que: guardar cupones por vendedor.
@@ -36,7 +36,7 @@ CREATE TABLE cupones (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Modelo
 Crear `cuponesModel.js` con funciones para:
 - Crear cupon.
@@ -65,7 +65,7 @@ Registrar en `backend/api/app.js` con prefijo `/api/cupones`.
 7) Archivos existentes a tocar
 - `backend/api/controllers/reservaController.js` para aplicar descuento en la reserva.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 1) Vista vendedor
 Modificar `frontend/src/views/VenderView.vue` para crear cupones.
 
@@ -87,14 +87,15 @@ await c.load();
 4) Router y CSS
 Si hay una vista nueva, registrar en `frontend/src/router.js` y crear CSS en `frontend/public/css`.
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Vendedor crea cupon -> Backend guarda -> Comprador aplica cupon -> Backend valida ->
 Reserva se guarda con descuento -> Front muestra precio final.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tabla `cupones` creada.
 - Modelo, controlador y rutas creadas.
 - Descuento aplicado en reservas.
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Definir bien el flujo de validacion y replicar el patron.
+

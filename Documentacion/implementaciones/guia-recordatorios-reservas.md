@@ -16,7 +16,7 @@ Impacto esperado:
 - Endpoints para crear y consultar recordatorios.
 - Notificaciones programadas.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tabla `recordatorios_reservas` con `id_reserva`, `fecha_recordatorio`, `enviado`.
 - Por que: guardar recordatorios y evitar duplicados.
@@ -33,7 +33,7 @@ CREATE TABLE recordatorios_reservas (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Modelo
 Crear `recordatoriosReservasModel.js` con funciones para:
 - Crear recordatorio.
@@ -60,7 +60,7 @@ Registrar en `backend/api/app.js` con prefijo `/api/recordatorios-reservas`.
 - `backend/api/controllers/reservaController.js` para crear recordatorio cuando se acepta reserva.
 - `backend/api/models/notificacionModel.js` para enviar notificacion.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 1) Vista
 Modificar `frontend/src/views/ReservasView.vue` para activar recordatorio.
 
@@ -82,14 +82,15 @@ await r.load();
 4) CSS
 Si es necesario, ajustar estilos en `frontend/public/css/reservas.css`.
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Usuario activa recordatorio -> Front llama a `/api/recordatorios-reservas` -> Backend guarda ->
 En la fecha se crea notificacion -> Front la muestra.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tabla `recordatorios_reservas` creada.
 - Modelo, controlador y rutas creadas.
 - Boton visible en reservas.
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Definir el evento y conectar con notificaciones.
+

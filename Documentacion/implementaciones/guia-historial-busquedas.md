@@ -16,7 +16,7 @@ Impacto esperado:
 - Endpoints para guardar, listar y borrar historial.
 - Bloque de historial en la vista de compra.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tabla `historial_busquedas` con `id_usuario`, `texto`, `id_categoria`, `fecha_creacion`.
 - Por que: registrar busquedas por usuario.
@@ -35,7 +35,7 @@ CREATE TABLE historial_busquedas (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Modelo de datos
 Crear `historialBusquedasModel.js` en `backend/api/models` con funciones para:
 - Insertar una busqueda.
@@ -64,7 +64,7 @@ Registrar en `backend/api/app.js` con prefijo `/api/historial-busquedas`.
 7) Archivos existentes a tocar
 - Opcional: en `backend/api/controllers/productController.js` puedes registrar la busqueda cuando se llama `GET /api/productos` con filtros.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 Objetivo: guardar busquedas y mostrarlas en la vista de compra.
 
 1) Vista principal
@@ -96,16 +96,17 @@ await h.load();
 4) CSS
 Si el bloque necesita estilos nuevos, anadirlos al CSS de comprar en `frontend/public/css/comprar.css`.
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Usuario busca -> Front llama a `/api/productos` y guarda en `/api/historial-busquedas` ->
 Backend registra -> Front lista historial -> Usuario repite busqueda con un clic.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tabla `historial_busquedas` creada.
 - Modelo, controlador y rutas creadas.
 - Registro en `backend/api/app.js`.
 - Bloque de historial visible en `ComprarView.vue`.
 - Store conectado (si se usa).
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Mantener el mismo flujo: BD -> modelo -> controlador -> rutas -> vista -> store -> CSS.
+

@@ -17,7 +17,7 @@ Impacto esperado:
 - Boton de favorito en listados y ficha de producto.
 - Una vista opcional para listar favoritos.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tabla `favoritos` con `id_usuario`, `id_producto`, `fecha_creacion`.
 - Por que: guardar la relacion usuario -> producto favorito.
@@ -35,7 +35,7 @@ CREATE TABLE favoritos (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Donde crear el modelo o acceso a datos
 Ahora ve a `backend/api/models` y crea `favoritosModel.js`.
 Usa el pool de `backend/api/config/db.js` igual que el resto de modelos.
@@ -124,7 +124,7 @@ app.use("/api/favoritos", favoritosRoutes);
 - Opcional: `backend/api/controllers/productController.js` y `backend/api/models/procutModel.js` para marcar si un producto ya es favorito.
 - Si tocas productos, asegurate de no romper el listado actual.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 Objetivo: que la vista nueva quede conectada igual que las actuales (router, CSS y llamadas al backend).
 
 1) Crear la vista nueva (si aplica)
@@ -210,11 +210,11 @@ const marcado = fav.isFavorito(producto.id);
 7) Navegacion visible
 Si quieres que sea accesible desde la UI, agrega un enlace en `frontend/src/components/NavBar.vue` o en `HeaderGlobal.vue`.
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Usuario marca favorito -> Front llama a `/api/favoritos` -> Backend valida -> BD guarda -> Front actualiza icono o lista.
 Si el usuario entra en su lista, el front llama a `GET /api/favoritos` y se renderiza el listado.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tabla `favoritos` creada en `init.sql`.
 - Modelo, controlador y rutas creadas.
 - Router registrado en `backend/api/app.js`.
@@ -223,6 +223,7 @@ Si el usuario entra en su lista, el front llama a `GET /api/favoritos` y se rend
 - Se probo con un usuario real logueado.
 - En `router.js` hay ruta y `meta.css` configurados.
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Repite el patron: BD -> modelo -> controlador -> rutas -> registro en app -> vista o componente -> router -> CSS.
 Si una parte no aplica (por ejemplo no hay vista nueva), indicalo para que nadie lo busque en vano.
+

@@ -16,7 +16,7 @@ Impacto esperado:
 - Endpoints para crear y asignar etiquetas.
 - Filtros nuevos en la compra.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tablas `etiquetas` y `productos_etiquetas`.
 - Por que: relacion muchos a muchos.
@@ -38,7 +38,7 @@ CREATE TABLE productos_etiquetas (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Modelo
 Crear `etiquetasModel.js` con funciones para:
 - Crear etiqueta.
@@ -67,7 +67,7 @@ Registrar en `backend/api/app.js` con prefijo `/api/etiquetas`.
 7) Archivos existentes a tocar
 - `backend/api/controllers/productController.js` y `backend/api/models/procutModel.js` para devolver etiquetas y filtrar.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 1) Vista vendedor
 Modificar `frontend/src/views/VenderView.vue` para seleccionar etiquetas al crear producto.
 
@@ -89,13 +89,14 @@ await e.load();
 4) CSS
 Si hace falta, ajustar estilos en `frontend/public/css/vender.css` y `frontend/public/css/comprar.css`.
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Vendedor asigna etiquetas -> Backend guarda -> Front lista etiquetas -> Usuario filtra -> Backend devuelve productos filtrados.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tablas `etiquetas` y `productos_etiquetas` creadas.
 - Modelo, controlador y rutas creadas.
 - Filtros visibles en comprar.
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Si hay tabla intermedia, definir bien la relacion y seguir el flujo normal.
+

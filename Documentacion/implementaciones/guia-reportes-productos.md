@@ -16,7 +16,7 @@ Impacto esperado:
 - Endpoints para crear y revisar reportes.
 - Vista de reportes para admin.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tabla `reportes_productos` con `id_producto`, `id_usuario`, `motivo`, `descripcion`, `estado`, `fecha_creacion`.
 - Por que: registrar reportes para revision.
@@ -37,7 +37,7 @@ CREATE TABLE reportes_productos (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Modelo
 Crear `reportesProductosModel.js` con funciones para:
 - Crear reporte.
@@ -66,7 +66,7 @@ Registrar en `backend/api/app.js` con prefijo `/api/reportes-productos`.
 7) Archivos existentes a tocar
 - Si hay logica de rol, reutilizarla desde `userModel` o `authController`.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 1) Boton en producto
 Modificar `frontend/src/views/ProductoView.vue` para abrir formulario de reporte.
 
@@ -89,14 +89,15 @@ await r.load();
 4) CSS
 Crear `frontend/public/css/reportes.css` si hay vista nueva.
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Usuario reporta -> Front llama a `/api/reportes-productos` -> Backend guarda ->
 Admin revisa en su vista -> Backend actualiza estado -> Front refleja cambios.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tabla `reportes_productos` creada.
 - Modelo, controlador y rutas creadas.
 - Vista admin disponible y protegida.
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Definir roles y replicar el patron de rutas y vistas.
+

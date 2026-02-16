@@ -16,7 +16,7 @@ Impacto esperado:
 - Endpoints para activar y desactivar alerta.
 - Notificaciones cuando un producto vuelve a tener stock.
 
-## Parte 1 — Cambios en la Base de Datos
+## Parte 1 - Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
 - Tipo de cambio: tabla `alertas_stock` con `id_usuario`, `id_producto`, `fecha_creacion`, `activa`.
 - Por que: registrar quien quiere aviso sobre un producto.
@@ -36,7 +36,7 @@ CREATE TABLE alertas_stock (
 );
 ```
 
-## Parte 2 — Cambios en el Backend
+## Parte 2 - Cambios en el Backend
 1) Modelo
 Crear `alertasStockModel.js` con funciones para:
 - Activar alerta.
@@ -68,7 +68,7 @@ Registrar en `backend/api/app.js` con prefijo `/api/alertas-stock`.
 - `backend/api/controllers/productController.js` para detectar cambio de stock (0 -> >0).
 - `backend/api/models/notificacionModel.js` para crear notificaciones.
 
-## Parte 3 — Cambios en el Frontend
+## Parte 3 - Cambios en el Frontend
 1) Boton en ficha
 Modificar `frontend/src/views/ProductoView.vue` para activar/desactivar la alerta.
 
@@ -92,15 +92,16 @@ const activa = a.isAlertaActiva(producto.id);
 4) CSS
 Si es necesario, ajustar estilos en `frontend/public/css/producto.css`.
 
-## Parte 4 — Como se conecta todo
+## Parte 4 - Como se conecta todo
 Usuario activa alerta -> Front llama a `/api/alertas-stock` -> Backend guarda ->
 Cuando el stock sube, se consultan alertas activas -> Se crean notificaciones -> Front las muestra.
 
-## Parte 5 — Checklist final
+## Parte 5 - Checklist final
 - Tabla `alertas_stock` creada.
 - Modelo, controlador y rutas creadas.
 - Boton visible en producto.
 - Notificacion enviada al volver stock.
 
-## Parte 6 — Como usar esta guia para cualquier otra implementacion
+## Parte 6 - Como usar esta guia para cualquier otra implementacion
 Definir el evento que dispara la alerta y conectar con notificaciones.
+
