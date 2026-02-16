@@ -1,5 +1,6 @@
 import pool from '../config/db.js';
 
+// errores
 const notFound = (message) => {
   const error = new Error(message);
   error.status = 404;
@@ -12,6 +13,7 @@ const forbidden = (message) => {
   return error;
 };
 
+// lista los chats que tiene cada usuario, incluye los datos del otro usuario
 export async function listChatsForUser(userId) {
   const uid = Number(userId);
 
@@ -44,17 +46,21 @@ export async function listChatsForUser(userId) {
   return rows;
 }
 
+// verifica si el usuario tiene permiso para ver un chat
 export async function assertUserInChat(chatId, userId) {
   const cid = Number(chatId);
   const uid = Number(userId);
-
+  // buscamos el solo los id de los participantes
   const [rows] = await pool.query('SELECT id_usuario_1, id_usuario_2 FROM chats WHERE id = ?', [cid]);
+  // si no tiene nada el chat no existe
   const chat = rows && rows[0] ? rows[0] : null;
   if (!chat) throw notFound('Chat no encontrado');
-
+  // verificamos si el uid es alguno dem los dos participantes
   const ok = String(chat.id_usuario_1) === String(uid) || String(chat.id_usuario_2) === String(uid);
+  // si no son error
   if (!ok) throw forbidden('No autorizado para este chat');
 }
+
 
 export async function listMensajes(chatId) {
   const cid = Number(chatId);
@@ -94,6 +100,7 @@ export async function insertMensaje(chatId, userId, mensaje) {
   return rows && rows[0] ? rows[0] : null;
 }
 
+// busca si existe un chat ya entre los usuarios, si no lo crea
 export async function findOrCreateChat(userAId, userBId) {
   const a = Number(userAId);
   const b = Number(userBId);

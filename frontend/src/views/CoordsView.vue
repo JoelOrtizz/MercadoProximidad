@@ -6,28 +6,28 @@
       Necesitas iniciar sesion para guardar tu ubicacion.
       <RouterLink to="/login">Ir a login</RouterLink>
     </div>
-
+    <!--Usuario ya tiene coordenadas pero no esta en modo edicion-->
     <div v-else-if="blockedBecauseAlreadyHasCoords" class="coords-muted" style="margin-top: 10px">
       Ya tienes una ubicacion guardada. Solo se vuelve a mostrar este mapa cuando lo vas a configurar.
       <div style="margin-top: 10px">
         <button class="btn" type="button" @click="router.push('/perfil')">Ir a perfil</button>
       </div>
     </div>
-
+    <!--Mostrar mapa-->
     <template v-else>
       <p class="coords-muted">
         Haz click en el mapa para guardar tus coordenadas. Esto se usara mas adelante para mostrar productos cercanos.
-      </p>
+      </p>  
 
       <section class="coords-layout">
         <div id="map"></div>
-
+        <!--Tarjeta lateral de coordenadas-->
         <aside class="coords-card">
           <h2>Coordenadas</h2>
           <div class="coords-row">Lat: <span>{{ selected ? selected.lat.toFixed(6) : '-' }}</span></div>
           <div class="coords-row">Lng: <span>{{ selected ? selected.lng.toFixed(6) : '-' }}</span></div>
           <div class="coords-muted">{{ addressText }}</div>
-
+          <!--Botones de accion-->
           <div class="coords-actions">
             <button class="btn" type="button" @click="myLocation">Mi ubicacion</button>
             <button class="btn btn-primary" type="button" :disabled="!selected || saving" @click="save">
@@ -51,7 +51,7 @@ const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const toast = useToastStore();
-
+// estado reactivo
 const selected = ref(null);
 const addressText = ref('Selecciona un punto en el mapa.');
 const saving = ref(false);
@@ -61,7 +61,7 @@ let map = null;
 let marker = null;
 let markerIcon = null;
 const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
-
+// verifica si el usuario tiene ya una ubicacion puesta
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const isEditMode = computed(() => route.query?.edit === '1');
 const hasCoords = computed(() => {
@@ -73,9 +73,10 @@ const hasCoords = computed(() => {
   return Number.isFinite(lat) && Number.isFinite(lng);
 });
 
+// carga perezosa, no descarga el script lealfet hasta que la funcion no se ejecuta
 function loadLeaflet() {
   if (window.L) return Promise.resolve(window.L);
-
+  // Si ya está cargado en memoria, devolvemos la librería inmediatamente.
   return new Promise((resolve, reject) => {
     const cssId = 'leaflet-css';
     const jsId = 'leaflet-js';
@@ -105,6 +106,7 @@ function loadLeaflet() {
   });
 }
 
+// convierte numero en texto usando la api de nominatim
 async function reverseGeocode(lat, lng) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
   const res = await fetch(url, {
@@ -114,13 +116,14 @@ async function reverseGeocode(lat, lng) {
   const data = await res.json();
   return data?.display_name || '';
 }
-
+// se llama al hacer clic en el mapa o al obtener el gps
+// Actualiza la variable reactiva, mueve la chincheta y busca la dirección.
 async function setSelected(lat, lng) {
   selected.value = { lat, lng };
   
   const L = window.L;
   if (marker) {
-    marker.setLatLng([lat, lng]);
+    marker.setLatLng([lat, lng]); // si ya existe marca la movemos
   } else {
     marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
   }
@@ -133,7 +136,7 @@ async function setSelected(lat, lng) {
     addressText.value = 'No se pudo obtener la direccion.';
   }
 }
-
+// inicializar el mapa
 async function createMap() {
   const L = await loadLeaflet();
   if (!L) {
@@ -153,7 +156,7 @@ async function createMap() {
     iconAnchor: [15, 40],
     popupAnchor: [0, -34],
   });
-
+  // pone la marca donde hayas clicado
   map.on('click', async (e) => {
     const lat = e?.latlng?.lat;
     const lng = e?.latlng?.lng;
@@ -161,7 +164,7 @@ async function createMap() {
     await setSelected(lat, lng);
   });
 }
-
+// pide permiso al usuario para usar su ubicacion
 function myLocation() {
   if (!map) return;
   toast.show('Localizando tu ubicacion...', 'info', 15000);
@@ -171,7 +174,7 @@ function myLocation() {
     toast.warning('No se pudo localizar. Usando predeterminadas.');
     return;
   }
-
+  // si acepta 
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
       const { latitude, longitude } = pos.coords;
@@ -181,10 +184,12 @@ function myLocation() {
         toast.warning('No se pudo localizar. Usando predeterminadas.');
         return;
       }
+      // pone chicheta donde estes
       map.setView([latitude, longitude], 14);
       await setSelected(latitude, longitude);
       toast.success('Ubicacion detectada.');
     },
+    // si fallo o bloqueo pone la vista del mapa en las cooredenadas default
     async () => {
       map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
       await setSelected(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
@@ -193,7 +198,7 @@ function myLocation() {
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
   );
 }
-
+// guardar en BD
 async function save() {
   if (!selected.value) return;
   saving.value = true;
@@ -211,14 +216,15 @@ async function save() {
 
 onMounted(async () => {
   await auth.ensureReady();
+  // si no esta logueado lo devuele al login
   if (!isLoggedIn.value) return;
-
+  // si ya tiene ubicacion y no es modo edicion no cargamos el mapa
   if (hasCoords.value && !isEditMode.value) {
     blockedBecauseAlreadyHasCoords.value = true;
     return;
   }
-
-  await createMap();
+  // carga el mapa
+  await createMap() ;
   await myLocation();
 });
 

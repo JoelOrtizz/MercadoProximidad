@@ -6,10 +6,11 @@
     </div>
 
     <div v-else class="mensajes-layout">
-      <!-- Lista de chats (izquierda) -->
+      <!-- Lista de chats (izquierda) polling actualizacion en silencio-->
       <aside class="chats">
         <div class="chats__header">
           <div class="chats__title">Chats</div>
+          <!-- Botón que llama a loadChats() manualmente -->
           <button class="btn" type="button" :disabled="loadingChats" @click="loadChats">
             {{ loadingChats ? '...' : 'Recargar' }}
           </button>
@@ -17,12 +18,12 @@
 
         <div v-if="loadingChats" class="chats__muted">Cargando chats...</div>
         <div v-else-if="chats.length === 0" class="chats__muted">No tienes chats.</div>
-
+        <!--Chat izquierda-->
         <div v-else class="chats__list">
           <button v-for="c in chats" :key="c.id" class="chat-item" type="button"
             :class="{ 'is-active': String(c.id) === String(selectedChatId) }" @click="selectChat(c)">
             <div class="chat-item__top">
-              <div class="chat-item__name">{{ c.other_nickname || 'Usuario' }}</div>
+              <div class="chat-item__name">{{ c.other_nickname || 'Usuario' }}</div><!--nombre del otro usario-->
               <div class="chat-item__time">{{ formatTime(c.last_message_at) }}</div>
             </div>
             <div class="chat-item__preview">{{ c.last_message || 'Sin mensajes.' }}</div>
@@ -40,22 +41,25 @@
         <template v-else>
           <header class="conv__header">
             <div>
+              <!--Enlace al perfil del usuario-->
               <RouterLink :to="`/usuario/${selectedChat.other_user_id}`" class="conv__name"
                 style="text-decoration: none; color: inherit; cursor: pointer;">
                 {{ selectedChat.other_nickname }}
               </RouterLink>
               <div class="conv__sub">Chat 1 a 1</div>
             </div>
+            <!--Recarga manual-->
             <button class="btn" type="button" :disabled="loadingMensajes" @click="loadMensajes(selectedChat.id)">
               {{ loadingMensajes ? '...' : 'Recargar' }}
             </button>
           </header>
-
+          <!--scroll-->
           <div ref="messagesEl" class="conv__messages">
             <div v-if="loadingMensajes" class="conv__muted">Cargando mensajes...</div>
             <div v-else-if="mensajes.length === 0" class="conv__muted">Escribe el primer mensaje.</div>
-
+            <!--Lista de mensajes-->  
             <div v-else class="conv__list">
+              <!--Si el mensaje fue isMine bubble-me (derecha)-->
               <div v-for="m in mensajes" :key="m.id" class="bubble" :class="isMine(m) ? 'bubble--me' : 'bubble--other'">
                 <div class="bubble__text">{{ m.mensaje }}</div>
                 <div class="bubble__meta">{{ formatTime(m.fecha_creacion) }}</div>
@@ -63,6 +67,7 @@
             </div>
           </div>
 
+          <!--Enviar -->
           <form class="conv__composer" @submit.prevent="send">
             <input v-model="draft" class="input conv__input" type="text" placeholder="Escribe un mensaje..."
               :disabled="sending" @keydown.enter.exact.prevent="send">
@@ -89,10 +94,11 @@ const toast = useToastStore();
 const route = useRoute();
 const router = useRouter();
 
-const chats = ref([]);
+const chats = ref([]); //lista de chats
 const loadingChats = ref(false);
 
 const selectedChatId = ref(null);
+// sirve para mostrar la info del usuario en el template {{selectedChat.other_nickname}}
 const selectedChat = computed(() => {
   const id = selectedChatId.value;
   if (!id) return null;
@@ -109,6 +115,7 @@ const isLoggedIn = computed(() => Boolean(auth.user && auth.user.id));
 
 let pollingInterval = null; // Variable para el temporizador
 
+// formatea fecha a hora
 function formatTime(value) {
   if (!value) return '';
   try {
@@ -119,15 +126,17 @@ function formatTime(value) {
   }
 }
 
+// devuelve true si el mensaje lo escribí yo
 function isMine(m) {
   return String(m.id_usuario) === String(auth.user && auth.user.id);
 }
 
-// Acepta parametro background
-// Si Background = true ---> El usuario está leyendo. El sistema se actualiza solo. NO debemos mostrar "Cargando..."
-// Si Background = false ---> El usuario hizo clic. El usuario está esperando. Debemos mostrar el "Cargando..." (spinner)
+// CARGA DE DATOS
+
+// carga la lista de chats a la izquierda
+// luego en el onmounted comienza con false, pero al montarlo pasa a true y cada 2 segundos carga el chat
 async function loadChats(background = false) {
-  // Solo mostramos spinner si NO es background
+  // si no es background encienda la ruedita(spinner)
   if (!background) loadingChats.value = true;
 
   try {
@@ -172,7 +181,7 @@ async function loadMensajes(chatId, background = false) {
 
     // Si estamos en background, solo actualizamos si hay cambios (opcional, pero aqui actualizamos siempre para asegurar)
     mensajes.value = nuevos;
-    hayQueBajarScroll = true;
+    hayQueBajarScroll = true; // marcamos para bajar el scroll
   } catch (err) {
     if (!background) {
       mensajes.value = [];
@@ -191,6 +200,7 @@ async function loadMensajes(chatId, background = false) {
   }
 }
 
+// Baja la barra de desplazamiento al final del div de mensajes
 function scrollToBottom() {
   const el = messagesEl.value;
   if (!el) return;
@@ -199,6 +209,7 @@ function scrollToBottom() {
   } catch { }
 }
 
+// al hacer clic en un chat
 function selectChat(chat) {
   if (!chat) return;
   selectedChatId.value = String(chat.id);
@@ -207,6 +218,7 @@ function selectChat(chat) {
   loadMensajes(chat.id, false);
 }
 
+
 async function send() {
   const chat = selectedChat.value;
   if (!chat) return;
@@ -214,21 +226,22 @@ async function send() {
   const text = String(draft.value || '').trim();
   if (!text) return;
 
-  sending.value = true;
+  sending.value = true; // desahibilita el input
   try {
     await axios.post(`/chats/${chat.id}/mensajes`, { mensaje: text });
     draft.value = '';
     // Recarga inmediata manual
     await loadMensajes(chat.id, false);
-    await loadChats(false);
+    await loadChats(false); // Actualiza la lista izquierda (para que suba este chat arriba)
   } catch (err) {
     const msg = err && err.response && err.response.data && (err.response.data.error || err.response.data.message);
     toast.error(`Error: ${msg || (err && err.message) || 'No se pudo enviar.'}`);
   } finally {
-    sending.value = false;
+    sending.value = false; // habilita el input
   }
 }
 
+// mira la url, si el id cambia, actualiza la variable
 watch(
   () => (route.params && route.params.id ? String(route.params.id) : ''),
   (id) => {
@@ -236,6 +249,7 @@ watch(
   }
 );
 
+// vigila la variable selectedChat, si cambia carga los mensajes
 watch(
   () => selectedChatId.value,
   (id) => {
@@ -245,6 +259,8 @@ watch(
   }
 );
 
+
+// autoScroll 
 watch(
   () => [mensajes.value.length, loadingMensajes.value],
   async (vals) => {
@@ -262,18 +278,19 @@ onMounted(async () => {
   if (!isLoggedIn.value) return;
 
   // 1. Carga inicial normal
+  // el spinner lo ve el usuario
   await loadChats(false);
 
   // 2. Intervalo cada 2 segundos (background = true)
   pollingInterval = setInterval(() => {
     loadChats(true); // Actualiza lista de la izquierda
     if (selectedChatId.value) {
-      loadMensajes(selectedChatId.value, true); // Actualiza chat actual
+      loadMensajes(selectedChatId.value, true); // Actualiza chat actual en silencio, sin spinner
     }
   }, 2000);
 });
 
-// Cuando el usuario abandona esta vista, se limpia el Interval
+// Cuando el usuario abandona esta vista, se limpia el Intervalo
 onUnmounted(() => {
   if (pollingInterval) clearInterval(pollingInterval);
 });

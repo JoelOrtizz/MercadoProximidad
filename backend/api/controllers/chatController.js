@@ -28,21 +28,20 @@ export async function postMensaje(req, res, next) {
   try {
     const userId = req.user?.id;
     const chatId = req.params?.id;
-    await assertUserInChat(chatId, userId);
+    await assertUserInChat(chatId, userId); // verificacion
 
     const mensaje = req.body?.mensaje;
     const row = await insertMensaje(chatId, userId, mensaje);
 
-    // ==============================
-    // NOTIFICACION (INICIO): mensaje nuevo al otro usuario del chat
-    // ==============================
     try {
+      // sacamos al otro usuario para notificarle
       const [rows] = await pool.query("SELECT id_usuario_1, id_usuario_2 FROM chats WHERE id = ? LIMIT 1", [chatId]);
       const chat = rows && rows[0] ? rows[0] : null;
       if (chat) {
         const otherUserId =
           String(chat.id_usuario_1) === String(userId) ? chat.id_usuario_2 : chat.id_usuario_1;
 
+        // notificacion creada
         if (otherUserId) {
           await createNotificacion(
             otherUserId,
@@ -57,9 +56,7 @@ export async function postMensaje(req, res, next) {
     } catch (e) {
       console.error("No se pudo crear la notificacion de mensaje nuevo:", e);
     }
-    // ==============================
-    // NOTIFICACION (FIN): mensaje nuevo al otro usuario del chat
-    // ==============================
+    
 
     return res.status(201).json(row);
   } catch (err) {
@@ -67,6 +64,7 @@ export async function postMensaje(req, res, next) {
   }
 }
 
+// iniciar conversacion
 export async function postFindOrCreateChat(req, res, next) {
   try {
     const userId = req.user?.id;
