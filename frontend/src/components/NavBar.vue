@@ -12,7 +12,6 @@
       </nav>
 
       <div class="nav__actions">
-<<<<<<< HEAD
         <button
           class="nav__icon"
           type="button"
@@ -24,8 +23,6 @@
           <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
         </button>
 
-=======
->>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
         <button
           class="nav__icon"
           type="button"
@@ -53,10 +50,7 @@ const route = useRoute();
 const router = useRouter();
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
-<<<<<<< HEAD
 const nickname = computed(() => auth.user?.nickname || localStorage.getItem('user_nickname') || '');
-=======
->>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 const unreadCount = computed(() => notificaciones.unreadCount || 0);
 
 const isComprar = computed(() => route.path === '/comprar' || route.path === '/');
