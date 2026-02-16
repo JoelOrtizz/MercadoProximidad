@@ -12,7 +12,10 @@
   --content-width: 1400px;
   /* Altura aproximada del navbar (para colocar toast/modal justo debajo) */
   --nav-height: 78px;
+<<<<<<< HEAD
+=======
   --elevated-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 
   /* =========================================================
      Bootstrap (quitar azules)
@@ -151,6 +154,8 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
+=======
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -158,6 +163,7 @@ a:hover {
   transform: translateY(-1px);
   border-color: var(--primary-border);
   box-shadow: 0 6px 14px rgba(255, 106, 0, 0.12);
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 }
 
 .nav__badge {

@@ -6,6 +6,12 @@
   border-radius: 14px;
   overflow: hidden;
   background: #fff;
+<<<<<<< HEAD
+  /* Tamaño fijo para que el scroll sea interno (tipo WhatsApp Web) */
+  height: calc(100vh - 120px);
+  height: calc(100dvh - 120px);
+  min-height: 0;
+=======
   /* Tamano fijo para que el scroll sea interno (tipo WhatsApp Web) */
   height: calc(100vh - 240px);
   height: calc(100dvh - 240px);
@@ -16,6 +22,7 @@
 .mensajes-page {
   padding-top: 16px;
   padding-bottom: 16px;
+>>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
 }
 
 .chats {

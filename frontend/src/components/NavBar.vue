@@ -22,6 +22,17 @@
           &#128276;
           <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
         </button>
+
+        <button
+          class="nav__icon"
+          type="button"
+          title="Notificaciones"
+          aria-label="Notificaciones"
+          @click="router.push('/notificaciones')"
+        >
+          &#128276;
+          <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
+        </button>
       </div>
     </div>
   </header>
@@ -39,6 +50,7 @@ const route = useRoute();
 const router = useRouter();
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
+const nickname = computed(() => auth.user?.nickname || localStorage.getItem('user_nickname') || '');
 const unreadCount = computed(() => notificaciones.unreadCount || 0);
 
 const isComprar = computed(() => route.path === '/comprar' || route.path === '/');
