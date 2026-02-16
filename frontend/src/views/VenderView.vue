@@ -2,17 +2,17 @@
   <main class="page">
     <div class="container">
     <h1>Vender</h1>
-        <div class="card">
+        <GuestState
+            v-if="!isLoggedIn"
+            title="Necesitas iniciar sesion"
+            message="Para publicar productos debes iniciar sesion."
+          />
+
+        <div v-else class="card">
             <h2>Publicar oferta</h2>
             <span class="subtitle">Completa los datos del producto que quieres vender</span>
 
-            <GuestState
-                v-if="!isLoggedIn"
-                title="Necesitas iniciar sesion"
-                message="Para publicar productos debes iniciar sesion."
-              />
-
-            <form v-else id="form_producto" class="form-grid" enctype="multipart/form-data" @submit.prevent="submitProduct">
+            <form id="form_producto" class="form-grid" enctype="multipart/form-data" @submit.prevent="submitProduct">
                 <div class="form-group form-group--full">
                     <div class="form-pair">
                         <div class="form-col">
