@@ -78,7 +78,6 @@
             </form>
 
         </div>
-    </div>
 
   </main>
 </template>
