@@ -144,6 +144,21 @@ CREATE TABLE valoraciones (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================
+-- ALERTAS
+-- ======================================
+create table alertas_stock(
+  id INT INT AUTO_INCREMENT PRIMARY KEY,
+  id_usuario int not null,
+  id_producto int not null unique,
+  activa boolean default true,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  Foreign Key (id_usuario) REFERENCES usuarios(id),
+  Foreign Key (id_producto) REFERENCES productos(id)
+)ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+
+
+-- ======================================
 -- NOTIFICACIONES
 -- ======================================
 CREATE TABLE notificaciones (

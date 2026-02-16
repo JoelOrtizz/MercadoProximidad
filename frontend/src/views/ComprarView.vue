@@ -204,6 +204,9 @@
                       <i class="bi bi-cart-plus me-1"></i>
                       {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
                     </button>
+                    <div class="product-qty">
+                      
+                    </div>
                   </div>
 
                 </div>
