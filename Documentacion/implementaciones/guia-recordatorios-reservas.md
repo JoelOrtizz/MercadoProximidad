@@ -1,47 +1,95 @@
 # Guia: Recordatorios de reservas
 
+## Mapa del proyecto (rapido)
+- Base de datos: `backend/database/init.sql` y diagrama en `Documentacion/diagrama_terretashop_db.png`.
+- Backend: `backend/api/app.js`, rutas en `backend/api/routes`, controladores en `backend/api/controllers`, modelos en `backend/api/models`, conexion en `backend/api/config/db.js`.
+- Frontend: `frontend/src/main.js`, layout global `frontend/src/App.vue`, vistas en `frontend/src/views`, componentes en `frontend/src/components`, estado en `frontend/src/stores`, rutas en `frontend/src/router.js`.
+- CSS por pagina: `frontend/public/css` (se inyecta desde `frontend/src/App.vue`).
+- Comunicacion: `axios` con base `/api` en `frontend/src/main.js` y proxy en `frontend/vite.config.js`.
+
 ## Que implementacion vamos a hacer
-Implementacion propuesta: **Recordatorios de reservas**.
-El sistema envia un recordatorio al comprador y vendedor antes de la entrega.
+Implementacion propuesta: recordatorios de reservas. Se envia aviso antes de la entrega.
+Objetivo: recordar a comprador y vendedor una reserva cercana.
 
-## Parte 1 â€” Cambios en la Base de Datos
+Impacto esperado:
+- Tabla nueva `recordatorios_reservas`.
+- Endpoints para crear y consultar recordatorios.
+- Notificaciones programadas.
+
+## Parte 1 — Cambios en la Base de Datos
 - Archivo: `backend/database/init.sql`.
-- Tipo de cambio: crear tabla `recordatorios_reservas` con `id_reserva`, `fecha_recordatorio`, `enviado`.
-- Por que: necesitamos programar recordatorios y evitar duplicados.
-- Relacion con tablas existentes: `id_reserva` referencia `reservas.id`.
+- Tipo de cambio: tabla `recordatorios_reservas` con `id_reserva`, `fecha_recordatorio`, `enviado`.
+- Por que: guardar recordatorios y evitar duplicados.
+- Relacion: `id_reserva` -> `reservas.id`.
 
-## Parte 2 â€” Cambios en el Backend
-1) DondÐµ crear el modelo o acceso a datos  
-Crear `recordatoriosReservasModel.js` en `backend/api/models`.
+Ejemplo (fragmento de SQL):
+```sql
+CREATE TABLE recordatorios_reservas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_reserva INT NOT NULL,
+  fecha_recordatorio DATETIME NOT NULL,
+  enviado TINYINT(1) DEFAULT 0,
+  FOREIGN KEY (id_reserva) REFERENCES reservas(id) ON DELETE CASCADE
+);
+```
 
-2) DondÐµ crear el controlador  
-Crear `recordatoriosReservasController.js` en `backend/api/controllers` para crear y consultar recordatorios.
+## Parte 2 — Cambios en el Backend
+1) Modelo
+Crear `recordatoriosReservasModel.js` con funciones para:
+- Crear recordatorio.
+- Listar recordatorios del usuario.
+- Marcar como enviado.
 
-3) DondÐµ crear las rutas  
-Crear `recordatoriosReservasRoutes.js` en `backend/api/routes` con `requireAuth`.
+2) Controlador
+Crear `recordatoriosReservasController.js`.
 
-4) DondÐµ registrar esas rutas  
+3) Rutas
+Crear `recordatoriosReservasRoutes.js` con `requireAuth`.
+
+4) Registro de rutas
 Registrar en `backend/api/app.js` con prefijo `/api/recordatorios-reservas`.
 
-5) Que archivos existentes hay que tocar para integrar todo  
-En `backend/api/controllers/reservaController.js` puedes crear un recordatorio al aceptar una reserva.  
-Para el envio, reutiliza `backend/api/models/notificacionModel.js`.
+5) Endpoints minimos (en texto)
+- Crear recordatorio.
+- Listar recordatorios propios.
 
-## Parte 3 â€” Cambios en el Frontend
-- Que vista hay que modificar  
-`frontend/src/views/ReservasView.vue` para activar o ver recordatorios.  
-`frontend/src/views/NotificacionesView.vue` mostrara los recordatorios.
-- Que componente tocar  
-Boton o switch simple en la reserva.
-- Donde llamar al backend  
-Usa `axios` o un store `frontend/src/stores/recordatoriosStore.js`.
-- Como integrar la nueva funcionalidad visualmente  
-Mostrar un estado "Recordatorio activado" en cada reserva.
+6) Auth y permisos
+- Requiere `requireAuth`.
 
-## Parte 4 â€” Como se conecta todo
-Usuario activa recordatorio -> Frontend llama a `/api/recordatorios-reservas` ->  
-Backend guarda en BD -> Al llegar la fecha se crea una notificacion ->  
-Frontend muestra la notificacion.
+7) Archivos existentes a tocar
+- `backend/api/controllers/reservaController.js` para crear recordatorio cuando se acepta reserva.
+- `backend/api/models/notificacionModel.js` para enviar notificacion.
 
-## Parte 5 â€” Como usar esta guia para cualquier otra implementacion
-Define la tabla, expone la API y conecta la vista donde el usuario activa la funcionalidad.
+## Parte 3 — Cambios en el Frontend
+1) Vista
+Modificar `frontend/src/views/ReservasView.vue` para activar recordatorio.
+
+2) Store
+Crear `frontend/src/stores/recordatoriosStore.js` con:
+- `items` y `loading`.
+- `actions`: `load`, `crear`.
+
+Ejemplo de uso:
+```js
+import { useRecordatoriosStore } from "../stores/recordatoriosStore.js";
+const r = useRecordatoriosStore();
+await r.load();
+```
+
+3) Notificaciones
+`frontend/src/views/NotificacionesView.vue` ya muestra los recordatorios.
+
+4) CSS
+Si es necesario, ajustar estilos en `frontend/public/css/reservas.css`.
+
+## Parte 4 — Como se conecta todo
+Usuario activa recordatorio -> Front llama a `/api/recordatorios-reservas` -> Backend guarda ->
+En la fecha se crea notificacion -> Front la muestra.
+
+## Parte 5 — Checklist final
+- Tabla `recordatorios_reservas` creada.
+- Modelo, controlador y rutas creadas.
+- Boton visible en reservas.
+
+## Parte 6 — Como usar esta guia para cualquier otra implementacion
+Definir el evento y conectar con notificaciones.
