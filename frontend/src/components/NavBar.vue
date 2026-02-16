@@ -22,17 +22,6 @@
           &#128276;
           <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
         </button>
-
-        <button
-          class="nav__icon"
-          type="button"
-          title="Notificaciones"
-          aria-label="Notificaciones"
-          @click="router.push('/notificaciones')"
-        >
-          &#128276;
-          <span v-if="isLoggedIn && unreadCount > 0" class="nav__badge">{{ unreadCount }}</span>
-        </button>
       </div>
     </div>
   </header>
