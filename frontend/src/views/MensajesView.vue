@@ -1,9 +1,17 @@
 <template>
   <main class="page mensajes-page">
-    <div v-if="!isLoggedIn" class="card">
-      Necesitas iniciar sesion para ver tus mensajes.
-      <RouterLink to="/login">Ir a login</RouterLink>
+    <div class="products-header">
+      <div>
+        <h1>Mensajeria</h1>
+        <div class="subtitle">Tus conversaciones con compradores y vendedores.</div>
+      </div>
     </div>
+
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para ver tus mensajes debes iniciar sesion."
+    />
 
     <div v-else class="mensajes-layout">
       <!-- Lista de chats (izquierda) polling actualizacion en silencio-->
@@ -83,6 +91,7 @@
 
 <script setup>
 import axios from 'axios';
+import GuestState from '../components/GuestState.vue';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'; // Agregado onUnmounted
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
@@ -176,12 +185,22 @@ async function loadMensajes(chatId, background = false) {
 
   let hayQueBajarScroll = false;
   try {
+    const prevLen = mensajes.value.length;
+    const prevLastId = prevLen ? mensajes.value[prevLen - 1].id : null;
     const res = await axios.get(`/chats/${chatId}/mensajes`);
     const nuevos = Array.isArray(res.data) ? res.data : [];
 
     // Si estamos en background, solo actualizamos si hay cambios (opcional, pero aqui actualizamos siempre para asegurar)
     mensajes.value = nuevos;
-    hayQueBajarScroll = true; // marcamos para bajar el scroll
+    const newLen = nuevos.length;
+    const newLastId = newLen ? nuevos[newLen - 1].id : null;
+    const hayMensajesNuevos = newLen > prevLen || (newLastId && newLastId !== prevLastId);
+
+    if (!background) {
+      hayQueBajarScroll = true;
+    } else {
+      hayQueBajarScroll = hayMensajesNuevos;
+    }
   } catch (err) {
     if (!background) {
       mensajes.value = [];
@@ -191,9 +210,8 @@ async function loadMensajes(chatId, background = false) {
   } finally {
     if (!background) loadingMensajes.value = false;
 
-    // Solo forzamos scroll inmediato si es carga manual.
-    // Si es background, el watcher de abajo se encargará si la longitud cambia.
-    if (!background && hayQueBajarScroll) {
+    // Scroll solo si es carga manual o si hay mensajes nuevos en background.
+    if (hayQueBajarScroll) {
       await nextTick();
       scrollToBottom();
     }
@@ -259,19 +277,7 @@ watch(
   }
 );
 
-
-// autoScroll 
-watch(
-  () => [mensajes.value.length, loadingMensajes.value],
-  async (vals) => {
-    const loading = vals && vals[1];
-    if (loading) return;
-    
-    // "Vue, espera un momentito a que termines de pintar los ladrillos nuevos en la pantalla, y ENTONCES baja el scroll al final"
-    await nextTick();
-    scrollToBottom();
-  }
-);
+// Quitamos el watcher global de scroll: ahora solo hacemos scroll cuando toca en loadMensajes.
 
 onMounted(async () => {
   await auth.ensureReady();

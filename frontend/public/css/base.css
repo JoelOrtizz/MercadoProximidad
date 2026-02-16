@@ -275,4 +275,31 @@
     flex-wrap: wrap;
   }
 }
->>>>>>> 61b7df34def81a800ea1c6fab8437dd93a0e3ec5
+
+/* ---------- Estado no logueado ---------- */
+
+.guest-card {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+  box-shadow: var(--elevated-shadow);
+}
+
+.guest-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.guest-text {
+  color: #5a5a5a;
+  margin-bottom: 8px;
+}
+
+.guest-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+}

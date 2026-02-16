@@ -1,16 +1,23 @@
 <template>
   <main class="page">
-    <div class="container">
-    <h1>Vender</h1>
-        <div class="card">
+    <div class="products-header">
+      <div>
+        <h1>Vender</h1>
+        <div class="subtitle">Publica tus productos y gestiona tu oferta.</div>
+      </div>
+    </div>
+
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para publicar productos debes iniciar sesion."
+    />
+
+    <div v-else class="card">
             <h2>Publicar oferta</h2>
             <span class="subtitle">Completa los datos del producto que quieres vender</span>
 
-            <p v-if="!isLoggedIn" style="margin-top: 12px;">
-                Necessitas iniciar session para publicar <RouterLink to="/login">Ir al Login</RouterLink>
-            </p>
-
-            <form v-else id="form_producto" class="form-grid" enctype="multipart/form-data" @submit.prevent="submitProduct">
+            <form id="form_producto" class="form-grid" enctype="multipart/form-data" @submit.prevent="submitProduct">
                 <div class="form-group form-group--full">
                     <div class="form-pair">
                         <div class="form-col">
@@ -71,12 +78,12 @@
             </form>
 
         </div>
-    </div>
 
   </main>
 </template>
 
 <script setup>
+import GuestState from "../components/GuestState.vue";
 
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
@@ -191,6 +198,10 @@ onMounted(async () => {
 });
 
 </script>
+
+
+
+
 
 
 

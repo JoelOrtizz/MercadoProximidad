@@ -1,10 +1,11 @@
 <template>
   <main class="page">
     <div class="block-perfil">
-      <div v-if="!isLoggedIn" style="padding: 16px">
-        Necesitas iniciar sesion para ver tu perfil.
-        <RouterLink to="/login">Ir a login</RouterLink>
-      </div>
+      <GuestState
+        v-if="!isLoggedIn"
+        title="Necesitas iniciar sesion"
+        message="Para ver tu perfil debes iniciar sesion."
+      />
 
       <template v-else>
         <div id="name">
@@ -202,6 +203,7 @@
 </template>
 
 <script setup>
+import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -584,3 +586,5 @@ watch([() => auth.user?.lat, () => auth.user?.lng], () => {
   loadUbicacion();
 });
 </script>
+
+

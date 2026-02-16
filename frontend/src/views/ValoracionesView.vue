@@ -10,10 +10,11 @@
       </button>
     </div>
 
-    <div v-if="!isLoggedIn" class="card">
-      Necesitas iniciar sesión para ver tus reservas.
-      <RouterLink to="/login">Ir a login</RouterLink>
-    </div>
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para ver tus valoraciones debes iniciar sesion."
+    />
 
     <!--Encabezado de las pestañas-->
 
@@ -146,6 +147,7 @@
 </template>
 
 <script setup>
+import GuestState from "../components/GuestState.vue";
   import axios from "axios";
   import { computed, onMounted, reactive, ref } from "vue";
   import { useRouter } from "vue-router";
@@ -318,3 +320,5 @@
     }
   });
 </script>
+
+
