@@ -176,12 +176,22 @@ async function loadMensajes(chatId, background = false) {
 
   let hayQueBajarScroll = false;
   try {
+    const prevLen = mensajes.value.length;
+    const prevLastId = prevLen ? mensajes.value[prevLen - 1].id : null;
     const res = await axios.get(`/chats/${chatId}/mensajes`);
     const nuevos = Array.isArray(res.data) ? res.data : [];
 
     // Si estamos en background, solo actualizamos si hay cambios (opcional, pero aqui actualizamos siempre para asegurar)
     mensajes.value = nuevos;
-    hayQueBajarScroll = true;
+    const newLen = nuevos.length;
+    const newLastId = newLen ? nuevos[newLen - 1].id : null;
+    const hayMensajesNuevos = newLen > prevLen || (newLastId && newLastId !== prevLastId);
+
+    if (!background) {
+      hayQueBajarScroll = true;
+    } else {
+      hayQueBajarScroll = hayMensajesNuevos;
+    }
   } catch (err) {
     if (!background) {
       mensajes.value = [];
@@ -191,9 +201,8 @@ async function loadMensajes(chatId, background = false) {
   } finally {
     if (!background) loadingMensajes.value = false;
 
-    // Solo forzamos scroll inmediato si es carga manual.
-    // Si es background, el watcher de abajo se encargará si la longitud cambia.
-    if (!background && hayQueBajarScroll) {
+    // Scroll solo si es carga manual o si hay mensajes nuevos en background.
+    if (hayQueBajarScroll) {
       await nextTick();
       scrollToBottom();
     }
@@ -254,17 +263,7 @@ watch(
   }
 );
 
-watch(
-  () => [mensajes.value.length, loadingMensajes.value],
-  async (vals) => {
-    const loading = vals && vals[1];
-    if (loading) return;
-    
-    // "Vue, espera un momentito a que termines de pintar los ladrillos nuevos en la pantalla, y ENTONCES baja el scroll al final"
-    await nextTick();
-    scrollToBottom();
-  }
-);
+// Quitamos el watcher global de scroll: ahora solo hacemos scroll cuando toca en loadMensajes.
 
 onMounted(async () => {
   await auth.ensureReady();
