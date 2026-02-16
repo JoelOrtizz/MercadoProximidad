@@ -11,7 +11,8 @@
 <script setup>
 import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import NavBar from './components/NavBar.vue';
+import Footer from './components/Footer.vue';
+import HeaderGlobal from './components/HeaderGlobal.vue';
 import Toast from './components/toast.vue';
 import Modal from './components/Modal.vue';
 import { useNotificacionesStore } from './stores/notificacionesStore';
