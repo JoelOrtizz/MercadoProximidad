@@ -1,14 +1,19 @@
 <template>
   <main class="page">
-    <div class="container">
-    <h1>Vender</h1>
-        <GuestState
-            v-if="!isLoggedIn"
-            title="Necesitas iniciar sesion"
-            message="Para publicar productos debes iniciar sesion."
-          />
+    <div class="products-header">
+      <div>
+        <h1>Vender</h1>
+        <div class="subtitle">Publica tus productos y gestiona tu oferta.</div>
+      </div>
+    </div>
 
-        <div v-else class="card">
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para publicar productos debes iniciar sesion."
+    />
+
+    <div v-else class="card">
             <h2>Publicar oferta</h2>
             <span class="subtitle">Completa los datos del producto que quieres vender</span>
 
@@ -194,6 +199,8 @@ onMounted(async () => {
 });
 
 </script>
+
+
 
 
 

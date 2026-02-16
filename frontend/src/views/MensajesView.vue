@@ -1,5 +1,12 @@
 <template>
   <main class="page mensajes-page">
+    <div class="products-header">
+      <div>
+        <h1>Mensajeria</h1>
+        <div class="subtitle">Tus conversaciones con compradores y vendedores.</div>
+      </div>
+    </div>
+
     <GuestState
       v-if="!isLoggedIn"
       title="Necesitas iniciar sesion"
