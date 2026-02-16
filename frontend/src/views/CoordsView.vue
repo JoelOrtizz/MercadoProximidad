@@ -1,11 +1,12 @@
-﻿<template>
+<template>
   <main class="page">
     <h1>Selecciona tu ubicacion</h1>
 
-    <div v-if="!isLoggedIn" class="coords-muted" style="margin-top: 10px">
-      Necesitas iniciar sesion para guardar tu ubicacion.
-      <RouterLink to="/login">Ir a login</RouterLink>
-    </div>
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para guardar tu ubicacion debes iniciar sesion."
+    />
 
     <div v-else-if="blockedBecauseAlreadyHasCoords" class="coords-muted" style="margin-top: 10px">
       Ya tienes una ubicacion guardada. Solo se vuelve a mostrar este mapa cuando lo vas a configurar.
@@ -41,6 +42,7 @@
 </template>
 
 <script setup>
+import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
@@ -230,6 +232,8 @@ onBeforeUnmount(() => {
   marker = null;
 });
 </script>
+
+
 
 
 

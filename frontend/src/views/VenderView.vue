@@ -6,9 +6,11 @@
             <h2>Publicar oferta</h2>
             <span class="subtitle">Completa los datos del producto que quieres vender</span>
 
-            <p v-if="!isLoggedIn" style="margin-top: 12px;">
-                Necessitas iniciar session para publicar <RouterLink to="/login">Ir al Login</RouterLink>
-            </p>
+            <GuestState
+                v-if="!isLoggedIn"
+                title="Necesitas iniciar sesion"
+                message="Para publicar productos debes iniciar sesion."
+              />
 
             <form v-else id="form_producto" class="form-grid" enctype="multipart/form-data" @submit.prevent="submitProduct">
                 <div class="form-group form-group--full">
@@ -77,6 +79,7 @@
 </template>
 
 <script setup>
+import GuestState from "../components/GuestState.vue";
 
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
@@ -191,6 +194,8 @@ onMounted(async () => {
 });
 
 </script>
+
+
 
 
 

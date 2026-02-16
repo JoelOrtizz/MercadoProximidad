@@ -1,19 +1,20 @@
-﻿<template>
+<template>
   <main class="page">
     <div class="header">
       <div>
         <h1>Configurar puntos de entrega</h1>
         <p class="muted">
-          Haz click en el mapa para añadir varios puntos. Luego pulsa "Guardar todo" para enviarlos al backend.
+          Haz click en el mapa para a�adir varios puntos. Luego pulsa "Guardar todo" para enviarlos al backend.
         </p>
       </div>
       <button class="btn" type="button" @click="router.push('/perfil')">Volver a perfil</button>
     </div>
 
-    <p v-if="!isLoggedIn" class="muted">
-      Necesitas iniciar sesion para ver/guardar puntos de entrega.
-      <RouterLink to="/login">Ir a login</RouterLink>
-    </p>
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para ver y guardar puntos de entrega debes iniciar sesion."
+    />
 
     <section v-else class="layout">
       <div id="map"></div>
@@ -55,6 +56,7 @@
 </template>
 
 <script setup>
+import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -311,6 +313,8 @@ onBeforeUnmount(() => {
   points.value = [];
 });
 </script>
+
+
 
 
 

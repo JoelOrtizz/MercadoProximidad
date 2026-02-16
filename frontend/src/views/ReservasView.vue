@@ -19,10 +19,11 @@
       <button class="btn" type="button" :disabled="loading" @click="loadReservas">Recargar</button>
     </div>
 
-    <div v-if="!isLoggedIn" class="card">
-      Necesitas iniciar sesion para ver tus reservas.
-      <RouterLink to="/login">Ir a login</RouterLink>
-    </div>
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para ver tus reservas debes iniciar sesion."
+    />
 
     <div v-else class="card">
       <div class="tabs" style="display: flex; gap: 8px; flex-wrap: wrap">
@@ -179,6 +180,7 @@
 
 <script setup>
   import axios from 'axios';
+  import GuestState from '../components/GuestState.vue';
   import { computed, onMounted, reactive, ref } from 'vue';
   import { RouterLink, useRouter } from 'vue-router';
   import { useAuthStore } from '../stores/auth.js';

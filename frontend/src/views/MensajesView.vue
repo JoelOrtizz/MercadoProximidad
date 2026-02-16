@@ -1,9 +1,10 @@
 <template>
   <main class="page mensajes-page">
-    <div v-if="!isLoggedIn" class="card">
-      Necesitas iniciar sesion para ver tus mensajes.
-      <RouterLink to="/login">Ir a login</RouterLink>
-    </div>
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para ver tus mensajes debes iniciar sesion."
+    />
 
     <div v-else class="mensajes-layout">
       <!-- Lista de chats (izquierda) -->
@@ -78,6 +79,7 @@
 
 <script setup>
 import axios from 'axios';
+import GuestState from '../components/GuestState.vue';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'; // Agregado onUnmounted
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
