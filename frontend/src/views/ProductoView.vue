@@ -52,7 +52,8 @@
           <div v-if="puntosEntrega.length === 0" class="hint">Este vendedor no tiene puntos de entrega.</div>
         </div>
 
-        <button class="btn btn-primary" type="button" @click="reservar" :disabled="!canReserve || reservando">
+        <button class="btn btn-warning btn-sm w-100" type="button" @click="reservar" :disabled="!canReserve || reservando">
+          <i class="bi bi-cart-plus me-1"></i>
           {{ reservando ? 'Reservando...' : 'Reservar' }}
         </button>
       </aside>

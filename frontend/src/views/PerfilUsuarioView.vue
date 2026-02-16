@@ -54,7 +54,7 @@
 
             <div class="info-row">
               <div class="info-label">Valoracion</div>
-              <div class="info-value">{{ valoracionText }} ðŸŠ</div>
+              <div class="info-value">{{ valoracionText }} &#x1F34A;</div>
             </div>
 
             <div class="actions-row">
