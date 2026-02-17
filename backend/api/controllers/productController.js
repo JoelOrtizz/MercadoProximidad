@@ -121,6 +121,19 @@ export async function fetchProductsByUbicacion(req, res, next) {
 }
 
 
+import express from 'express'
+
+import { requireAuth } from '../middlewares/requireAuth.js';
+import { postAlerta, getAlertas, status } from '../controllers/alertaController.js';
+
+const router = express.Router();
+
+router.get('/', requireAuth, getAlertas);
+router.post('/', requireAuth, postAlerta);
+router.put('/:id/desactivar', requireAuth, status);
+
+export default router;
+
 export async function updateProduct(req, res, next) {
     try {
         // recogemos el id del usuario del token para ver si está conectado
@@ -137,6 +150,9 @@ export async function updateProduct(req, res, next) {
         if (!Number.isFinite(productoId)) {
             return res.status(400).json({ message: 'Error: ID de producto invalido.' });
         }
+
+        const producto = await getProductById(productoId);
+        const oldStock = producto[0].stock;
 
         let { nombre, stock, precio, descripcion, imagen_anterior } = req.body;
         const id_categoria_raw = req.body?.id_categoria;
@@ -173,6 +189,29 @@ export async function updateProduct(req, res, next) {
         if (isNaN(stock) || stock < 0) { // Permitimos 0 si está agotado, pero no negativos.
             return res.status(400).json({ message: 'El stock no puede ser negativo' });
         }
+
+
+        try {
+            if (stock > 0 || oldStock === 0) {
+                const usuarios = usuariosConAlerta(productoId);
+
+                for (const usuario of usuarios) {
+                    await createNotificacion(
+                        usuario.id_usuario,
+                        "Producto disponible",
+                        "Producto disponible",
+                        `El producto ${producto.nombre} vuelve a estar disponible`,
+                        "/comprar",
+                        productoId
+                    );
+                }
+            }
+
+
+        } catch (err) {
+            console.error("No se pudo crear la notificacion", e);
+        }
+
 
         // guardamos los parametros en el modelo
         const result = await putProduct(
