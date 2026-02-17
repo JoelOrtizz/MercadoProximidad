@@ -300,7 +300,7 @@ let mapMarkers = [];
 const isLoggedIn = () => Boolean(auth.user?.id);
 
 // "paginacion"
-const itemsPerPage = 21;
+const itemsPerPage = 9;
 const visibleCount = ref(itemsPerPage);
 // corta el array original y devuelve solo los que deben verse
 const visibleProducts = computed(() => {
