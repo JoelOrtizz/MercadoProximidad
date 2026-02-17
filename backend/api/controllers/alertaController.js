@@ -1,6 +1,5 @@
 import { getProductById } from '../models/procutModel.js';
 import { crearAlerta, listarAlertas, pathAlertas } from '../models/alertaModel.js';
-import { use } from 'react';
 
 
 export async function postAlerta(req, res, next) {
