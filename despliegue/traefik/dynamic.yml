@@ -1,29 +1,21 @@
 http:
   routers:
-    # Dashboard de Traefik accesible por internet, protegido con Basic Auth.
-    # Se accede por: https://terreta.shop/traefik/dashboard/
+    # Dashboard de Traefik en subdominio dedicado, protegido con Basic Auth.
+    # Se accede por: https://traefik.terreta.shop/dashboard/
     traefik-dashboard:
-      rule: "(Host(`terreta.shop`) || Host(`www.terreta.shop`)) && PathPrefix(`/traefik`)"
+      rule: "Host(`traefik.terreta.shop`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
       entryPoints:
         - websecure
       service: api@internal
       middlewares:
         - dashboard-auth
-        - strip-traefik-prefix
       tls:
         certResolver: letsencrypt
         domains:
-          - main: "terreta.shop"
-            sans:
-              - "www.terreta.shop"
+          - main: "traefik.terreta.shop"
 
   middlewares:
     dashboard-auth:
       basicAuth:
         usersFile: /etc/traefik/users.htpasswd
-
-    strip-traefik-prefix:
-      stripPrefix:
-        prefixes:
-          - /traefik
 
