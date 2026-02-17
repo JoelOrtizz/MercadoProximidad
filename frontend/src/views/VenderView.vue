@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="form-group form-group--full">
-                    <div class="form-pair">
+                    <div class="form-triple">
                         <div class="form-col">
                             <label for="stock">Stock disponible</label>                
                             <input type="number" name="stock" id="stock" v-model="form.stock" min="0">
@@ -48,6 +48,18 @@
                                     {{ u.nombre }} ({{ u.simbolo }})
                                 </option>
                             </select>
+                        </div>
+                        <div class="form-col">
+                            <label for="precio">Precio (€)</label>
+                            <input
+                              type="number"
+                              name="precio"
+                              id="precio"
+                              v-model="form.precio"
+                              min="0"
+                              step="0.01"
+                              placeholder="Ej: 2.50"
+                            >
                         </div>
                     </div>
                 </div>

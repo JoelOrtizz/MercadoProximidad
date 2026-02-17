@@ -36,7 +36,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
-      - backend_uploads:/app/uploads
+      - ../backend/uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -70,7 +70,6 @@ services:
 
 volumes:
   db_data:
-  backend_uploads:
 
 networks:
   app-internal:

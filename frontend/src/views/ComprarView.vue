@@ -121,8 +121,30 @@
                     <div class="product-qty">
                       <i class="bi bi-123"></i>
                       <span>Cant:</span>
-                      <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                      <input :disabled="!isLoggedIn()" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
                         style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <div class="product-point">
+                      <i class="bi bi-geo-alt"></i>
+                      <div class="product-point-field">
+                        <div class="product-point-label">Seleccione donde quiere recogerlo</div>
+                        <select
+                          :disabled="!isLoggedIn() || puntosEntregaDeVendedor(p.id_vendedor).length === 0"
+                          v-model="reservaPuntoId[String(p.id)]"
+                          class="input form-control form-control-sm"
+                          @click.stop
+                          @focus="ensureReservaDefaults(p)"
+                          style="max-width:180px;"
+                        >
+                          <option
+                            v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)"
+                            :key="pt.id"
+                            :value="String(pt.id)"
+                          >
+                            {{ pt.descripcion || `Punto #${pt.id}` }}
+                          </option>
+                        </select>
+                      </div>
                     </div>
                     <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
                       :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
@@ -188,8 +210,30 @@
                     <div class="product-qty">
                       <i class="bi bi-123"></i>
                       <span>Cant:</span>
-                      <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                      <input :disabled="!isLoggedIn()" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
                         style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <div class="product-point">
+                      <i class="bi bi-geo-alt"></i>
+                      <div class="product-point-field">
+                        <div class="product-point-label">Seleccione donde quiere recogerlo</div>
+                        <select
+                          :disabled="!isLoggedIn() || puntosEntregaDeVendedor(p.id_vendedor).length === 0"
+                          v-model="reservaPuntoId[String(p.id)]"
+                          class="input form-control form-control-sm"
+                          @click.stop
+                          @focus="ensureReservaDefaults(p)"
+                          style="max-width:180px;"
+                        >
+                          <option
+                            v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)"
+                            :key="pt.id"
+                            :value="String(pt.id)"
+                          >
+                            {{ pt.descripcion || `Punto #${pt.id}` }}
+                          </option>
+                        </select>
+                      </div>
                     </div>
                     <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
                       :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
@@ -206,9 +250,8 @@
         </template>
         <!--Boton de ver mas -->
         <div v-if="hasMoreProducts" class="text-center mt-4 mb-5">
-          <button class="btn btn-outline-primary" type="button" @click="handleLoadMore"
-            style="border: 1px solid #ddd; background: white; padding: 10px 20px; border-radius: 20px;">
-            Ver más productos ({{ visibleProducts.length }} de {{ products.length }})
+          <button class="btn load-more-btn" type="button" @click="handleLoadMore">
+            Ver más productos
             <i class="bi bi-chevron-down ms-1"></i>
           </button>
         </div>
@@ -260,7 +303,7 @@ let mapMarkers = [];
 const isLoggedIn = () => Boolean(auth.user?.id);
 
 // "paginacion"
-const itemsPerPage = 21;
+const itemsPerPage = 6;
 const visibleCount = ref(itemsPerPage);
 // corta el array original y devuelve solo los que deben verse
 const visibleProducts = computed(() => {

@@ -255,8 +255,70 @@ INSERT INTO unidades (nombre, simbolo) VALUES
 -- Contraseña para ambos usuarios: 1234
 -- (hash bcrypt ya generado, para que puedas hacer login)
 INSERT INTO usuarios (id, nombre, nickname, email, tlf, contrasena, tipo, lat, lng) VALUES
-(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', NULL, NULL),
-(2, 'Joel', 'Joel', 'joel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', NULL, NULL);
+(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07170000, -0.26680000),
+(2, 'Joel', 'Joel', 'joel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07310000, -0.26820000);
+
+-- ======================================
+-- PRODUCTOS DE MUESTRA (ALTERNANDO VENDEDOR)
+-- ======================================
+-- Nota: se alterna id_vendedor entre Daniel (1) y Joel (2).
+-- Imagen: el campo guarda solo el nombre del fichero.
+INSERT INTO productos
+  (nombre, id_categoria, id_unidad, stock, precio, descripcion, imagen, id_vendedor, duracion_producto)
+VALUES
+  ('Sandia rayada',          1, 1, 24.00, 2.80, 'Sandia dulce de temporada.',                 'sandias.jpeg',     1, 7),
+  ('Tomate valenciano',      2, 1, 38.00, 2.40, 'Tomate rojo para ensalada.',                 'tomates.jpg',      2, 6),
+  ('Pepino fresco',          2, 1, 30.00, 1.90, 'Pepino crujiente recien cortado.',           'pepinos.jpg',      1, 6),
+  ('Leche fresca',           3, 3, 46.00, 1.35, 'Leche fresca pasteurizada.',                 'lechefresca.jpg', 2, 4),
+  ('Pan de pueblo',          4, 5, 20.00, 1.80, 'Pan artesanal horneado hoy.',                'pan.jpg',          1, 2),
+  ('Embutido casero',        5, 5, 18.00, 3.90, 'Elaborado artesanal listo para servir.',     'elaborado.jpg',    2, 20),
+  ('Aceite de oliva virgen', 6, 3, 28.00, 7.80, 'Aceite suave de primera prensada.',          'aceite.jpg',       1, 60),
+  ('Ramo de flores',         7, 5, 12.00, 9.50, 'Ramo mixto de flor natural.',                'ramodeflores.jpg', 2, 3),
+  ('Miel local',             8, 5, 16.00, 5.60, 'Miel natural de apicultor local.',           'miel.jpg',         1, 90);
+
+-- ======================================
+-- PUNTOS DE ENTREGA DE MUESTRA
+-- ======================================
+INSERT INTO puntos_entrega (id_vendedor, lat, lng, descripcion) VALUES
+  (1, 39.07190000, -0.26710000, 'Punto centro Tavernes - Daniel'),
+  (1, 39.06980000, -0.26290000, 'Punto norte Tavernes - Daniel'),
+  (2, 39.07340000, -0.27060000, 'Punto centro Tavernes - Joel'),
+  (2, 39.07500000, -0.26470000, 'Punto este Tavernes - Joel');
+
+-- ======================================
+-- RESERVAS DE MUESTRA (ESTADOS VARIADOS)
+-- ======================================
+-- Objetivo: tener ejemplos reales de reservas en distintos estados
+-- para probar listados, filtros y acciones del frontend/backend.
+INSERT INTO reservas
+  (id_vendedor, id_comprador, id_producto, cantidad, id_punto_entrega, estado)
+VALUES
+  -- Pendiente: Joel compra a Daniel
+  (1, 2, 1, 2.00, 1, 'pendiente'),
+  -- Aceptada: Daniel compra a Joel
+  (2, 1, 2, 1.00, 4, 'aceptada'),
+  -- Cancelada: Joel compra a Daniel
+  (1, 2, 3, 3.00, 2, 'cancelada'),
+  -- Rechazada: Daniel compra a Joel
+  (2, 1, 4, 2.00, 3, 'rechazada'),
+  -- Completada: Joel compra a Daniel (con valoracion creada mas abajo)
+  (1, 2, 5, 1.00, 1, 'completada'),
+  -- Completada: Daniel compra a Joel (sin valorar aun -> pendiente de valoracion)
+  (2, 1, 6, 1.00, 4, 'completada'),
+  -- Cancelacion solicitada: Joel compra a Daniel
+  (1, 2, 7, 1.00, 2, 'cancelacion_solicitada'),
+  -- Completada: Joel compra a Daniel (sin valorar aun -> pendiente de valoracion)
+  (1, 2, 9, 2.00, 1, 'completada');
+
+-- ======================================
+-- VALORACIONES DE MUESTRA
+-- ======================================
+-- Objetivo: tener ejemplos de "valoraciones hechas" y "pendientes".
+-- Reserva #5: Joel (comprador) valora a Daniel (vendedor).
+INSERT INTO valoraciones
+  (id_reserva, id_autor, id_destinatario, nota_producto, nota_entrega, nota_negociacion, comentario)
+VALUES
+  (5, 2, 1, 5, 4, 5, 'Producto muy bueno y trato rapido.');
 
 -- Creamos (si no existe) el chat entre ellos y unos mensajes de ejemplo.
 

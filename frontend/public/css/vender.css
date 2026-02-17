@@ -63,6 +63,12 @@ h2 {
     gap: 20px;
 }
 
+.form-triple {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
 .form-col {
     display: flex;
     flex-direction: column;
@@ -208,7 +214,8 @@ input[type="file"]::file-selector-button:hover {
     padding: 20px;
   }
   .form-grid,
-  .form-pair {
+  .form-pair,
+  .form-triple {
     grid-template-columns: 1fr;
   }
 }
