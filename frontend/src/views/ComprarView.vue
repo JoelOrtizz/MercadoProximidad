@@ -248,9 +248,8 @@
         </template>
         <!--Boton de ver mas -->
         <div v-if="hasMoreProducts" class="text-center mt-4 mb-5">
-          <button class="btn btn-outline-primary" type="button" @click="handleLoadMore"
-            style="border: 1px solid #ddd; background: white; padding: 10px 20px; border-radius: 20px;">
-            Ver más productos ({{ visibleProducts.length }} de {{ products.length }})
+          <button class="btn load-more-btn" type="button" @click="handleLoadMore">
+            Ver más productos
             <i class="bi bi-chevron-down ms-1"></i>
           </button>
         </div>
