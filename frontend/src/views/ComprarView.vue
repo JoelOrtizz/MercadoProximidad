@@ -120,8 +120,30 @@
                     <div class="product-qty">
                       <i class="bi bi-123"></i>
                       <span>Cant:</span>
-                      <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                      <input :disabled="!isLoggedIn()" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
                         style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <div class="product-point">
+                      <i class="bi bi-geo-alt"></i>
+                      <div class="product-point-field">
+                        <div class="product-point-label">Seleccione donde quiere recogerlo</div>
+                        <select
+                          :disabled="!isLoggedIn() || puntosEntregaDeVendedor(p.id_vendedor).length === 0"
+                          v-model="reservaPuntoId[String(p.id)]"
+                          class="input form-control form-control-sm"
+                          @click.stop
+                          @focus="ensureReservaDefaults(p)"
+                          style="max-width:180px;"
+                        >
+                          <option
+                            v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)"
+                            :key="pt.id"
+                            :value="String(pt.id)"
+                          >
+                            {{ pt.descripcion || `Punto #${pt.id}` }}
+                          </option>
+                        </select>
+                      </div>
                     </div>
                     <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
                       :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
@@ -186,8 +208,30 @@
                     <div class="product-qty">
                       <i class="bi bi-123"></i>
                       <span>Cant:</span>
-                      <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                      <input :disabled="!isLoggedIn()" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
                         style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <div class="product-point">
+                      <i class="bi bi-geo-alt"></i>
+                      <div class="product-point-field">
+                        <div class="product-point-label">Seleccione donde quiere recogerlo</div>
+                        <select
+                          :disabled="!isLoggedIn() || puntosEntregaDeVendedor(p.id_vendedor).length === 0"
+                          v-model="reservaPuntoId[String(p.id)]"
+                          class="input form-control form-control-sm"
+                          @click.stop
+                          @focus="ensureReservaDefaults(p)"
+                          style="max-width:180px;"
+                        >
+                          <option
+                            v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)"
+                            :key="pt.id"
+                            :value="String(pt.id)"
+                          >
+                            {{ pt.descripcion || `Punto #${pt.id}` }}
+                          </option>
+                        </select>
+                      </div>
                     </div>
                     <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
                       :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
