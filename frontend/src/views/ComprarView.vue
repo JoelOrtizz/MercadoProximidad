@@ -103,7 +103,8 @@
                         <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
                       </span>
                     </span>
-                    <span class="meta-item">
+                    <span v-if="p.stock==0">Sin existencias</span>
+                    <span v-else class="meta-item">
                       <i class="bi bi-box-seam"></i>
                       {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
                     </span>
@@ -169,7 +170,8 @@
                         <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
                       </span>
                     </span>
-                    <span class="meta-item">
+                    <span v-if="p.stock == 0">Sin existencias</span>
+                    <span v-else class="meta-item">
                       <i class="bi bi-box-seam"></i>
                       {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
                     </span>
@@ -249,6 +251,8 @@ const reservaCantidad = reactive({}); // { [id_producto]: number }
 const reservaPuntoId = reactive({}); // { [id_producto]: string }
 const reservandoLoadingId = ref(null);
 const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
+
+const alerta = ref('')
 
 let map = null;
 let mapMarkers = [];

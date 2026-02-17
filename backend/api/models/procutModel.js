@@ -50,7 +50,7 @@ const buildProductsQuery = ({ category, text, lat, lng, distance }) => {
     let having = "";
     let orderBy = " ORDER BY p.fecha_creacion DESC";
 
-    where.push("p.stock > 0");
+    where.push("p.stock >= 0");
 
     if (category !== undefined && category !== null) {
         where.push("p.id_categoria = ?");

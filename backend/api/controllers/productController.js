@@ -1,4 +1,6 @@
 import { getProduct, postProduct, putProduct, deleteProductById, getProductById, getProductByVendedor, getProductByCategoria, getProductByPrecio,getProductByUbicacion } from '../models/procutModel.js'
+import { usuariosConAlerta } from '../models/alertaModel.js';
+import { createNotificacion } from '../models/notificacionModel.js';
 
 export async function fetchProducts(req, res, next) {
     try {
@@ -180,23 +182,23 @@ export async function updateProduct(req, res, next) {
 
         try {
             if (stock > 0 || oldStock === 0) {
-                const usuarios = usuariosConAlerta(productoId);
+                const usuarios = await usuariosConAlerta(productoId);
 
                 for (const usuario of usuarios) {
                     await createNotificacion(
                         usuario.id_usuario,
+                        "info",
                         "Producto disponible",
-                        "Producto disponible",
-                        `El producto ${producto.nombre} vuelve a estar disponible`,
+                        `El producto ${producto[0].nombre} vuelve a estar disponible`,
                         "/comprar",
-                        productoId
+                        null
                     );
                 }
             }
 
 
         } catch (err) {
-            console.error("No se pudo crear la notificacion", e);
+            console.error("No se pudo crear la notificacion", err);
         }
 
 

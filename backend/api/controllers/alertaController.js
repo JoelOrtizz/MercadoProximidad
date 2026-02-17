@@ -5,7 +5,7 @@ import { crearAlerta, listarAlertas, pathAlertas } from '../models/alertaModel.j
 export async function postAlerta(req, res, next) {
     try {
         const userId = req.user?.id;
-        const productId = req.body.id;
+        const productId = req.body.id_producto;
 
         const producto = await getProductById(productId);
         if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });

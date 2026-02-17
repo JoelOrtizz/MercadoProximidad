@@ -31,9 +31,16 @@
           <h2>Descripcion</h2>
           <p>{{ producto?.descripcion || 'Sin descripcion.' }}</p>
         </div>
+        <button class="btn btn-info btn-sm w-100" type="button" @click="alertar"
+          v-if="!canReserve && producto?.stock === 0">
+          <i class="bi bi-bell me-1"></i>
+          {{ esActiva() ? 'Desactivar alerta' : 'Activar alerta' }}
+        </button>
       </div>
 
       <aside class="product-detail__reserve">
+        <template v-if="Number(producto?.stock) > 0">
+ 
         <h2>Reservar</h2>
         <p class="muted">Selecciona cantidad y punto de entrega.</p>
 
@@ -56,6 +63,16 @@
           <i class="bi bi-cart-plus me-1"></i>
           {{ reservando ? 'Reservando...' : 'Reservar' }}
         </button>
+        </template>
+        <template v-else>
+          <h2>Agotado</h2>
+          <p class="muted">Actualmente sin stock.</p>
+
+          <button class="btn btn-info btn-sm w-100" type="button" @click="alertar">
+            <i class="bi bi-bell me-1"></i>
+            {{ esActiva() ? 'Quitar alerta' : 'Avisadme cuando haya' }}
+          </button>
+        </template>
       </aside>
     </div>
   </main>
@@ -63,7 +80,7 @@
 
 <script setup>
 import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, registerRuntimeCompiler } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
@@ -80,12 +97,60 @@ const cantidad = ref(1);
 const puntoId = ref('');
 const reservando = ref(false);
 
+const miAlertas = ref([]);
+
+async function loadAlertas(){
+  if (!auth.user?.id) {
+    toast.warning('Tienes que iniciar sesion');
+    router.push('/login');
+    return;
+  }
+  try{
+    const res = await axios.get('/alertas');
+    miAlertas.value = Array.isArray(res.data) ? res.data : [];
+  }catch(err){
+    console.error('Error cargando alertas:', err);
+    miAlertas.value = [];
+  }
+}
+
+function esActiva(){
+  if (!producto.value) return false;
+  return miAlertas.value.some(a => producto.value.id === a.id_producto); 
+}
+
+  async function alertar() {
+    if (!auth.user?.id) {
+      toast.warning('Inicia sesión para crear alertas');
+      router.push('/login');
+      return;
+    }
+    try {
+      if (!esActiva()) {
+        await axios.post('/alertas', {
+          id_producto: producto.value.id
+        });
+        toast.success('Alerta activada');
+      } else {
+        const alerta = miAlertas.value.find(a => String(a.id_producto) === String(producto.value.id));
+        await axios.put(`/alertas/${alerta.id}/desactivar`);
+        toast.success('Alerta desactivada');
+      }
+
+      await loadAlertas();
+    } catch (err) {
+      console.error('Error:', err);
+      toast.error('Error con la alerta');
+    }
+  }
+
+
 const canReserve = computed(() => {
   if (!auth.user?.id) return false;
   if (!producto.value) return false;
   if (String(producto.value.id_vendedor) === String(auth.user?.id)) return false;
   const stock = Number(producto.value.stock);
-  return Number.isFinite(stock) ? stock > 0 : true;
+  return Number.isFinite(stock) ? stock > 0 : false;
 });
 
 const categoriaText = computed(() => {
@@ -187,5 +252,6 @@ onMounted(async () => {
   await auth.ensureReady();
   await Promise.all([loadCategorias(), loadProducto()]);
   await loadPuntosEntrega();
+  await loadAlertas();
 });
 </script>

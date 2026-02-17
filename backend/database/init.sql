@@ -1,4 +1,4 @@
--- Active: 1762442615612@@127.0.0.1@3306@terretashop_db
+-- Active: 1759832791265@@127.0.0.1@3306
 -- ======================================
 -- BASE DE DATOS
 -- ======================================
@@ -176,6 +176,16 @@ CREATE TABLE notificaciones (
   ,INDEX idx_notificaciones_usuario_leida (id_usuario, leida)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+create table alertas_stock (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario int not null,
+    id_producto int not null unique,
+    activa boolean default true,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Foreign Key (id_usuario) REFERENCES usuarios (id),
+    Foreign Key (id_producto) REFERENCES productos (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 
 -- ======================================
 -- CHAT
@@ -282,3 +292,10 @@ WHERE c.id_usuario_min = 1 AND c.id_usuario_max = 2
     SELECT 1 FROM mensajes m
     WHERE m.id_chat = c.id AND m.id_usuario = 1 AND m.mensaje = 'Lo tienes disponible todavia?'
   );
+
+-- ======================================
+-- CREAR USUARIO ALUMNO (si no existe)
+-- ======================================
+CREATE USER IF NOT EXISTS 'alumno'@'%' IDENTIFIED BY 'alumno_password';
+GRANT ALL PRIVILEGES ON terretashop_db.* TO 'alumno'@'%';
+FLUSH PRIVILEGES;

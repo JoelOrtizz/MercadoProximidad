@@ -29,8 +29,7 @@ export async function listarAlertas(id_usuario) {
 
 export async function usuariosConAlerta(id_producto) {
     const [result] = await pool.query(
-        `select id_usuario
-        where id_producto = ?`,
+        `select id_usuario from alertas_stock where id_producto = ?`,
         [id_producto]
     );
 
