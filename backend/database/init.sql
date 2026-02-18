@@ -1,4 +1,4 @@
--- Active: 1759832791265@@127.0.0.1@3306
+
 -- ======================================
 -- BASE DE DATOS
 -- ======================================
@@ -358,6 +358,6 @@ WHERE c.id_usuario_min = 1 AND c.id_usuario_max = 2
 -- ======================================
 -- CREAR USUARIO ALUMNO (si no existe)
 -- ======================================
-CREATE USER IF NOT EXISTS 'alumno'@'%' IDENTIFIED BY 'alumno_password';
-GRANT ALL PRIVILEGES ON terretashop_db.* TO 'alumno'@'%';
-FLUSH PRIVILEGES;
+-- CREATE USER IF NOT EXISTS 'alumno'@'%' IDENTIFIED BY 'alumno_password';
+-- GRANT ALL PRIVILEGES ON terretashop_db.* TO 'alumno'@'%';
+-- FLUSH PRIVILEGES;
