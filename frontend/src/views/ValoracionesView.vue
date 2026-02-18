@@ -5,7 +5,7 @@
         <h1>Valoraciones</h1>
         <div class="subtitle">{{ subtitle }}</div>
       </div>
-      <button class="btn" type="button" :disabled="loading" @click="loadReservas">
+      <button class="btn btn-reload-mobile" type="button" :disabled="loading" title="Recargar" aria-label="Recargar" @click="loadReservas">
         Recargar
       </button>
     </div>
@@ -19,7 +19,7 @@
     <!--Encabezado de las pestañas-->
 
     <div v-else class="card">
-      <div class="tabs">
+      <div class="tabs valoraciones-tabs">
         <button class="btn" :class="{ 'btn-primary': tab === 'pendientes' }" @click="tab = 'pendientes'">
           Por Valorar ({{ listaPendientes.length }})
         </button>

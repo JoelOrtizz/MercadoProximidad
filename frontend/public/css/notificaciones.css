@@ -189,6 +189,49 @@
 }
 
 @media (max-width: 800px) {
+  .head {
+    align-items: stretch;
+  }
+
+  .head-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .head-actions .btn {
+    padding: 7px 8px;
+    font-size: 12px;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .head-actions .btn-reload-mobile {
+    width: 34px;
+    height: 34px;
+    padding: 0 !important;
+    border-radius: 999px;
+    font-size: 0 !important;
+    line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    order: 99;
+    margin-left: auto;
+  }
+
+  .head-actions .btn-reload-mobile::before {
+    content: "\f116";
+    font-family: "bootstrap-icons";
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .tabs {
+    justify-content: center;
+  }
+
   .row {
     grid-template-columns: 28px 1fr;
   }

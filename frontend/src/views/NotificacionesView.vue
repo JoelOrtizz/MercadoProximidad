@@ -5,7 +5,7 @@
         <h1 class="title">Notificaciones</h1>
 
         <div class="head-actions">
-          <button class="btn" type="button" :disabled="notificaciones.loading || accionando" @click="reload">
+          <button class="btn btn-reload-mobile" type="button" :disabled="notificaciones.loading || accionando" title="Recargar" aria-label="Recargar" @click="reload">
             {{ notificaciones.loading ? 'Cargando...' : 'Recargar' }}
           </button>
           <button class="btn" type="button" :disabled="notificaciones.loading || accionando || notificaciones.items.length === 0" @click="toggleSelectAll">

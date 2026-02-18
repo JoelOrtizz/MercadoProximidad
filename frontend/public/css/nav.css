@@ -72,6 +72,27 @@ a:hover {
   gap: 16px;
 }
 
+.nav__hamburger {
+  display: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: #fff;
+  color: #374151;
+}
+
+.nav__hamburger .bi {
+  font-size: 1.4rem;
+}
+
+.nav__collapse {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 1;
+}
+
 .nav__brand {
   display: flex;
   align-items: center;
@@ -294,46 +315,68 @@ a:hover {
 }
 
 @media (max-width: 1024px) {
-  .nav__inner {
-    flex-wrap: wrap;
-  }
-  .nav__brand {
-    order: 1;
-  }
-  .nav__actions {
-    order: 2;
-  }
-  .nav__menu {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-  }
   .nav__pill {
     min-width: 0;
-    flex: 1 1 140px;
+    flex: 1 1 120px;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .nav {
     padding: 10px 0;
   }
   .nav__inner {
     padding: 0 14px;
+    padding-right: 56px;
     gap: 10px;
+    display: block;
+    position: relative;
+    min-height: 42px;
+    max-width: 100%;
   }
-  .nav__logo-img {
-    height: 42px;
+  .nav__hamburger {
+    display: inline-flex;
+    margin-left: 0;
+    align-items: center;
+    justify-content: center;
+    position: fixed !important;
+    right: 8px !important;
+    left: auto !important;
+    top: 150px !important;
+    transform: none;
+    z-index: 1300;
+  }
+  .nav__collapse {
+    width: 100%;
+    flex-basis: 100%;
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .nav__collapse:not(.show) {
+    display: none !important;
+  }
+  .nav__collapse.show {
+    display: block !important;
+  }
+  .nav__menu {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
   .nav__pill {
-    font-size: 13px;
-    padding: 8px 10px;
+    width: 100%;
     min-width: 0;
+    padding: 9px 10px;
+    font-size: 13px;
   }
   .nav__actions {
     width: 100%;
     justify-content: center;
-    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .nav__icon {
+    margin: 0 auto;
   }
   .nav__cta,
   .nav__user {

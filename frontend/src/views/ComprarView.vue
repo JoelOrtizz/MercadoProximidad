@@ -5,10 +5,16 @@
     <div class="market-layout">
 
       <!-- ASIDE se va a referir a la tarjeta lateral donde se mostrarán las categorías -->
-      <aside class="card filters">
+      <aside class="card filters" :class="{ 'filters--open-mobile': mobileFiltersOpen }">
 
-        <h2>Filtros</h2>
+        <div class="filters__head">
+          <h2>Filtros</h2>
+          <button class="btn filters__toggle-mobile" type="button" @click="mobileFiltersOpen = !mobileFiltersOpen">
+            {{ mobileFiltersOpen ? 'Ocultar' : 'Mostrar' }}
+          </button>
+        </div>
 
+        <div class="filters__body">
         <div class="field">
           <label class="label">Categorias</label>
           <div class="chips">
@@ -45,6 +51,7 @@
           <button class="btn" type="button" @click="mapMode = !mapMode">
             {{ mapMode ? 'Ver en lista' : 'Ver en mapa' }}
           </button>
+        </div>
         </div>
         
       </aside>
@@ -283,6 +290,7 @@ const selectedCategory = ref('all');
 const searchText = ref('');
 const distanceKm = ref('10');
 const mapMode = ref(false);
+const mobileFiltersOpen = ref(false);
 const selectedMapPoint = ref(null);
 const selectedMapPointKey = ref('');
 

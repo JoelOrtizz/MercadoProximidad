@@ -175,6 +175,44 @@
 }
 
 @media (max-width: 700px) {
+  .products-header {
+    align-items: stretch;
+  }
+
+  .btn-reload-mobile {
+    align-self: flex-end;
+    width: 38px;
+    height: 38px;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    font-size: 0 !important;
+    line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-reload-mobile::before {
+    content: "\f116";
+    font-family: "bootstrap-icons";
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .valoraciones-tabs {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+  }
+
+  .valoraciones-tabs .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 7px 8px !important;
+    font-size: 12px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
   .item-card {
     padding: 16px;
   }
