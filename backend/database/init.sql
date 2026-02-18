@@ -215,6 +215,19 @@ CREATE TABLE mensajes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+CREATE TABLE etiquetas(
+  id INT auto_increment primary key,
+  nombre varchar(50) not null unique
+);
+
+CREATE TABLE productos_etiquetas (
+  id_producto int not null,
+  id_etiqueta int not null,
+  PRIMARY key (id_producto, id_etiqueta),
+  Foreign Key (id_producto) REFERENCES productos(id) on delete cascade,
+  Foreign Key (id_etiqueta) REFERENCES etiquetas(id) on delete cascade
+)
+
 -- ======================================
 -- CATEGORÇ?AS INSERTADAS
 -- ======================================
