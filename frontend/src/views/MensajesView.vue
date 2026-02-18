@@ -74,8 +74,9 @@
           <form class="conv__composer" @submit.prevent="send">
             <input v-model="draft" class="input conv__input" type="text" placeholder="Escribe un mensaje..."
               :disabled="sending" @keydown.enter.exact.prevent="send">
-            <button class="btn btn-primary" type="submit" :disabled="sending || !draft.trim()">
-              {{ sending ? 'Enviando...' : 'Enviar' }}
+            <button class="btn btn-primary conv__send-btn" type="submit" :disabled="sending || !draft.trim()">
+              <i class="bi bi-send-fill" aria-hidden="true"></i>
+              <span class="conv__send-label">{{ sending ? 'Enviando...' : 'Enviar' }}</span>
             </button>
           </form>
         </template>

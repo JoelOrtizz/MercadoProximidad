@@ -1,3 +1,210 @@
 /* ReservasView usa sobre todo estilos base (card, btn, tabs, price, meta...).
    Este fichero existe para que la vista tenga su CSS propio (mas claro). */
 
+.reserva-title {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.reserva-title-meta {
+  font-weight: 500;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.reserva-head {
+  display: grid;
+  grid-template-columns: minmax(300px, auto) minmax(420px, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+}
+
+.reserva-ref {
+  margin-top: 2px;
+  font-size: 0.92rem;
+  color: #4b5563;
+}
+
+.reserva-ref-note {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.reserva-clickable {
+  cursor: pointer;
+}
+
+.reserva-clickable:hover {
+  background: #fafafa;
+}
+
+.reserva-user-link {
+  margin-left: 4px;
+  font-weight: 600;
+  color: #f97316;
+  text-decoration: none;
+}
+
+.reserva-user-link:hover {
+  text-decoration: underline;
+}
+
+.reserva-top-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  font-size: 0.92rem;
+  color: #6b7280;
+}
+
+.reserva-top-grid--header {
+  margin-top: 2px;
+  justify-items: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.reserva-top-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.reserva-top-item .bi {
+  flex: 0 0 auto;
+}
+
+.reserva-top-item .reserva-user-link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reserva-status {
+  justify-self: end;
+  align-self: start;
+}
+
+.reserva-status .badge {
+  display: inline-flex !important;
+  align-items: center;
+  width: auto !important;
+  white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+  .reserva-head {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .reserva-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reserva-top-grid--header {
+    justify-items: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .products-header {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .products-header > div:first-child {
+    flex: 0 0 100%;
+  }
+
+  .reservas-top-switch {
+    order: 2;
+    flex: 1;
+    justify-content: center !important;
+  }
+
+  .reservas-top-switch .btn {
+    min-width: 92px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .btn-reload-mobile {
+    order: 3;
+    align-self: auto;
+    margin-left: auto;
+    width: 38px;
+    height: 38px;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    font-size: 0 !important;
+    line-height: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-reload-mobile::before {
+    content: "\f116";
+    font-family: "bootstrap-icons";
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .reservas-tabs {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+  }
+
+  .reservas-tabs .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 7px 8px !important;
+    font-size: 12px;
+    white-space: nowrap;
+    text-align: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .card-body {
+    padding: 10px 12px !important;
+  }
+
+  .reserva-head img {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .reserva-title {
+    font-size: 0.98rem;
+  }
+
+  .reserva-ref,
+  .reserva-ref-note,
+  .reserva-top-grid {
+    font-size: 0.78rem;
+  }
+
+  .actions {
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 6px 6px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .actions .ms-auto {
+    margin-left: 0 !important;
+  }
+}
+

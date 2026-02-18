@@ -1,11 +1,15 @@
 <template>
-  <!-- Unico componente global para el nav -->
-  <HeaderGlobal v-if="!route.meta?.hideNav" />
-  <Toast />
-  <Modal />
-  <!-- Aqui se pinta cada “pagina” -->
-  <router-view />
-  <Footer />
+  <div class="app-shell">
+    <!-- Unico componente global para el nav -->
+    <HeaderGlobal v-if="!route.meta?.hideNav" />
+    <Toast />
+    <Modal />
+    <!-- Aqui se pinta cada pagina -->
+    <div class="app-content">
+      <router-view />
+    </div>
+    <Footer />
+  </div>
 </template>
 
 <script setup>
@@ -149,3 +153,17 @@ watch(
   }
 );
 </script>
+
+<style>
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1 0 auto;
+}
+</style>
+

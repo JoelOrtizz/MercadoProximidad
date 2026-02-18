@@ -7,7 +7,7 @@
       </div>
 
       <!-- Filtro simple: separar compras y ventas -->
-      <div v-if="isLoggedIn" style="flex: 1; display: flex; justify-content: center; gap: 8px">
+      <div v-if="isLoggedIn" class="reservas-top-switch" style="flex: 1; display: flex; justify-content: center; gap: 8px">
         <button class="btn" type="button" :class="{ 'btn-primary': tipoLista === 'compras' }" @click="tipoLista = 'compras'">
           Compras
         </button>
@@ -16,7 +16,7 @@
         </button>
       </div>
 
-      <button class="btn" type="button" :disabled="loading" @click="loadReservas">Recargar</button>
+      <button class="btn btn-reload-mobile" type="button" :disabled="loading" title="Recargar" aria-label="Recargar" @click="loadReservas">Recargar</button>
     </div>
 
     <GuestState
@@ -26,7 +26,7 @@
     />
 
     <div v-else class="card">
-      <div class="tabs" style="display: flex; gap: 8px; flex-wrap: wrap">
+      <div class="tabs reservas-tabs" style="display: flex; gap: 8px; flex-wrap: wrap">
 
         <button class="btn" type="button" :class="{ 'btn-primary': tab === 'pendientes' }" @click="tab = 'pendientes'">
           Pendientes ({{ pendientes.length }})
@@ -50,69 +50,83 @@
 
       <div v-else class="d-flex flex-column gap-2" style="margin-top: 12px">
         <div v-for="r in activeList" :key="r.id" class="card shadow-sm mb-3">
-          <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+          <div class="card-body reserva-clickable" @click="goToProducto(r, $event)">
+          <div class="reserva-head mb-2">
             <div class="d-flex align-items-center gap-2">
               <img v-if="r.producto_imagen" :src="`/uploads/${encodeURIComponent(r.producto_imagen)}`" alt=""
-                class="rounded border" style="width: 44px; height: 44px; object-fit: cover;" />
-              <i class="bi bi-basket me-1 text-warning"></i>
-            <div style="font-weight: 700">#{{ r.id }} · {{ r.producto_nombre || 'Producto' }}</div>
+                class="rounded border" style="width: 56px; height: 56px; object-fit: cover;" />
+            <div>
+              <div class="reserva-title">
+                {{ r.producto_nombre || 'Producto' }}
+                <span class="reserva-title-meta">({{ formatCantidad(r.cantidad) }} {{ r.producto_unidad || '' }})</span>
+              </div>
+              <div class="reserva-ref">Numero de reserva: {{ r.id }}</div>
+              <div class="reserva-ref-note">Usa este numero como referencia para la recogida.</div>
             </div>
-            <span v-if="r.estado === 'pendiente'" class="badge bg-warning text-dark">
-              <i class="bi bi-hourglass-split me-1"></i>
-              {{ r.estado }}
-            </span>
-            <span v-else-if="r.estado === 'aceptada' || r.estado === 'confirmada'" class="badge bg-success">
-              <i class="bi bi-hourglass-split me-1"></i>
-              {{ r.estado }}
-            </span>
-            <span v-else-if="r.estado === 'cancelada'" class="badge bg-danger">
-              <i class="bi bi-hourglass-split me-1"></i>
-              {{ r.estado }}
-            </span>
-            <span v-else-if="r.estado === 'completada'" class="badge bg-primary">
-              <i class="bi bi-hourglass-split me-1"></i>
-              {{ r.estado }}
-            </span>
-            <span v-else class="badge bg-secondary">
-              <i class="bi bi-hourglass-split me-1"></i>
-              {{ r.estado }}
-            </span>
-          </div>
-
-          <div class="meta d-none" style="margin-top: 8px">
-            Cantidad: <b>{{ r.cantidad }}</b> · Punto: {{ r.punto_descripcion || '-' }}
-            <br />
-            Vendedor: {{ r.id_vendedor }} · Comprador: {{ r.id_comprador }} · Fecha: {{ formatDate(r.fecha_creacion) }}
-          </div>
-
-          <div class="row small text-muted mt-3">
-            <div class="col-md-6 mb-2">
-              <i class="bi bi-geo-alt me-2"></i>
-              {{ r.punto_descripcion || '-' }}
             </div>
-
-            <div class="col-md-6 mb-2">
-              <i class="bi bi-box-seam me-2"></i>
-              {{ r.cantidad }}
+            <div class="reserva-top-grid reserva-top-grid--header">
+              <div class="reserva-top-item">
+                <i class="bi bi-geo-alt me-2"></i>
+                {{ r.punto_descripcion || '-' }}
+              </div>
+              <div class="reserva-top-item">
+                <i class="bi bi-person me-2"></i>
+                <template v-if="isComprador(r)">
+                  Vendedor:
+                  <RouterLink :to="`/usuario/${r.id_vendedor}`" class="reserva-user-link" @click.stop>
+                    {{ r.nombre_vendedor || `Usuario ${r.id_vendedor}` }}
+                  </RouterLink>
+                </template>
+                <template v-else>
+                  Comprador:
+                  <RouterLink :to="`/usuario/${r.id_comprador}`" class="reserva-user-link" @click.stop>
+                    {{ r.nombre_comprador || `Usuario ${r.id_comprador}` }}
+                  </RouterLink>
+                </template>
+              </div>
+              <div class="reserva-top-item">
+                <i class="bi bi-clock me-2"></i>
+                {{ formatDate(r.fecha_creacion) }}
+              </div>
             </div>
-
-            <div class="col-md-6 mb-2">
-              <i class="bi bi-person me-2"></i>
-              Vendedor: {{ r.id_vendedor }} - Comprador: {{ r.id_comprador }}
-            </div>
-
-            <div class="col-md-6 mb-2">
-              <i class="bi bi-clock me-2"></i>
-              {{ formatDate(r.fecha_creacion) }}
+            <div class="reserva-status">
+              <span v-if="r.estado === 'pendiente'" class="badge bg-warning text-dark">
+                <i class="bi bi-hourglass-split me-1"></i>
+                {{ r.estado }}
+              </span>
+              <span v-else-if="r.estado === 'aceptada' || r.estado === 'confirmada'" class="badge bg-success">
+                <i class="bi bi-hourglass-split me-1"></i>
+                {{ r.estado }}
+              </span>
+              <span v-else-if="r.estado === 'cancelada'" class="badge bg-danger">
+                <i class="bi bi-hourglass-split me-1"></i>
+                {{ r.estado }}
+              </span>
+              <span v-else-if="r.estado === 'completada'" class="badge bg-primary">
+                <i class="bi bi-hourglass-split me-1"></i>
+                {{ r.estado }}
+              </span>
+              <span v-else class="badge bg-secondary">
+                <i class="bi bi-hourglass-split me-1"></i>
+                {{ r.estado }}
+              </span>
             </div>
           </div>
 
           <div class="actions mt-3 d-flex gap-2 flex-wrap">
-
             <button class="btn btn-outline-primary btn-sm" type="button" :disabled="savingById[r.id]" @click="openChat(r)">
               <i class="bi bi-chat-dots me-1"></i>
               Chat
+            </button>
+
+            <button
+              v-if="isComprador(r) && r.estado === 'aceptada' && hasPointCoords(r)"
+              class="btn btn-outline-success btn-sm"
+              type="button"
+              @click="openMaps(r)"
+            >
+              <i class="bi bi-geo-alt me-1"></i>
+              Como llegar
             </button>
 
             <template v-if="isComprador(r)">
@@ -122,7 +136,7 @@
                 {{ savingById[r.id] ? 'Cancelando...' : 'Cancelar' }}
               </button>
 
-              <button v-if="r.estado === 'aceptada'" class="btn btn-outline-warning btn-sm" type="button"
+              <button v-if="r.estado === 'aceptada'" class="btn btn-outline-warning btn-sm ms-auto" type="button"
                 style="border: 1px solid #f59e0b; color: #f59e0b;" :disabled="savingById[r.id]" @click="cancelar(r)">
                 <i class="bi bi-x-circle me-1"></i>
                 {{ savingById[r.id] ? 'Enviando...' : 'Solicitar Cancelación' }}
@@ -210,12 +224,47 @@
     }
   }
 
+  function formatCantidad(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return value ?? '-';
+    return n.toString();
+  }
+
   function isComprador(r) {
     return String(r.id_comprador) === String(auth.user?.id);
   }
 
   function isVendedor(r) {
     return String(r.id_vendedor) === String(auth.user?.id);
+  }
+
+  function hasPointCoords(r) {
+    const lat = Number(r?.punto_lat);
+    const lng = Number(r?.punto_lng);
+    return Number.isFinite(lat) && Number.isFinite(lng);
+  }
+
+  function openMaps(r) {
+    if (!hasPointCoords(r)) {
+      toast.error('Esta reserva no tiene coordenadas disponibles.');
+      return;
+    }
+    const userLat = Number(auth.user?.lat);
+    const userLng = Number(auth.user?.lng);
+    const lat = Number(r.punto_lat);
+    const lng = Number(r.punto_lng);
+    const hasUserOrigin = Number.isFinite(userLat) && Number.isFinite(userLng);
+    const originParam = hasUserOrigin ? `&origin=${userLat},${userLng}` : '';
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}${originParam}&travelmode=driving`;
+    window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  function goToProducto(r, event) {
+    if (!r?.id_producto) return;
+    const target = event?.target;
+    const isInteractive = target?.closest?.('button, a, input, select, textarea, label');
+    if (isInteractive) return;
+    router.push(`/producto/${r.id_producto}`);
   }
 
   const reservasPorTipo = computed(() => {

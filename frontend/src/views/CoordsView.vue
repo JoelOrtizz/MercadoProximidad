@@ -44,7 +44,7 @@
 <script setup>
 import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
@@ -63,6 +63,7 @@ let map = null;
 let marker = null;
 let markerIcon = null;
 const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
+let resizeHandler = null;
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const isEditMode = computed(() => route.query?.edit === '1');
@@ -162,6 +163,15 @@ async function createMap() {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     await setSelected(lat, lng);
   });
+
+  // Leaflet puede calcular mal el alto al entrar en la vista; forzamos recalculo.
+  await nextTick();
+  requestAnimationFrame(() => {
+    try { map.invalidateSize(true); } catch {}
+  });
+  setTimeout(() => {
+    try { map.invalidateSize(true); } catch {}
+  }, 120);
 }
 
 function myLocation() {
@@ -222,9 +232,20 @@ onMounted(async () => {
 
   await createMap();
   await myLocation();
+
+  resizeHandler = () => {
+    if (!map) return;
+    try { map.invalidateSize(true); } catch {}
+  };
+  window.addEventListener('resize', resizeHandler);
+  window.addEventListener('orientationchange', resizeHandler);
 });
 
 onBeforeUnmount(() => {
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler);
+    window.removeEventListener('orientationchange', resizeHandler);
+  }
   try {
     if (map) map.remove();
   } catch {}

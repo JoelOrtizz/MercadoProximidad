@@ -133,7 +133,10 @@
             />
 
             <div>
-              <div class="product-row__title">{{ p.nombre }}</div>
+              <div class="product-row__title">
+                <span>{{ p.nombre }}</span>
+                <span v-if="Number(p.stock) === 0" class="stock-chip stock-chip--empty">Sin stock</span>
+              </div>
               <div class="product-row__desc">{{ p.descripcion || 'Sin descripcion.' }}</div>
               <div class="product-row__meta">
                 Categoria: {{ categoriaLabel(p.id_categoria) }} · Stock:

@@ -188,6 +188,14 @@
   background: #fff;
 }
 
+.conv__send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
 .conv__input {
   flex: 1;
 }
@@ -211,19 +219,45 @@
 @media (max-width: 950px) {
   .mensajes-layout {
     grid-template-columns: 1fr;
+    height: calc(100dvh - 135px);
+    max-height: calc(100dvh - 135px);
   }
   .chats {
     min-width: 0;
     border-right: 0;
-    border-bottom: 1px solid var(--border);
-    max-height: 40vh;
+    border-bottom: 2px solid #e5e7eb;
+    max-height: 26vh;
+    background: #fff;
+  }
+  .conv {
+    min-height: 0;
+    border-top: 1px solid #f1f5f9;
+  }
+  .conv__messages {
+    min-height: 0;
+    flex: 1 1 auto;
   }
 }
 
 @media (max-width: 700px) {
+  .mensajes-page {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
   .mensajes-layout {
-    height: calc(100dvh - 200px);
-    max-height: calc(100dvh - 200px);
+    height: calc(100dvh - 120px);
+    max-height: calc(100dvh - 120px);
+  }
+  .chats {
+    max-height: 22vh;
+  }
+  .conv {
+    min-height: 0;
+  }
+  .conv__messages {
+    min-height: 0;
+    flex: 1 1 auto;
+    padding-bottom: 12px;
   }
   .chats__header,
   .conv__header,
@@ -235,10 +269,39 @@
     align-items: flex-start;
   }
   .conv__composer {
-    flex-direction: column;
+    flex-direction: row;
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    align-items: center;
+    gap: 8px;
   }
-  .conv__composer button {
-    width: 100%;
+  .conv__input {
+    border: 0;
+    border-bottom: 1px solid #d1d5db;
+    border-radius: 0;
+    padding: 10px 2px;
+    background: transparent;
+  }
+  .conv__input:focus {
+    border-color: var(--primary);
+    box-shadow: none;
+  }
+  .conv__send-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 999px !important;
+    padding: 0 !important;
+  }
+  .conv__send-label {
+    display: none;
+  }
+  .conv__send-btn .bi {
+    font-size: 14px;
+    line-height: 1;
   }
   .bubble {
     max-width: 92%;

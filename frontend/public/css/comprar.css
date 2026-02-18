@@ -14,10 +14,25 @@
   font-size: 18px;
 }
 
+.filters__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.filters__toggle-mobile {
+  display: none;
+}
+
 .filters {
   align-self: start;
   max-height: none;
   overflow: visible;
+}
+
+.filters__body {
+  display: block;
 }
 
 .product-grid {
@@ -493,9 +508,35 @@
     min-height: 420px;
     max-height: none;
   }
+
+  /* En movil/tablet no fijamos cabecera de productos para que no tape contenido */
+  .products .products-header {
+    position: static;
+    top: auto;
+    z-index: auto;
+    padding-bottom: 0;
+  }
 }
 
 @media (max-width: 700px) {
+  .filters__toggle-mobile {
+    display: inline-flex;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .filters {
+    margin-bottom: 8px;
+  }
+
+  .filters__body {
+    display: none;
+  }
+
+  .filters.filters--open-mobile .filters__body {
+    display: block;
+  }
+
   .product-grid {
     grid-template-columns: 1fr;
   }

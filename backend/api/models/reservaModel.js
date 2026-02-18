@@ -40,13 +40,17 @@ export async function fetchReservas(userId) {
             r.*, 
             p.nombre AS producto_nombre, 
             p.imagen AS producto_imagen, 
+            un.simbolo AS producto_unidad,
             pe.descripcion AS punto_descripcion,
+            pe.lat AS punto_lat,
+            pe.lng AS punto_lng,
             v.nombre AS nombre_vendedor,   
             c.nombre AS nombre_comprador    
         FROM reservas r
         -- Si el producto ya fue borrado, la reserva debe seguir saliendo (historial).
         -- Por eso usamos LEFT JOIN.
         LEFT JOIN productos p ON r.id_producto = p.id
+        LEFT JOIN unidades un ON p.id_unidad = un.id
         LEFT JOIN puntos_entrega pe ON r.id_punto_entrega = pe.id
         JOIN usuarios v ON r.id_vendedor = v.id    
         JOIN usuarios c ON r.id_comprador = c.id   
