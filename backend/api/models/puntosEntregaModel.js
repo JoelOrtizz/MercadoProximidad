@@ -89,6 +89,7 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
     const lockedIds = (Array.isArray(lockedIdRows) ? lockedIdRows : [])
       .map((r) => Number(r?.id_punto_entrega))
       .filter((n) => Number.isFinite(n));
+    const keptLockedCount = lockedIds.length;
 
     let lockedPoints = [];
     if (lockedIds.length) {
@@ -154,7 +155,17 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
         `,
         [vendedorId]
       );
-      return { inserted: 0, rows };
+      const message =
+        keptLockedCount > 0
+          ? `Guardado parcial: ${keptLockedCount} punto(s) se mantuvieron por tener reservas activas.`
+          : 'No habia cambios que guardar.';
+      return {
+        inserted: 0,
+        rows,
+        kept_locked_count: keptLockedCount,
+        kept_locked_ids: lockedIds,
+        message,
+      };
     }
 
     const valuesToInsert = toInsert.map((p) => [vendedorId, p.lat, p.lng, p.descripcion ?? null]);
@@ -180,7 +191,17 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
     );
 
     await conn.commit();
-    return { inserted, rows };
+    const message =
+      keptLockedCount > 0
+        ? `Guardado parcial: ${keptLockedCount} punto(s) se mantuvieron por tener reservas activas.`
+        : 'Puntos guardados correctamente.';
+    return {
+      inserted,
+      rows,
+      kept_locked_count: keptLockedCount,
+      kept_locked_ids: lockedIds,
+      message,
+    };
   } catch (err) {
     try {
       await conn.rollback();

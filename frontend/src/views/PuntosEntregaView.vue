@@ -265,11 +265,27 @@ async function saveAll() {
     }));
 
     const res = await axios.post('/puntos-entrega/bulk', { puntos: payload });
-    const inserted = Number(res.data?.inserted) || payload.length;
-    setStatus(`Guardados ${inserted} punto(s).`);
+    const inserted = Number(res.data?.inserted) || 0;
+    const keptLockedCount = Number(res.data?.kept_locked_count) || 0;
+    const backendMessage = String(res.data?.message || '').trim();
+
+    if (keptLockedCount > 0) {
+      const text =
+        backendMessage ||
+        `Guardado parcial: ${inserted} punto(s) actualizados. ${keptLockedCount} se mantienen por reservas activas.`;
+      setStatus(text);
+      toast.warning(text, 9000);
+    } else {
+      const text = backendMessage || `Guardados ${inserted} punto(s).`;
+      setStatus(text);
+      toast.success(text, 3500);
+    }
+
+    await loadMyPuntosEntrega();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     setStatus(`Error: ${msg || 'No se pudieron guardar los puntos.'}`);
+    toast.error(msg || 'No se pudieron guardar los puntos.', 6000);
   } finally {
     saving.value = false;
   }
