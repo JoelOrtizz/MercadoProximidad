@@ -38,10 +38,25 @@ export const countPuntosEntregaByVendedor = async (vendedorId) => {
 export const listPuntosEntregaByVendedor = async (vendedorId) => {
   const [rows] = await pool.query(
     `
-      SELECT id, id_vendedor AS id_vendedor, lat, lng, descripcion
-      FROM puntos_entrega
-      WHERE id_vendedor = ?
-      ORDER BY id DESC
+      SELECT
+        p.id,
+        p.id_vendedor AS id_vendedor,
+        p.lat,
+        p.lng,
+        p.descripcion,
+        COALESCE(ra.reservas_activas, 0) AS reservas_activas
+      FROM puntos_entrega p
+      LEFT JOIN (
+        SELECT
+          r.id_punto_entrega,
+          COUNT(*) AS reservas_activas
+        FROM reservas r
+        WHERE r.id_punto_entrega IS NOT NULL
+          AND r.estado IN ('pendiente', 'aceptada', 'cancelacion_solicitada')
+        GROUP BY r.id_punto_entrega
+      ) ra ON ra.id_punto_entrega = p.id
+      WHERE p.id_vendedor = ?
+      ORDER BY p.id DESC
     `,
     [vendedorId]
   );

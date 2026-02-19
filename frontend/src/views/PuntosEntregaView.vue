@@ -40,7 +40,12 @@
             <tbody>
               <tr v-for="(p, idx) in points" :key="idx">
                 <td>{{ idx + 1 }}</td>
-                <td>{{ p.descripcion || p.displayName || 'Buscando...' }}</td>
+                <td>
+                  <div class="point-desc">{{ p.descripcion || p.displayName || 'Buscando...' }}</div>
+                  <span v-if="Number(p.reservas_activas) > 0" class="badge-reservas">
+                    Con reservas activas ({{ Number(p.reservas_activas) }})
+                  </span>
+                </td>
                 <td>
                   <button class="btn btn-danger" type="button" @click="removePoint(p)">Eliminar</button>
                 </td>
@@ -317,6 +322,7 @@ async function loadMyPuntosEntrega() {
         marker,
         descripcion: r?.descripcion || '',
         displayName: r?.descripcion || '',
+        reservas_activas: Number(r?.reservas_activas) || 0,
       });
     });
 
