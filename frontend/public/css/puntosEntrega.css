@@ -139,6 +139,10 @@
   color: #444;
 }
 
+.table-note {
+  margin: 8px 2px 0;
+}
+
 @media (max-width: 1000px) {
   .layout {
     grid-template-columns: 1fr;

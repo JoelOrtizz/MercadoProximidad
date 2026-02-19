@@ -53,6 +53,9 @@
             </tbody>
           </table>
         </div>
+        <p class="muted table-note">
+          Si un punto tiene reservas activas, no puede eliminarse hasta que esas reservas dejen de estar activas.
+        </p>
 
         <div class="status">{{ statusText }}</div>
       </aside>
