@@ -1,10 +1,10 @@
-<template>
+﻿<template>
   <main class="page">
     <div class="header">
       <div>
         <h1>Configurar puntos de entrega</h1>
         <p class="muted">
-          Haz click en el mapa para a�adir varios puntos. Luego pulsa "Guardar todo" para enviarlos al backend.
+          Haz click en el mapa para añadir varios puntos. Luego pulsa "Guardar todo" para enviarlos al backend.
         </p>
       </div>
       <button class="btn" type="button" @click="router.push('/perfil')">Volver a perfil</button>
@@ -58,7 +58,7 @@
 <script setup>
 import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
@@ -75,6 +75,7 @@ const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 let map = null;
 let markerIcon = null;
+let resizeHandler = null;
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
@@ -149,6 +150,11 @@ function fitToPoints() {
   map.fitBounds(bounds, { padding: [20, 20], maxZoom: 16 });
 }
 
+function forceMapResize() {
+  if (!map) return;
+  try { map.invalidateSize(true); } catch {}
+}
+
 async function createMap() {
   const L = await loadLeaflet();
 
@@ -170,6 +176,15 @@ async function createMap() {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     await addPoint(lat, lng);
   });
+
+  // Evita el render parcial (franja gris) al entrar en la vista.
+  await nextTick();
+  requestAnimationFrame(() => {
+    try { map.invalidateSize(true); } catch {}
+  });
+  setTimeout(() => {
+    try { map.invalidateSize(true); } catch {}
+  }, 120);
 }
 
 function myLocation() {
@@ -303,9 +318,24 @@ onMounted(async () => {
   await createMap();
   myLocation();
   await loadMyPuntosEntrega();
+  setTimeout(forceMapResize, 60);
+  setTimeout(forceMapResize, 250);
+  setTimeout(forceMapResize, 600);
+
+  resizeHandler = () => {
+    forceMapResize();
+  };
+  window.addEventListener('resize', resizeHandler);
+  window.addEventListener('orientationchange', resizeHandler);
+  document.addEventListener('visibilitychange', resizeHandler);
 });
 
 onBeforeUnmount(() => {
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler);
+    window.removeEventListener('orientationchange', resizeHandler);
+    document.removeEventListener('visibilitychange', resizeHandler);
+  }
   try {
     if (map) map.remove();
   } catch {}
