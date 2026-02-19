@@ -1,3 +1,5 @@
+-- Active: 1771355233677@@127.0.0.1@3306@terretashop_db
+
 
 -- ======================================
 -- BASE DE DATOS
@@ -32,6 +34,9 @@ CREATE TABLE categorias (
   nombre VARCHAR(100) NOT NULL UNIQUE,
   descripcion TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
 
 -- ======================================
 -- UNIDADES
@@ -179,7 +184,7 @@ CREATE TABLE notificaciones (
 create table alertas_stock (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario int not null,
-    id_producto int not null unique,
+    id_producto int not null,
     activa boolean default true,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Foreign Key (id_usuario) REFERENCES usuarios (id),
@@ -224,6 +229,14 @@ CREATE TABLE mensajes (
   INDEX idx_mensajes_usuario_fecha (id_usuario, fecha_creacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+create table favoritos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario int not null,
+    id_producto int not null,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Foreign Key (id_usuario) REFERENCES usuarios (id) ON DELETE CASCADE,
+    Foreign Key (id_producto) REFERENCES productos (id) ON DELETE CASCADE
+);
 
 -- ======================================
 -- CATEGORÇ?AS INSERTADAS

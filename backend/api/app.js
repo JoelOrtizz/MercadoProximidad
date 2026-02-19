@@ -15,6 +15,7 @@ import ratingRoutes from './routes/ratingRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import notificacionRoutes from './routes/notificacionRoutes.js';
 import alertaRoutes from './routes/alertaRoutes.js';
+import favoritosRoutes from './routes/favoritosRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -72,22 +73,12 @@ app.use("/api/reservas", reservaRoutes, ratingRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/notificaciones', notificacionRoutes);
 app.use('/api/alertas', alertaRoutes);
+app.use('/api/favoritos', favoritosRoutes);
 
 // 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
-app.use(express.json())
-
-app.use(
-  cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:5500"],
-    credentials: true, 
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-  })
-);
-
-app.use(cookieParser('secret'));
 
 // ==============================
 // MANEJO GLOBAL DE ERRORES

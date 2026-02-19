@@ -51,6 +51,9 @@
           <button class="btn" type="button" @click="mapMode = !mapMode">
             {{ mapMode ? 'Ver en lista' : 'Ver en mapa' }}
           </button>
+          <RouterLink to="/favoritos" class="btn btn-primary">
+            ir a favoritos
+          </RouterLink>
         </div>
         </div>
         
@@ -302,8 +305,6 @@ const reservaCantidad = reactive({}); // { [id_producto]: number }
 const reservaPuntoId = reactive({}); // { [id_producto]: string }
 const reservandoLoadingId = ref(null);
 const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
-
-const alerta = ref('')
 
 let map = null;
 let mapMarkers = [];
