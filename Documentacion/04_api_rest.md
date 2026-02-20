@@ -1,108 +1,87 @@
 # 04. API REST
 
-## 4.1 Base URL y formato
-
+## 4.1 Base y formato
 - Base URL: `/api`
-- Formato principal: JSON
-- Subida de imágenes en productos: `multipart/form-data`
+- Formato: JSON
+- Subida de imagenes: `multipart/form-data`
 
-## 4.2 Autenticación
+## 4.2 Autenticacion
+- Login crea cookie JWT firmada (`access_token`, httpOnly).
+- Endpoints protegidos usan `requireAuth`.
+- El frontend envia credenciales con `axios.defaults.withCredentials = true`.
 
-- El login genera una cookie `access_token` (JWT) marcada como `httpOnly` y **firmada**.
-- Endpoints protegidos usan el middleware `requireAuth` y leen `req.signedCookies.access_token`.
+## 4.3 Endpoints principales
 
-## 4.3 Endpoints
+### Salud
+- `GET /api/health`
 
-### Auth / sesión
-
-- `POST /api/login`  
-  Body: `{ "email": "...", "contrasena": "..." }`  
-  Respuesta: `{ message, user }` + cookie.
-
-- `POST /api/login/logout`  
-  Cierra sesión (borra cookie).
-
-- `GET /api/login/me` (auth)  
-  Devuelve `{ user }` (sin `contrasena`).
+### Sesion
+- `POST /api/login`
+- `POST /api/login/logout`
 
 ### Usuarios
+- `GET /api/usuarios`
+- `POST /api/usuarios`
+- `GET /api/usuarios/me` (auth)
+- `PUT /api/usuarios/me` (auth)
+- `DELETE /api/usuarios/me` (auth)
+- `GET /api/usuarios/:id` (publico, perfil basico)
+- `GET /api/usuarios/:id/ratings/media`
 
-- `GET /api/usuarios`  
-  Lista usuarios (público).
-
-- `POST /api/usuarios`  
-  Registro de usuario.
-
-- `GET /api/usuarios/me` (auth)  
-  Alias de perfil autenticado.
-
-- `PUT /api/usuarios/me` (auth)  
-  Actualiza datos propios (actualmente `nombre` y `email`).
-
-- `DELETE /api/usuarios/me` (auth)  
-  Borra el usuario autenticado.
-
-> Nota: existen rutas `PUT/DELETE /api/usuarios/:id` protegidas. En la implementación actual solo permiten operar sobre el propio usuario (no es un CRUD de admin).
-
-### Categorías
-
+### Categorias y unidades
 - `GET /api/categorias`
-
-### Unidades
-
-- `GET /api/unidades`  
-  Devuelve `[{ id, nombre, simbolo }]`.
+- `GET /api/unidades`
 
 ### Productos
-
 - `GET /api/productos`
-
-- `GET /api/productos/me` (auth)  
-  Productos del vendedor autenticado.
-
-- `POST /api/productos` (auth, multipart)  
-  Campos esperados: `nombre`, `precio`, `stock`, `categoria`, `id_unidad`, `descripcion`, `imagen`.
-
-- `PUT /api/productos/:id` (auth, multipart)  
-  Campos esperados: `nombre`, `precio`, `stock`, `id_categoria`, `id_unidad`, `descripcion`, `imagen` (opcional) / `imagen_anterior` (si no hay nueva).
-
+- `GET /api/productos/id/:id`
+- `GET /api/productos/me` (auth)
+- `GET /api/productos/usuario/:id`
+- `POST /api/productos` (auth, multipart)
+- `PUT /api/productos/:id` (auth, multipart)
 - `DELETE /api/productos/:id` (auth)
 
-> Importante: los listados de productos devuelven también `unidad_nombre` y `unidad_simbolo` gracias al `JOIN` con `unidades`.
+Nota: existen rutas legacy en `productRoutes.js` (`/:id_categoria`, etc.) que no son las principales del frontend actual.
 
-### Coordenadas del usuario
-
-- `PATCH /api/map/me` (auth)  
-  Body: `{ "lat": <number>, "lng": <number> }`
+### Coordenadas de usuario
+- `PATCH /api/map/me` (auth)
 
 ### Puntos de entrega
-
 - `GET /api/puntos-entrega/me` (auth)
-- `GET /api/puntos-entrega/usuario/:id` (público)
-- `POST /api/puntos-entrega` (auth)  
-  Body: `{ lat, lng, descripcion? }`
-- `POST /api/puntos-entrega/bulk` (auth)  
-  Body: `{ puntos: [{ lat, lng, descripcion? }, ...] }`  
-  Semántica actual: reemplaza los puntos del vendedor.
+- `GET /api/puntos-entrega/usuario/:id`
+- `POST /api/puntos-entrega` (auth)
+- `POST /api/puntos-entrega/bulk` (auth)
+
+`bulk` devuelve informacion de guardado parcial cuando hay puntos bloqueados por reservas activas (`kept_locked_count`, `message`).
 
 ### Reservas
-
-- `POST /api/reservas` (auth)  
-  Body: `{ id_producto, cantidad, id_punto_entrega }`
-
-- `GET /api/reservas` (auth)  
-  Devuelve reservas donde el usuario es comprador o vendedor. El frontend filtra `cancelada`.
-
+- `POST /api/reservas` (auth)
+- `GET /api/reservas` (auth)
 - `GET /api/reservas/:id` (auth)
+- `PUT /api/reservas/:id/cancel` (auth)
+- `PUT /api/reservas/:id/status` (auth)
+- `POST /api/reservas/:id/solicitar-cancelacion` (auth)
+- `POST /api/reservas/:id/responder-cancelacion` (auth)
 
-- `PUT /api/reservas/:id/cancel` (auth)  
-  Solo comprador y solo si la reserva está `pendiente`.
+### Chat
+- `GET /api/chats` (auth)
+- `POST /api/chats/find-or-create` (auth)
+- `GET /api/chats/:id/mensajes` (auth)
+- `POST /api/chats/:id/mensajes` (auth)
 
-- `PUT /api/reservas/:id/status` (auth)  
-  Body: `{ estado: "aceptada" | "rechazada" | "completada" }`  
-  Solo vendedor.
+### Notificaciones
+- `GET /api/notificaciones` (auth)
+- `POST /api/notificaciones/leidas-todas` (auth)
+- `POST /api/notificaciones/:id/leida` (auth)
 
-## 4.4 Funcionalidades pendientes
+### Valoraciones
+Definidas en `ratingRoutes.js`, montadas sobre `/api/usuarios` y `/api/reservas`:
+- `POST /api/reservas/:id/ratings` (auth)
+- `GET /api/reservas/:id/ratings` (auth)
+- `GET /api/reservas/:id/ratings/sent` (auth)
 
-- **Chat/mensajes**: no integrado aún (próximo sprint).
-- **Valoraciones**: no integrado aún (próximo sprint).
+## 4.4 Convenciones de respuesta
+- Exito: payload JSON con datos solicitados o confirmacion.
+- Error: `{ error: "mensaje" }` desde middleware global.
+- Validaciones de SQL y negocio traducidas a codigos HTTP coherentes (400/401/403/404/409/500).
+

@@ -1,29 +1,25 @@
-<!--
-VISTA: Seleccionar ubicación (CoordsView.vue)
+﻿<!--
+VISTA: CoordsView (CoordsView.vue)
 
-Qué pantalla es:
-- Pantalla para guardar la ubicación del usuario en el sistema.
-- Sirve para que luego el marketplace pueda filtrar por “cerca de mí”.
+Que pantalla es:
+- Esta copia refleja el estado actual de frontend/src/views/CoordsView.vue.
+- Sirve como referencia rapida para entender plantilla, estado y flujo principal.
 
-Qué puede hacer el usuario aquí:
-- Ver un mapa.
-- Pinchar en el mapa para elegir un punto.
-- Ver la dirección aproximada del punto.
-- Guardar la ubicación en su perfil.
-
-Con qué otras pantallas se relaciona:
-- Si no estás logueado, te manda a /login.
-- Al guardar correctamente, vuelve a /perfil.
-- Si ya tienes coords guardadas, esta pantalla se usa solo en modo edición (/coords?edit=1).
+Como leerla:
+- Revisa primero el template para ver estructura visual y eventos.
+- Despues revisa el script para ver carga de datos, validaciones y acciones.
+- Si haces cambios en la vista real, actualiza tambien este archivo para mantener la documentacion alineada.
 -->
+
 <template>
   <main class="page">
     <h1>Selecciona tu ubicacion</h1>
 
-    <div v-if="!isLoggedIn" class="coords-muted" style="margin-top: 10px">
-      Necesitas iniciar sesion para guardar tu ubicacion.
-      <RouterLink to="/login">Ir a login</RouterLink>
-    </div>
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para guardar tu ubicacion debes iniciar sesion."
+    />
 
     <div v-else-if="blockedBecauseAlreadyHasCoords" class="coords-muted" style="margin-top: 10px">
       Ya tienes una ubicacion guardada. Solo se vuelve a mostrar este mapa cuando lo vas a configurar.
@@ -59,45 +55,18 @@ Con qué otras pantallas se relaciona:
 </template>
 
 <script setup>
-// ==========================================================
-// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
-// ==========================================================
-// Objetivo didáctico: entender cuándo se crea el mapa, cuándo se elige un punto
-// y qué se envía al backend para guardar la ubicación.
-// No se cambia el comportamiento del código.
-
-// ===============================
-// BLOQUE: IMPORTS Y DEPENDENCIAS
-// Qué problema resuelve: pedir/guardar datos al backend y usar datos de sesión/ruta.
-// Cuándo se usa: desde que entras a la pantalla.
-// Con qué se relaciona: con el guardado final y con el bloqueo si ya hay coords.
-// Si no existiera: no podríamos mostrar ni guardar la ubicación.
-// ===============================
+import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
 
-// ===============================
-// BLOQUE: SESIÓN + ROUTER + TOAST
-// Qué problema resuelve: saber quién es el usuario y poder volver a perfil, además de mostrar errores.
-// Cuándo se usa: al cargar la vista y al guardar.
-// Con qué se relaciona: con `save` y con las pantallas de /login y /perfil.
-// Si no existiera: no sabríamos a quién guardar la ubicación ni podríamos avisar de fallos.
-// ===============================
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const toast = useToastStore();
 
-// ===============================
-// BLOQUE: ESTADO DE PANTALLA (SELECCIÓN Y MENSAJES)
-// Qué problema resuelve: guardar el punto seleccionado y el texto que ve el usuario.
-// Cuándo se usa: al pinchar el mapa y mientras se busca la dirección.
-// Con qué se relaciona: con el template (coordenadas, texto de dirección, botón Guardar).
-// Si no existiera: no podrías ver qué punto has elegido ni guardar nada.
-// ===============================
 const selected = ref(null);
 const addressText = ref('Selecciona un punto en el mapa.');
 const saving = ref(false);
@@ -105,14 +74,10 @@ const blockedBecauseAlreadyHasCoords = ref(false);
 
 let map = null;
 let marker = null;
+let markerIcon = null;
+const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
+let resizeHandler = null;
 
-// ===============================
-// BLOQUE: COMPROBACIONES (LOGIN / MODO EDICIÓN / YA TIENE COORDS)
-// Qué problema resuelve: decidir si dejamos usar el mapa o mostramos un mensaje.
-// Cuándo se usa: en la carga inicial.
-// Con qué se relaciona: con el template (v-if / v-else-if / v-else).
-// Si no existiera: podrías reescribir coords sin querer o ver una pantalla sin sentido.
-// ===============================
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const isEditMode = computed(() => route.query?.edit === '1');
 const hasCoords = computed(() => {
@@ -124,14 +89,8 @@ const hasCoords = computed(() => {
   return Number.isFinite(lat) && Number.isFinite(lng);
 });
 
+// loadLeaflet: carga datos y actualiza el estado visible de la vista.
 function loadLeaflet() {
-  // ===============================
-  // BLOQUE: CARGA DEL MAPA (LIBRERÍA LEAFLET)
-  // Qué problema resuelve: el proyecto no trae Leaflet “instalado”, así que se carga al vuelo.
-  // Cuándo se usa: al entrar a la pantalla (si se permite usar el mapa).
-  // Con qué se relaciona: con `createMap` que usa window.L.
-  // Si no existiera: no habría mapa.
-  // ===============================
   if (window.L) return Promise.resolve(window.L);
 
   return new Promise((resolve, reject) => {
@@ -163,14 +122,8 @@ function loadLeaflet() {
   });
 }
 
+// reverseGeocode: centraliza una parte concreta de la logica de esta vista documentada.
 async function reverseGeocode(lat, lng) {
-  // ===============================
-  // BLOQUE: CONVERTIR COORDENADAS A DIRECCIÓN (TEXTO)
-  // Qué problema resuelve: mostrar al usuario una dirección “humana” en vez de solo números.
-  // Cuándo se usa: cada vez que eliges un punto.
-  // Con qué se relaciona: con `setSelected`.
-  // Si no existiera: verías solo lat/lng y sería más difícil confirmar el punto.
-  // ===============================
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
   const res = await fetch(url, {
     headers: { Accept: 'application/json', 'Accept-Language': 'es-ES,es;q=0.9' },
@@ -180,21 +133,15 @@ async function reverseGeocode(lat, lng) {
   return data?.display_name || '';
 }
 
+// setSelected: centraliza una parte concreta de la logica de esta vista documentada.
 async function setSelected(lat, lng) {
-  // ===============================
-  // BLOQUE: SELECCIONAR PUNTO EN EL MAPA
-  // Qué problema resuelve: colocar o mover el marcador y guardar el punto seleccionado.
-  // Cuándo se usa: cuando pinchas en el mapa.
-  // Con qué se relaciona: con `reverseGeocode` y con el botón Guardar.
-  // Si no existiera: pinchar no haría nada y no sabrías qué se va a guardar.
-  // ===============================
   selected.value = { lat, lng };
-
+  
   const L = window.L;
   if (marker) {
     marker.setLatLng([lat, lng]);
   } else {
-    marker = L.marker([lat, lng]).addTo(map);
+    marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
   }
 
   addressText.value = 'Buscando direccion...';
@@ -206,14 +153,8 @@ async function setSelected(lat, lng) {
   }
 }
 
+// createMap: valida y envia cambios al backend, mostrando resultado al usuario.
 async function createMap() {
-  // ===============================
-  // BLOQUE: CREAR MAPA Y ESCUCHAR CLICS
-  // Qué problema resuelve: iniciar el mapa en una zona y reaccionar cuando el usuario pincha.
-  // Cuándo se usa: al entrar en la pantalla (cuando toca mostrar el mapa).
-  // Con qué se relaciona: con `setSelected`.
-  // Si no existiera: la UI estaría, pero el mapa no funcionaría.
-  // ===============================
   const L = await loadLeaflet();
   if (!L) {
     toast.error('Leaflet no esta cargado');
@@ -221,10 +162,17 @@ async function createMap() {
   }
 
   // Tavernes de la Valldigna (Safor)
-  map = L.map('map').setView([39.0717, -0.2668], 13);
+  map = L.map('map').setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '',
   }).addTo(map);
+
+  markerIcon = L.icon({
+    iconUrl: '/assets/pin_sin_fondo.png',
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
+    popupAnchor: [0, -34],
+  });
 
   map.on('click', async (e) => {
     const lat = e?.latlng?.lat;
@@ -232,38 +180,55 @@ async function createMap() {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     await setSelected(lat, lng);
   });
+
+  // Leaflet puede calcular mal el alto al entrar en la vista; forzamos recalculo.
+  await nextTick();
+  requestAnimationFrame(() => {
+    try { map.invalidateSize(true); } catch {}
+  });
+  setTimeout(() => {
+    try { map.invalidateSize(true); } catch {}
+  }, 120);
+  setTimeout(() => {
+    try { map.invalidateSize(true); } catch {}
+  }, 450);
 }
 
+// myLocation: centraliza una parte concreta de la logica de esta vista documentada.
 function myLocation() {
-  // ===============================
-  // BLOQUE: BOTÓN “MI UBICACIÓN”
-  // Qué problema resuelve: mover el mapa a la ubicación del móvil/PC (si el navegador lo permite).
-  // Cuándo se usa: cuando el usuario pulsa el botón.
-  // Con qué se relaciona: con el mapa ya creado.
-  // Si no existiera: el usuario tendría que buscar su zona manualmente.
-  // ===============================
-  if (!('geolocation' in navigator)) return;
   if (!map) return;
+  toast.show('Localizando tu ubicacion...', 'info', 15000);
+  if (!('geolocation' in navigator)) {
+    map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+    setSelected(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+    toast.warning('No se pudo localizar. Usando predeterminadas.');
+    return;
+  }
 
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
+    async (pos) => {
       const { latitude, longitude } = pos.coords;
-      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+        await setSelected(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+        toast.warning('No se pudo localizar. Usando predeterminadas.');
+        return;
+      }
       map.setView([latitude, longitude], 14);
+      await setSelected(latitude, longitude);
+      toast.success('Ubicacion detectada.');
     },
-    () => {},
+    async () => {
+      map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+      await setSelected(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+      toast.warning('No se pudo localizar. Usando predeterminadas.');
+    },
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
   );
 }
 
+// save: valida y envia cambios al backend, mostrando resultado al usuario.
 async function save() {
-  // ===============================
-  // BLOQUE: GUARDAR COORDENADAS EN EL PERFIL
-  // Qué problema resuelve: enviar al backend las coords elegidas y actualizar el usuario.
-  // Cuándo se usa: cuando el usuario pulsa “Guardar”.
-  // Con qué se relaciona: con `selected` y con la redirección a /perfil.
-  // Si no existiera: elegir un punto no serviría para nada.
-  // ===============================
   if (!selected.value) return;
   saving.value = true;
   try {
@@ -279,14 +244,7 @@ async function save() {
 }
 
 onMounted(async () => {
-  // ===============================
-  // BLOQUE: CARGA INICIAL
-  // Qué problema resuelve: decidir si se puede usar el mapa y crear el mapa solo cuando toca.
-  // Cuándo se usa: al entrar a /coords.
-  // Con qué se relaciona: con `hasCoords`, `isEditMode`, `createMap`.
-  // Si no existiera: verías el mapa incluso cuando no debería, o no se cargaría.
-  // ===============================
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
 
   if (hasCoords.value && !isEditMode.value) {
@@ -295,16 +253,23 @@ onMounted(async () => {
   }
 
   await createMap();
+  await myLocation();
+
+  resizeHandler = () => {
+    if (!map) return;
+    try { map.invalidateSize(true); } catch {}
+  };
+  window.addEventListener('resize', resizeHandler);
+  window.addEventListener('orientationchange', resizeHandler);
+  document.addEventListener('visibilitychange', resizeHandler);
 });
 
 onBeforeUnmount(() => {
-  // ===============================
-  // BLOQUE: LIMPIEZA AL SALIR DE LA PANTALLA
-  // Qué problema resuelve: evitar que el mapa se quede “vivo” cuando cambias de vista.
-  // Cuándo se usa: al navegar a otra pantalla.
-  // Con qué se relaciona: con `map` y `marker`.
-  // Si no existiera: podrían quedar recursos colgados o errores al volver a entrar.
-  // ===============================
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler);
+    window.removeEventListener('orientationchange', resizeHandler);
+    document.removeEventListener('visibilitychange', resizeHandler);
+  }
   try {
     if (map) map.remove();
   } catch {}
@@ -312,3 +277,13 @@ onBeforeUnmount(() => {
   marker = null;
 });
 </script>
+
+
+
+
+
+
+
+
+
+

@@ -1,21 +1,16 @@
-<!--
-VISTA: Configurar puntos de entrega (PuntosEntregaView.vue)
+﻿<!--
+VISTA: PuntosEntregaView (PuntosEntregaView.vue)
 
-Qué pantalla es:
-- Pantalla para que un vendedor gestione sus puntos de entrega.
-- Se usa un mapa: el usuario pincha para añadir varios puntos (máximo 5).
+Que pantalla es:
+- Esta copia refleja el estado actual de frontend/src/views/PuntosEntregaView.vue.
+- Sirve como referencia rapida para entender plantilla, estado y flujo principal.
 
-Qué puede hacer el usuario aquí:
-- Ver un mapa y hacer click para crear puntos.
-- Ver una lista/tabla con los puntos que ha seleccionado.
-- Eliminar puntos de la lista.
-- Guardar todos los puntos de golpe (“reemplazar”).
-- Volver a /perfil.
-
-Con qué otras pantallas se relaciona:
-- /perfil (botón “Volver a perfil”).
-- /comprar: los compradores verán estos puntos al reservar un producto tuyo.
+Como leerla:
+- Revisa primero el template para ver estructura visual y eventos.
+- Despues revisa el script para ver carga de datos, validaciones y acciones.
+- Si haces cambios en la vista real, actualiza tambien este archivo para mantener la documentacion alineada.
 -->
+
 <template>
   <main class="page">
     <div class="header">
@@ -28,10 +23,11 @@ Con qué otras pantallas se relaciona:
       <button class="btn" type="button" @click="router.push('/perfil')">Volver a perfil</button>
     </div>
 
-    <p v-if="!isLoggedIn" class="muted">
-      Necesitas iniciar sesion para ver/guardar puntos de entrega.
-      <RouterLink to="/login">Ir a login</RouterLink>
-    </p>
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para ver y guardar puntos de entrega debes iniciar sesion."
+    />
 
     <section v-else class="layout">
       <div id="map"></div>
@@ -57,7 +53,12 @@ Con qué otras pantallas se relaciona:
             <tbody>
               <tr v-for="(p, idx) in points" :key="idx">
                 <td>{{ idx + 1 }}</td>
-                <td>{{ p.descripcion || p.displayName || 'Buscando...' }}</td>
+                <td>
+                  <div class="point-desc">{{ p.descripcion || p.displayName || 'Buscando...' }}</div>
+                  <span v-if="Number(p.reservas_activas) > 0" class="badge-reservas">
+                    Con reservas activas ({{ Number(p.reservas_activas) }})
+                  </span>
+                </td>
                 <td>
                   <button class="btn btn-danger" type="button" @click="removePoint(p)">Eliminar</button>
                 </td>
@@ -65,6 +66,9 @@ Con qué otras pantallas se relaciona:
             </tbody>
           </table>
         </div>
+        <p class="muted table-note">
+          Si un punto tiene reservas activas, no puede eliminarse hasta que esas reservas dejen de estar activas.
+        </p>
 
         <div class="status">{{ statusText }}</div>
       </aside>
@@ -73,51 +77,36 @@ Con qué otras pantallas se relaciona:
 </template>
 
 <script setup>
-// ==========================================================
-// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
-// ==========================================================
-// Esta vista está pensada como un “editor de puntos”:
-// - el mapa añade puntos,
-// - la tabla los muestra y permite borrar,
-// - el botón “Guardar todo” envía todo al backend.
-// No se modifica el comportamiento del código.
-
-// ===============================
-// BLOQUE: IMPORTS
-// Qué problema resuelve: hablar con el backend, usar sesión y montar/desmontar el mapa.
-// Cuándo se usa: desde que entras a /puntos-entrega.
-// Con qué se relaciona: con createMap(), loadMyPuntosEntrega() y saveAll().
-// Si no existiera: no podrías cargar ni guardar puntos.
-// ===============================
+import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
+import { useToastStore } from '@/stores/toastStore.js';
 
 const auth = useAuthStore();
 const router = useRouter();
+const toast = useToastStore();
 
 const points = ref([]);
 const statusText = ref('');
 const saving = ref(false);
 const MAX_PUNTOS = 5;
+const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 let map = null;
+let markerIcon = null;
+let resizeHandler = null;
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
+// setStatus: centraliza una parte concreta de la logica de esta vista documentada.
 function setStatus(text) {
   statusText.value = text || '';
 }
 
+// loadLeaflet: carga datos y actualiza el estado visible de la vista.
 function loadLeaflet() {
-  // ===============================
-  // BLOQUE: CARGA DE LA LIBRERÍA DEL MAPA
-  // Qué problema resuelve: Leaflet se carga “cuando hace falta” para poder dibujar el mapa.
-  // Cuándo se usa: al entrar en la vista antes de crear el mapa.
-  // Con qué se relaciona: con createMap() y con window.L.
-  // Si no existiera: no se vería el mapa ni podrías seleccionar puntos.
-  // ===============================
   if (window.L) return Promise.resolve(window.L);
 
   return new Promise((resolve, reject) => {
@@ -149,6 +138,7 @@ function loadLeaflet() {
   });
 }
 
+// reverseGeocodeDetail: centraliza una parte concreta de la logica de esta vista documentada.
 async function reverseGeocodeDetail(lat, lng) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
   const res = await fetch(url, {
@@ -158,6 +148,7 @@ async function reverseGeocodeDetail(lat, lng) {
   return await res.json();
 }
 
+// formatDescripcionFromNominatim: transforma datos para mostrarlos o reutilizarlos en la UI.
 function formatDescripcionFromNominatim(data) {
   const address = data?.address || {};
   const road = address.road || address.pedestrian || address.footway || '';
@@ -171,6 +162,7 @@ function formatDescripcionFromNominatim(data) {
   return result || data?.display_name || '';
 }
 
+// fitToPoints: centraliza una parte concreta de la logica de esta vista documentada.
 function fitToPoints() {
   if (!map) return;
   const L = window.L;
@@ -184,20 +176,27 @@ function fitToPoints() {
   map.fitBounds(bounds, { padding: [20, 20], maxZoom: 16 });
 }
 
+// forceMapResize: centraliza una parte concreta de la logica de esta vista documentada.
+function forceMapResize() {
+  if (!map) return;
+  try { map.invalidateSize(true); } catch {}
+}
+
+// createMap: valida y envia cambios al backend, mostrando resultado al usuario.
 async function createMap() {
-  // ===============================
-  // BLOQUE: CREAR MAPA Y RECOGER CLICS
-  // Qué problema resuelve: montar el mapa y permitir añadir puntos con un click.
-  // Cuándo se usa: al entrar a la pantalla.
-  // Con qué se relaciona: con addPoint() (cada click termina añadiendo un punto).
-  // Si no existiera: la pantalla sería solo una tabla sin forma de añadir puntos.
-  // ===============================
   const L = await loadLeaflet();
 
-  map = L.map('map').setView([39.0717, -0.2668], 13);
+  map = L.map('map').setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '',
   }).addTo(map);
+
+  markerIcon = L.icon({
+    iconUrl: '/assets/pin_sin_fondo.png',
+    iconSize: [30, 40],
+    iconAnchor: [15, 40],
+    popupAnchor: [0, -34],
+  });
 
   map.on('click', async (e) => {
     const lat = e?.latlng?.lat;
@@ -205,31 +204,49 @@ async function createMap() {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     await addPoint(lat, lng);
   });
+
+  // Evita el render parcial (franja gris) al entrar en la vista.
+  await nextTick();
+  requestAnimationFrame(() => {
+    try { map.invalidateSize(true); } catch {}
+  });
+  setTimeout(() => {
+    try { map.invalidateSize(true); } catch {}
+  }, 120);
 }
 
+// myLocation: centraliza una parte concreta de la logica de esta vista documentada.
 function myLocation() {
-  if (!('geolocation' in navigator)) return;
   if (!map) return;
+  toast.show('Localizando tu ubicacion...', 'info', 15000);
+
+  if (!('geolocation' in navigator)) {
+    map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+    toast.warning('No se pudo localizar. Usando predeterminadas.');
+    return;
+  }
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const { latitude, longitude } = pos.coords;
-      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+        toast.warning('No se pudo localizar. Usando predeterminadas.');
+        return;
+      }
       map.setView([latitude, longitude], 14);
+      toast.success('ubicacion detectada.');
     },
-    () => {},
+    () => {
+      map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+      toast.warning('No se pudo localizar. Usando predeterminadas.');
+    },
     { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
   );
 }
 
+// addPoint: centraliza una parte concreta de la logica de esta vista documentada.
 async function addPoint(lat, lng) {
-  // ===============================
-  // BLOQUE: AÑADIR PUNTO (CLICK EN MAPA)
-  // Qué problema resuelve: crear un punto con marcador + texto de dirección.
-  // Cuándo se usa: cuando el usuario pincha en el mapa.
-  // Con qué se relaciona: con reverseGeocodeDetail() y con la tabla de puntos.
-  // Si no existiera: pinchar en el mapa no tendría efecto.
-  // ===============================
   if (points.value.length >= MAX_PUNTOS) {
     setStatus(`Maximo ${MAX_PUNTOS} puntos de entrega.`);
     return;
@@ -237,7 +254,7 @@ async function addPoint(lat, lng) {
 
   setStatus('');
   const L = window.L;
-  const marker = L.marker([lat, lng]).addTo(map);
+  const marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
   const point = reactive({ lat, lng, marker, descripcion: '', displayName: '' });
   points.value.push(point);
   fitToPoints();
@@ -251,14 +268,8 @@ async function addPoint(lat, lng) {
   }
 }
 
+// removePoint: elimina o revierte estado local/remoto de forma controlada.
 function removePoint(p) {
-  // ===============================
-  // BLOQUE: ELIMINAR PUNTO
-  // Qué problema resuelve: quitar un punto si te has equivocado.
-  // Cuándo se usa: al pulsar “Eliminar” en la tabla.
-  // Con qué se relaciona: con el estado points y los marcadores del mapa.
-  // Si no existiera: el usuario tendría que recargar la página para corregir.
-  // ===============================
   try {
     if (p.marker && map) map.removeLayer(p.marker);
   } catch {}
@@ -268,14 +279,8 @@ function removePoint(p) {
   setStatus('');
 }
 
+// saveAll: valida y envia cambios al backend, mostrando resultado al usuario.
 async function saveAll() {
-  // ===============================
-  // BLOQUE: GUARDAR TODO (REEMPLAZAR PUNTOS)
-  // Qué problema resuelve: enviar al backend la lista completa de puntos de una sola vez.
-  // Cuándo se usa: al pulsar “Guardar todo”.
-  // Con qué se relaciona: con el backend /puntos-entrega/bulk (reemplaza los puntos del vendedor).
-  // Si no existiera: el usuario no podría guardar sus puntos para que aparezcan en compras.
-  // ===============================
   if (points.value.length === 0) return;
   if (points.value.length > MAX_PUNTOS) {
     setStatus(`Maximo ${MAX_PUNTOS} puntos de entrega.`);
@@ -292,24 +297,34 @@ async function saveAll() {
     }));
 
     const res = await axios.post('/puntos-entrega/bulk', { puntos: payload });
-    const inserted = Number(res.data?.inserted) || payload.length;
-    setStatus(`Guardados ${inserted} punto(s).`);
+    const inserted = Number(res.data?.inserted) || 0;
+    const keptLockedCount = Number(res.data?.kept_locked_count) || 0;
+    const backendMessage = String(res.data?.message || '').trim();
+
+    if (keptLockedCount > 0) {
+      const text =
+        backendMessage ||
+        `Guardado parcial: ${inserted} punto(s) actualizados. ${keptLockedCount} se mantienen por reservas activas.`;
+      setStatus(text);
+      toast.warning(text, 9000);
+    } else {
+      const text = backendMessage || `Guardados ${inserted} punto(s).`;
+      setStatus(text);
+      toast.success(text, 3500);
+    }
+
+    await loadMyPuntosEntrega();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     setStatus(`Error: ${msg || 'No se pudieron guardar los puntos.'}`);
+    toast.error(msg || 'No se pudieron guardar los puntos.', 6000);
   } finally {
     saving.value = false;
   }
 }
 
+// loadMyPuntosEntrega: carga datos y actualiza el estado visible de la vista.
 async function loadMyPuntosEntrega() {
-  // ===============================
-  // BLOQUE: CARGAR PUNTOS YA GUARDADOS
-  // Qué problema resuelve: si el usuario ya tenía puntos, se pintan en el mapa y en la tabla.
-  // Cuándo se usa: al entrar a la pantalla.
-  // Con qué se relaciona: con la tabla y con fitToPoints() (centrar el mapa).
-  // Si no existiera: siempre empezarías “desde cero” aunque ya tengas puntos guardados.
-  // ===============================
   setStatus('Cargando puntos...');
   try {
     const res = await axios.get('/puntos-entrega/me');
@@ -328,13 +343,14 @@ async function loadMyPuntosEntrega() {
       const lat = Number(r?.lat);
       const lng = Number(r?.lng);
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-      const marker = L.marker([lat, lng]).addTo(map);
+      const marker = L.marker([lat, lng], markerIcon ? { icon: markerIcon } : undefined).addTo(map);
       points.value.push({
         lat,
         lng,
         marker,
         descripcion: r?.descripcion || '',
         displayName: r?.descripcion || '',
+        reservas_activas: Number(r?.reservas_activas) || 0,
       });
     });
 
@@ -347,20 +363,29 @@ async function loadMyPuntosEntrega() {
 }
 
 onMounted(async () => {
-  // ===============================
-  // BLOQUE: CARGA INICIAL
-  // Qué problema resuelve: recuperar sesión, crear el mapa y traer puntos existentes.
-  // Cuándo se usa: al entrar en /puntos-entrega.
-  // Con qué se relaciona: con createMap() y loadMyPuntosEntrega().
-  // Si no existiera: no verías nada o verías datos desactualizados.
-  // ===============================
-  await auth.fetchMe();
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
   await createMap();
+  myLocation();
   await loadMyPuntosEntrega();
+  setTimeout(forceMapResize, 60);
+  setTimeout(forceMapResize, 250);
+  setTimeout(forceMapResize, 600);
+
+  resizeHandler = () => {
+    forceMapResize();
+  };
+  window.addEventListener('resize', resizeHandler);
+  window.addEventListener('orientationchange', resizeHandler);
+  document.addEventListener('visibilitychange', resizeHandler);
 });
 
 onBeforeUnmount(() => {
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler);
+    window.removeEventListener('orientationchange', resizeHandler);
+    document.removeEventListener('visibilitychange', resizeHandler);
+  }
   try {
     if (map) map.remove();
   } catch {}
@@ -368,3 +393,10 @@ onBeforeUnmount(() => {
   points.value = [];
 });
 </script>
+
+
+
+
+
+
+

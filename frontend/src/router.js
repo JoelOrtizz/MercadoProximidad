@@ -31,75 +31,15 @@ const router = createRouter({
   },
   routes: [
     { path: '/', component: LandingView, meta: { css: '/css/landing.css', hideNav: true } },
-    {
-      path: '/comprar',
-      component: ComprarView,
-      meta: {
-        css: '/css/comprar.css',
-        header: {
-          title: 'Compra local, sin intermediarios',
-          subtitle: 'Productos cercanos, trato directo y confianza en tu ciudad.',
-          ctaText: 'Publicar producto',
-          ctaTo: '/vender',
-        },
-      },
-    },
-    {
-      path: '/vender',
-      component: VenderView,
-      meta: {
-        css: '/css/vender.css',
-        header: {
-          title: 'Vende lo tuyo, sin complicaciones',
-          subtitle: 'Muestra tus productos y conecta con gente cercana.',
-          ctaText: 'Ver productos',
-          ctaTo: '/comprar',
-        },
-      },
-    },
-    {
-      path: '/perfil',
-      component: PerfilView,
-      meta: {
-        css: '/css/perfil.css',
-        header: {
-          title: 'Tu perfil, tu espacio',
-          subtitle: 'Gestiona tus datos, productos y puntos de entrega.',
-          ctaText: 'Ir a reservas',
-          ctaTo: '/reservas',
-        },
-      },
-    },
+    { path: '/comprar', component: ComprarView, meta: { css: '/css/comprar.css' } },
+    { path: '/vender', component: VenderView, meta: { css: '/css/vender.css' } },
+    { path: '/perfil', component: PerfilView, meta: { css: '/css/perfil.css' } },
     { path: '/login', component: LoginView, meta: { css: '/css/login.css' } },
     { path: '/registro', component: RegistroView, meta: { css: '/css/registro.css' } },
     { path: '/coords', component: CoordsView, meta: { css: '/css/seleccionarCords.css' } },
     { path: '/puntos-entrega', component: PuntosEntregaView, meta: { css: '/css/puntosEntrega.css' } },
-    {
-      path: '/reservas',
-      component: ReservasView,
-      meta: {
-        css: '/css/reservas.css',
-        header: {
-          title: 'Reservas claras y ordenadas',
-          subtitle: 'Compras y ventas en un solo lugar.',
-          ctaText: 'Abrir mensajes',
-          ctaTo: '/mensajes',
-        },
-      },
-    },
-    {
-      path: '/mensajes',
-      component: MensajesView,
-      meta: {
-        css: '/css/mensajes.css',
-        header: {
-          title: 'Mensajes directos',
-          subtitle: 'Habla con compradores y vendedores en un clic.',
-          ctaText: 'Ver reservas',
-          ctaTo: '/reservas',
-        },
-      },
-    },
+    { path: '/reservas', component: ReservasView, meta: { css: '/css/reservas.css' } },
+    { path: '/mensajes', component: MensajesView, meta: { css: '/css/mensajes.css' } },
     { path: '/mensajes/:id', component: MensajesView, meta: { css: '/css/mensajes.css' } },
     { path: '/valoraciones', component: ValoracionesView, meta: { css: '/css/valoraciones.css' } },
     { path: '/notificaciones', component: NotificacionesView, meta: { css: '/css/notificaciones.css' } },

@@ -1,13 +1,32 @@
-# 1. Introducción
+# 01. Introduccion
 
-El proyecto **TerretaShop** se desarrolla como parte del *Projecte Intermodular* del segundo curso del Ciclo Formativo de Grado Superior en **Desarrollo de Aplicaciones Web (DAW)**, y tiene como objetivo principal la creación de una aplicación web funcional que integre de forma coherente y práctica los conocimientos adquiridos a lo largo del grado.
+TerretaShop es el proyecto intermodular de 2o de DAW orientado a resolver un caso real: facilitar la compra y venta de producto local entre personas cercanas.
 
-Este proyecto se concibe como una propuesta integradora que permite trabajar, de manera coordinada, los distintos módulos formativos implicados, tanto técnicos como transversales. A través del desarrollo de TerretaShop se ponen en práctica competencias relacionadas con el desarrollo web en entorno cliente y servidor, el diseño de interfaces, el despliegue de aplicaciones, la documentación técnica, el trabajo en equipo y la planificación mediante metodologías ágiles.
+El sistema cubre el flujo completo:
+- Registro e inicio de sesion.
+- Configuracion de ubicacion y puntos de entrega.
+- Publicacion y gestion de productos.
+- Reserva de productos.
+- Seguimiento de reservas por estado.
+- Mensajeria entre usuarios.
+- Valoraciones y notificaciones.
 
-Desde el punto de vista funcional, TerretaShop es una plataforma digital orientada a conectar **productores y agricultores locales** con **consumidores finales**, facilitando la reserva de productos de proximidad y fomentando el comercio local. La aplicación permite a los vendedores publicar sus productos y puntos de entrega, y a los compradores localizar, filtrar y reservar productos cercanos a su ubicación, estableciendo una comunicación directa entre ambas partes.
+## Objetivo tecnico
+Aplicar de forma integrada conocimientos de:
+- Frontend SPA con Vue 3.
+- API REST con Node.js y Express.
+- Persistencia relacional con MySQL.
+- Despliegue con Docker + Traefik + HTTPS.
 
-El proyecto responde de forma directa a los objetivos de **sostenibilidad** y **digitalización** planteados en el currículo. Por un lado, TerretaShop contribuye a la reducción del desperdicio alimentario, ya que permite dar salida a productos locales que, en muchos casos, no se comercializan a través de los canales tradicionales y acaban desechándose. La venta directa y bajo demanda favorece una gestión más eficiente de los recursos y reduce la necesidad de intermediarios y transportes innecesarios.
+## Objetivo funcional
+Entregar una aplicacion usable y mantenible donde:
+- El vendedor gestiona su oferta y sus puntos de entrega.
+- El comprador filtra, reserva y coordina la recogida.
+- Ambas partes disponen de trazabilidad (reservas, mensajes, valoraciones, notificaciones).
 
-Por otro lado, la plataforma actúa como una herramienta de **digitalización del pequeño productor**, ofreciendo una solución accesible para agricultores y comercios locales que no disponen de los recursos necesarios para desarrollar y mantener una página web propia o una tienda online compleja. TerretaShop proporciona un entorno sencillo y centralizado que les permite tener presencia digital y llegar a clientes cercanos sin una inversión tecnológica elevada.
+## Enfoque del proyecto
+- Arquitectura separada por capas (frontend, backend, base de datos).
+- Contratos de API claros.
+- Iteraciones cortas y mejoras continuas.
+- Documentacion alineada con el estado real del codigo.
 
-A nivel académico, este proyecto permite aplicar de forma conjunta los contenidos de los diferentes módulos del ciclo, demostrando una visión global del desarrollo de aplicaciones web reales, desde la concepción de la idea y el análisis del entorno hasta la implementación técnica, el despliegue y la documentación final. De este modo, TerretaShop no se plantea únicamente como un ejercicio técnico, sino como una simulación realista de un proyecto profesional en el ámbito del desarrollo web.

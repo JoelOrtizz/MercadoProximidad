@@ -1,126 +1,121 @@
-<!--
-VISTA: Vender / Publicar producto (VenderView.vue)
+﻿<!--
+VISTA: VenderView (VenderView.vue)
 
-Qué pantalla es:
-- Pantalla para que un usuario publique un producto a la venta.
+Que pantalla es:
+- Esta copia refleja el estado actual de frontend/src/views/VenderView.vue.
+- Sirve como referencia rapida para entender plantilla, estado y flujo principal.
 
-Qué puede hacer el usuario aquí:
-- Rellenar un formulario con nombre, precio, stock, unidad, categoría y descripción.
-- Subir una imagen (con previsualización).
-- Enviar el formulario para crear el producto en el backend.
-
-Con qué otras pantallas se relaciona:
-- Si no hay sesión, invita a ir a /login.
-- El producto creado luego aparecerá en /perfil (mis productos) y en /comprar (para otros usuarios).
+Como leerla:
+- Revisa primero el template para ver estructura visual y eventos.
+- Despues revisa el script para ver carga de datos, validaciones y acciones.
+- Si haces cambios en la vista real, actualiza tambien este archivo para mantener la documentacion alineada.
 -->
+
 <template>
   <main class="page">
-    <div class="container">
-    <h1>Vender</h1>
-        <div class="card">
+    <div class="products-header">
+      <div>
+        <h1>Vender</h1>
+        <div class="subtitle">Publica tus productos y gestiona tu oferta.</div>
+      </div>
+    </div>
+
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para publicar productos debes iniciar sesion."
+    />
+
+    <div v-else class="card">
             <h2>Publicar oferta</h2>
             <span class="subtitle">Completa los datos del producto que quieres vender</span>
 
-            <p v-if="!isLoggedIn" style="margin-top: 12px;">
-                Necessitas iniciar session para publicar <RouterLink to="/login">Ir al Login</RouterLink>
-            </p>
-
-            <form v-else id="form_producto" enctype="multipart/form-data" @submit.prevent="submitProduct">
-                <div class="form-group">
-                    <label for="nombre">Nombre del producto</label>
-                    <input id="nombre" v-model="form.nombre" type="text" name="nombre" placeholder="Ej: Tomate Valenciano">
-                </div>
-
-                <div class="form-group row">
-                    <div class="col">
-                        <label for="precio">Precio (€)</label>
-                        <input type="number" id="precio" v-model="form.precio" name="precio" min="0" step="0.01">
-                    </div>
-                    <div class="col">
-                        <label for="stock">Stock disponible</label>                
-                        <input type="number" name="stock" id="stock" v-model="form.stock" min="0">
+            <form id="form_producto" class="form-grid" enctype="multipart/form-data" @submit.prevent="submitProduct">
+                <div class="form-group form-group--full">
+                    <div class="form-pair">
+                        <div class="form-col">
+                            <label for="nombre">Nombre del producto</label>
+                            <input id="nombre" v-model="form.nombre" type="text" name="nombre" placeholder="Ej: Tomate Valenciano">
+                        </div>
+                        <div class="form-col">
+                            <label for="categoria">Categoria</label>
+                            <select name="categoria" id="categoria" v-model="form.categoria">
+                                <option value="">Seleccione una categoria</option>
+                                <option v-for="c in categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <div class="col">
-                        <label for="unidad">Unidad</label>
-                        <select id="unidad" v-model="form.id_unidad" name="id_unidad" required>
-                            <option value="">Seleccione una unidad</option>
-                            <option v-for="u in unidades" :key="u.id" :value="String(u.id)">
-                                {{ u.nombre }} ({{ u.simbolo }})
-                            </option>
-                        </select>
+                <div class="form-group form-group--full">
+                    <div class="form-triple">
+                        <div class="form-col">
+                            <label for="stock">Stock disponible</label>                
+                            <input type="number" name="stock" id="stock" v-model="form.stock" min="0">
+                        </div>
+                        <div class="form-col">
+                            <label for="unidad">Unidad</label>
+                            <select id="unidad" v-model="form.id_unidad" name="id_unidad" required>
+                                <option value="">Seleccione una unidad</option>
+                                <option v-for="u in unidades" :key="u.id" :value="String(u.id)">
+                                    {{ u.nombre }} ({{ u.simbolo }})
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-col">
+                            <label for="precio">Precio (â‚¬)</label>
+                            <input
+                              type="number"
+                              name="precio"
+                              id="precio"
+                              v-model="form.precio"
+                              min="0"
+                              step="0.01"
+                              placeholder="Ej: 2.50"
+                            >
+                        </div>
                     </div>
                 </div>
 
-                <div  class="form-group">
-                    <label for="categoria">Categoria</label>
-                    <select name="categoria" id="categoria" v-model="form.categoria">
-                        <option value="">Seleccione una categoria</option>
-                        <option v-for="c in categorias" :key="c.id" :value="String(c.id)">{{ c.nombre }}</option>
-                    </select>
-                </div>
+                <div class="form-group form-group--full">
+                    <div class="form-pair">
+                        <div class="form-col">
+                            <label for="descripcion">Descripcion</label>
+                            <textarea name="descripcion" id="descripcion" v-model="form.descripcion" placeholder="Detalles del producto"></textarea>
+                        </div>
+                        <div class="form-col">
+                            <label for="imagen">Imagen</label>
+                            <div class="file-input-wrapper">
+                                <input ref="fileInput" type="file" id="imagen" name="imagen" accept="image/*" @change="onFileChange">
+                            </div>
+                            <small class="helper-text">Se enviara la primera imagen seleccionada</small>
 
-                <div class="form-group">
-                    <label for="descripcion">Descripcion</label>
-                    <textarea name="descripcion" id="descripcion" v-model="form.descripcion" placeholder="Detalles del producto"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="imagen">Imagen</label>
-                    <div class="file-input-wrapper">
-                        <input ref="fileInput" type="file" id="imagen" name="imagen" accept="image/*" @change="onFileChange">
-                    </div>
-                    <small class="helper-text">Se enviara la primera imagen seleccionada</small>
-
-                    <div v-if="previewSrc" class="image-preview-wrap">
-                      <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
+                            <div v-if="previewSrc" class="image-preview-wrap">
+                              <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <button class="btn-submit" type="submit" :disabled="loading">
+                <button class="btn-submit form-group--full" type="submit" :disabled="loading">
                     {{ loading ? 'Publicando ...' : 'Publicar' }}
                 </button>
             </form>
 
         </div>
-    </div>
 
   </main>
 </template>
 
 <script setup>
+import GuestState from "../components/GuestState.vue";
 
-// ==========================================================
-// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
-// ==========================================================
-// Esta vista es un formulario de publicación:
-// - carga categorías/unidades del backend,
-// - guarda lo que escribe el usuario,
-// - al final envía un FormData (para incluir imagen).
-// No se modifica el comportamiento del código.
-
-// ===============================
-// BLOQUE: IMPORTS
-// Qué problema resuelve: pedir datos al backend y usar sesión/navegación.
-// Cuándo se usa: al entrar a la vista y al publicar.
-// Con qué se relaciona: con loadCategorias(), loadUnidades() y submitProduct().
-// Si no existiera: no podrías publicar productos.
-// ===============================
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
 
-// ===============================
-// BLOQUE: SESIÓN + ROUTER + TOAST
-// Qué problema resuelve: bloquear publicación sin login, navegar a login y mostrar mensajes.
-// Cuándo se usa: al enviar el formulario y al cargar datos.
-// Con qué se relaciona: con submitProduct() y el v-if del template.
-// Si no existiera: fallaría con errores y sin feedback al usuario.
-// ===============================
 const toast = useToastStore();
 const auth=useAuthStore();
 const router=useRouter();
@@ -143,14 +138,8 @@ const form=ref({
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
+// loadCategorias: carga datos y actualiza el estado visible de la vista.
 async function loadCategorias() {
-    // ===============================
-    // BLOQUE: CARGAR CATEGORÍAS
-    // Qué problema resuelve: llenar el <select> de categorías.
-    // Cuándo se usa: al entrar en la pantalla.
-    // Con qué se relaciona: con el formulario de publicación.
-    // Si no existiera: el usuario no podría elegir categoría.
-    // ===============================
     try {
         const res = await axios.get('/categorias');
         categorias.value = Array.isArray(res.data) ? res.data : [];
@@ -159,14 +148,8 @@ async function loadCategorias() {
     }
 }
 
+// loadUnidades: carga datos y actualiza el estado visible de la vista.
 async function loadUnidades() {
-    // ===============================
-    // BLOQUE: CARGAR UNIDADES
-    // Qué problema resuelve: llenar el <select> de unidades (kg, ud, etc.).
-    // Cuándo se usa: al entrar en la pantalla.
-    // Con qué se relaciona: con el formulario de publicación.
-    // Si no existiera: el backend recibiría productos sin unidad válida.
-    // ===============================
     try {
         const res = await axios.get('/unidades');
         unidades.value = Array.isArray(res.data) ? res.data : [];
@@ -175,14 +158,8 @@ async function loadUnidades() {
     }
 }
 
+// onFileChange: centraliza una parte concreta de la logica de esta vista documentada.
 function onFileChange(e) {
-    // ===============================
-    // BLOQUE: PREVISUALIZACIÓN DE IMAGEN
-    // Qué problema resuelve: dejar ver la imagen antes de publicar.
-    // Cuándo se usa: al seleccionar archivo en el input.
-    // Con qué se relaciona: con el estado `file` y `previewSrc`, y con submitProduct().
-    // Si no existiera: subirías “a ciegas” sin saber si la imagen es la correcta.
-    // ===============================
     const f = e && e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null;
 
     // Si ya habia una URL creada, la borramos para no acumular memoria.
@@ -199,14 +176,8 @@ function onFileChange(e) {
     }
 }
 
+// submitProduct: valida y envia cambios al backend, mostrando resultado al usuario.
 async function submitProduct(){
-    // ===============================
-    // BLOQUE: PUBLICAR PRODUCTO
-    // Qué problema resuelve: enviar al backend los datos del producto (y la imagen) para crear la oferta.
-    // Cuándo se usa: al enviar el formulario.
-    // Con qué se relaciona: con el estado del formulario, la sesión y el toast.
-    // Si no existiera: la pantalla no publicaría nada.
-    // ===============================
     if(!auth.user?.id) {
         toast.warning('Tienes que iniciar sesion');
         router.push('/login');
@@ -250,34 +221,17 @@ async function submitProduct(){
 }
 
 onMounted(async () => {
-  // ===============================
-  // BLOQUE: CARGA INICIAL
-  // Qué problema resuelve: recuperar sesión y cargar los desplegables del formulario.
-  // Cuándo se usa: al entrar a /vender.
-  // Con qué se relaciona: con loadCategorias() y loadUnidades().
-  // Si no existiera: el formulario saldría sin opciones.
-  // ===============================
-  await auth.fetchMe();
+  await auth.ensureReady();
   await loadCategorias();
   await loadUnidades();
 });
 
 </script>
 
-<style scoped>
-.image-preview-wrap {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-start;
-}
 
-.image-preview {
-  width: min(360px, 100%);
-  max-height: 220px;
-  border-radius: 12px;
-  border: 1px solid rgba(2, 6, 23, 0.12);
-  object-fit: cover;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  background: #fff;
-}
-</style>
+
+
+
+
+
+

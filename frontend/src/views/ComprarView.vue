@@ -100,15 +100,7 @@
                   <div class="product-meta">
                     <span class="meta-item">
                       <i class="bi bi-tag"></i>
-                      <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
-                      <span v-else-if="p.categoria">{{ p.categoria }}</span>
-                      <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
-                      <span v-else>
-                        <template v-for="c in categorias" :key="c.id">
-                          <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
-                        </template>
-                        <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
-                      </span>
+                      <span>{{ getCategoriaNombre(p) }}</span>
                     </span>
                     <span class="meta-item">
                       <i class="bi bi-box-seam"></i>
@@ -188,15 +180,7 @@
                   <div class="product-meta">
                     <span class="meta-item">
                       <i class="bi bi-tag"></i>
-                      <span v-if="p.categoria_nombre">{{ p.categoria_nombre }}</span>
-                      <span v-else-if="p.categoria">{{ p.categoria }}</span>
-                      <span v-else-if="p.categoriaNombre">{{ p.categoriaNombre }}</span>
-                      <span v-else>
-                        <template v-for="c in categorias" :key="c.id">
-                          <span v-if="String(c.id) === String(p.id_categoria)">{{ c.nombre }}</span>
-                        </template>
-                        <span v-if="categorias.length === 0">{{ p.id_categoria }}</span>
-                      </span>
+                      <span>{{ getCategoriaNombre(p) }}</span>
                     </span>
                     <span class="meta-item">
                       <i class="bi bi-box-seam"></i>
@@ -411,6 +395,13 @@ function formatStock(stock, tipo) {
   const s = stock == null ? '-' : String(stock);
   const t = tipo ? String(tipo) : '';
   return t ? `${s} ${t}` : s;
+}
+
+function getCategoriaNombre(p) {
+  const id = String(p?.id_categoria ?? '');
+  if (!id) return '-';
+  const c = (categorias.value || []).find((cat) => String(cat?.id) === id);
+  return c?.nombre || id;
 }
 
 function selectCategory(value) {

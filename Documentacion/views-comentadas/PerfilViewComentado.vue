@@ -1,8 +1,8 @@
 ﻿<!--
-VISTA: PerfilView (PerfilView.vue)
+VISTA: PerfilViewComentado (PerfilViewComentado.vue)
 
 Que pantalla es:
-- Esta copia refleja el estado actual de frontend/src/views/PerfilView.vue.
+- Esta copia refleja el estado actual de frontend/src/views/PerfilViewComentado.vue.
 - Sirve como referencia rapida para entender plantilla, estado y flujo principal.
 
 Como leerla:
@@ -33,7 +33,6 @@ Como leerla:
             <p id="vent_act" class="dest_content">{{ ventasActivas }}</p>
             <p class="info_content">Ventas activas</p>
           </div>
-
           <div class="content_vendedor" style="cursor: pointer" @click="goToReservas">
             <p id="resv_act" class="dest_content">{{ reservasActivas }}</p>
             <p class="info_content">Reservas activas</p>
@@ -43,7 +42,7 @@ Como leerla:
             <p class="info_content">Total de compras</p>
           </div>
           <div class="content_vendedor">
-            <p id="valor_gen" class="dest_content">{{ valoracionMediaText }} &#x1F34A;</p>
+            <p id="valor_gen" class="dest_content">-</p>
             <p class="info_content">Valoracion general</p>
           </div>
         </div>
@@ -103,6 +102,16 @@ Como leerla:
         <div id="preferencias_block">
           <p>Puntos de entrega</p>
 
+
+
+
+
+
+
+          <button id="pref_change" type="button" @click="router.push('/puntos-entrega')">
+            Configurar puntos de entrega
+          </button>
+
           <div id="fetchPoints">
             <p v-if="loadingPoints" class="points-muted">Cargando puntos...</p>
 
@@ -118,10 +127,6 @@ Como leerla:
               </ul>
             </div>
           </div>
-
-          <button id="pref_change" type="button" @click="router.push('/puntos-entrega')">
-            Configurar puntos de entrega
-          </button>
         </div>
 
         <div id="productos_header" ref="myProductsEl" class="productos-header">
@@ -146,10 +151,7 @@ Como leerla:
             />
 
             <div>
-              <div class="product-row__title">
-                <span>{{ p.nombre }}</span>
-                <span v-if="Number(p.stock) === 0" class="stock-chip stock-chip--empty">Sin stock</span>
-              </div>
+              <div class="product-row__title">{{ p.nombre }}</div>
               <div class="product-row__desc">{{ p.descripcion || 'Sin descripcion.' }}</div>
               <div class="product-row__meta">
                 Categoria: {{ categoriaLabel(p.id_categoria) }} Â· Stock:
@@ -220,6 +222,18 @@ Como leerla:
 
 <script setup>
 import GuestState from "../components/GuestState.vue";
+// ==========================================================
+// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÃ“N + COMENTARIOS)
+// ==========================================================
+// Esta vista es una copia de `PerfilView.vue`.
+// El cÃ³digo NO cambia: solo se aÃ±aden comentarios para separar
+// funcionalidades y entender quÃ© hace cada parte y dÃ³nde se usa.
+
+// ===============================
+// BLOQUE: IMPORTS Y DEPENDENCIAS
+// DÃ³nde estÃ¡: justo al inicio del <script>
+// Para quÃ© sirve: traer axios, utilidades de Vue, router y el store
+// ===============================
 import axios from 'axios';
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -227,41 +241,75 @@ import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
 import { useModalStore } from '@/stores/modal.js';
 
-// Flujo de la vista:
-// 1) Al entrar carga catalogos (categorias/unidades), ubicacion y resumen del usuario.
-// 2) Muestra productos propios, reservas activas, puntos de entrega y media de valoracion.
-// 3) Permite editar perfil, editar producto y eliminar producto con confirmacion.
-// 4) Reacciona a cambios de sesion y coordenadas para mantener datos consistentes.
-
+// ===============================
+// BLOQUE: STORE + ROUTER
+// DÃ³nde se usa: en botones (logout, navegaciÃ³n) y cargas iniciales
+// Para quÃ© sirve: leer el usuario logueado y navegar entre pÃ¡ginas
+// ===============================
 const auth = useAuthStore();
 const router = useRouter();
 const toast = useToastStore();
 const modal = useModalStore();
 
+// ===============================
+// BLOQUE: ESTADO (PREFERENCIAS)
+// DÃ³nde se usa: panel "Puntos de entrega" del perfil
+// Para quÃ© sirve: guardar un texto en localStorage para no perderlo
+// ===============================
+
+// ===============================
+// BLOQUE: ESTADO (LISTAS AUXILIARES)
+// DÃ³nde se usa: <select> de categorÃ­a y unidad en el editor de producto
+// Para quÃ© sirve: cargar categorÃ­as/unidades desde el backend
+// ===============================
 const categorias = ref([]);
 const categoriasById = ref({});
 const unidades = ref([]);
 
+// ===============================
+// BLOQUE: ESTADO (MIS PRODUCTOS / RESERVAS)
+// DÃ³nde se usa: lista "Mis productos" y contadores de la parte superior
+// Para quÃ© sirve: guardar arrays y estados de carga (loading)
+// ===============================
 const myProducts = ref([]);
 const loadingProducts = ref(false);
 const myReservas = ref([]);
 const loadingReservas = ref(false);
 const myProductsEl = ref(null);
 
+// ===============================
+// BLOQUE: ESTADO (EDICIÃ“N DE PRODUCTO)
+// DÃ³nde se usa: cuando se abre el editor dentro de una fila de producto
+// Para quÃ© sirve: controlar quÃ© producto se edita y el formulario temporal
+// ===============================
 const editingId = ref(null);
 const editForm = ref(null);
 const editFile = ref(null);
 const editPreviewSrc = ref('');
 const savingEdit = ref(false);
 
+// ===============================
+// BLOQUE: ESTADO (EDICIÃ“N DE PERFIL)
+// DÃ³nde se usa: "InformaciÃ³n personal" (Editar/Cancelar/Guardar)
+// Para quÃ© sirve: activar modo ediciÃ³n y guardar nombre/email temporalmente
+// ===============================
 const isEditingProfile = ref(false);
 const savingProfile = ref(false);
 const profileForm = ref({ nombre: '', email: '', tlf: '' });
 
-// Puntos de entrega del usuario (maximo 5)
+// ===============================
+// BLOQUE: CARGA DE PUNTOS DE ENTREGA (LISTA DEL PERFIL)
+// Donde se usa: bloque "Puntos de entrega" del perfil
+// Muestra los puntos actuales (maximo 5) del usuario logueado.
+// ===============================
 const myPoints = ref([]);
 const loadingPoints = ref(false);
 
+// ===============================
+// BLOQUE: DATOS CALCULADOS (SESION Y COORDENADAS)
+// DÃ³nde se usa: v-if del template y textos de ubicaciÃ³n
+// Para quÃ© sirve: saber si hay login y si el usuario tiene lat/lng vÃ¡lidas
+// ===============================
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 const hasCoords = computed(() => {
   const latRaw = auth.user?.lat;
@@ -277,9 +325,19 @@ const coordsTexto = computed(() => {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '-';
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 });
-const ubicacionTexto = ref('Cargando...');
-const valoracionMediaText = ref('-');
 
+// ===============================
+// BLOQUE: ESTADO (TEXTO DE UBICACIÃ“N)
+// DÃ³nde se usa: <p id="info_ubi">{{ ubicacionTexto }}</p>
+// Para quÃ© sirve: mostrar "Cargando/Buscando" y la direcciÃ³n final
+// ===============================
+const ubicacionTexto = ref('Cargando...');
+
+// ===============================
+// BLOQUE: DATOS CALCULADOS (CONTADORES)
+// DÃ³nde se usa: "Ventas activas" y "Reservas activas" arriba del todo
+// Para quÃ© sirve: contar productos con stock y reservas activas
+// ===============================
 const ventasActivas = computed(() => {
   return (myProducts.value || []).reduce((acc, p) => {
     const s = Number(p?.stock);
@@ -291,9 +349,17 @@ const reservasActivas = computed(() => {
   return (myReservas.value || []).filter((r) => r?.estado === 'pendiente' || r?.estado === 'aceptada').length;
 });
 
+// ===============================
+// BLOQUE: WATCH (PREFERENCIAS)
+// DÃ³nde se usa: cuando escribes en el textarea de preferencias
+// Para quÃ© sirve: guardar automÃ¡ticamente el texto en localStorage
+// ===============================
 
-
-// Pasa perfil a modo edicion precargando valores actuales.
+// ===============================
+// BLOQUE: BOTÃ“N EDITAR PERFIL
+// DÃ³nde se usa: botÃ³n "Editar/Cancelar" en "InformaciÃ³n personal"
+// Para quÃ© sirve: activar/desactivar el modo ediciÃ³n del perfil
+// ===============================
 function startEditProfile() {
   profileForm.value = {
     nombre: auth.user?.nombre || '',
@@ -303,13 +369,41 @@ function startEditProfile() {
   isEditingProfile.value = true;
 }
 
-// Cancela edicion de perfil y limpia formulario temporal.
+// cancelEditProfile: elimina o revierte estado local/remoto de forma controlada.
 function cancelEditProfile() {
   isEditingProfile.value = false;
   profileForm.value = { nombre: '', email: '', tlf: '' };
 }
 
-// Valida campos basicos y guarda cambios de perfil en /usuarios/me.
+// ===============================
+// BLOQUE: PETICIONES (MIS PUNTOS DE ENTREGA)
+// Donde se usa: panel "Puntos de entrega" del perfil
+// Muestra la lista (maximo 5) sin ir a la pagina de configuracion.
+// ===============================
+async function loadMyPoints() {
+  if (!isLoggedIn.value) {
+    myPoints.value = [];
+    return;
+  }
+
+  loadingPoints.value = true;
+  try {
+    const res = await axios.get('/puntos-entrega/me');
+    myPoints.value = Array.isArray(res.data) ? res.data : [];
+  } catch (err) {
+    console.error('Error cargando los puntos', err);
+    toast.error('Error cargando los puntos.');
+    myPoints.value = [];
+  } finally {
+    loadingPoints.value = false;
+  }
+}
+
+// ===============================
+// BLOQUE: BOTÃ“N GUARDAR PERFIL
+// DÃ³nde se usa: botÃ³n "Guardar" cuando estÃ¡s editando el perfil
+// Para quÃ© sirve: enviar nombre/email al backend y refrescar el usuario
+// ===============================
 async function saveProfile() {
   if (!isLoggedIn.value) return;
   savingProfile.value = true;
@@ -335,7 +429,11 @@ async function saveProfile() {
   }
 }
 
-// Consulta Nominatim para convertir lat/lng en direccion legible.
+// ===============================
+// BLOQUE: UBICACIÃ“N (BUSCAR DIRECCIÃ“N)
+// DÃ³nde se usa: loadUbicacion()
+// Para quÃ© sirve: convertir lat/lng en una direcciÃ³n usando un servicio externo
+// ===============================
 async function reverseGeocode(lat, lng) {
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&lat=${lat}&lon=${lng}`;
   const res = await fetch(url, {
@@ -348,7 +446,7 @@ async function reverseGeocode(lat, lng) {
   return await res.json();
 }
 
-// formatDireccion: transforma datos para mostrarlos o reutilizarlos en la UI.
+// Esta funciÃ³n "acorta" la direcciÃ³n para mostrar algo bonito en pantalla.
 function formatDireccion(data) {
   const addr = data?.address || {};
   const road = addr.road || addr.pedestrian || addr.footway || addr.path || '';
@@ -362,7 +460,7 @@ function formatDireccion(data) {
   return result || data?.display_name || '';
 }
 
-// Calcula texto de ubicacion a mostrar en perfil usando coords del usuario.
+// Carga la ubicaciÃ³n en texto que se ve en "Ubicacion actual".
 async function loadUbicacion() {
   if (!isLoggedIn.value) {
     ubicacionTexto.value = '';
@@ -385,7 +483,11 @@ async function loadUbicacion() {
   }
 }
 
-// resolveImageSrc: transforma datos para mostrarlos o reutilizarlos en la UI.
+// ===============================
+// BLOQUE: HELPERS DE PRODUCTO (VISUAL)
+// DÃ³nde se usa: en el template al pintar cada producto
+// Para quÃ© sirve: construir imagen, precio y stock en formato legible
+// ===============================
 function resolveImageSrc(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
@@ -393,11 +495,11 @@ function resolveImageSrc(value) {
 }
 
 // formatPrice: transforma datos para mostrarlos o reutilizarlos en la UI.
-function formatPrice(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} \u20AC`;
-}
+  function formatPrice(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '-';
+    return `${n.toFixed(2)} \u20AC`;
+  }
 
 // formatStock: transforma datos para mostrarlos o reutilizarlos en la UI.
 function formatStock(stock, unidad) {
@@ -406,25 +508,37 @@ function formatStock(stock, unidad) {
   return t ? `${s} ${t}` : s;
 }
 
-// Resuelve etiqueta de categoria usando el mapa categoriasById cacheado.
+// categoriaLabel: gestiona navegacion y contexto entre pantallas.
 function categoriaLabel(idCategoria) {
   if (idCategoria == null || idCategoria === '') return 'Sin categoria';
   const key = String(idCategoria);
   return categoriasById.value[key] || `Categoria ${key}`;
 }
 
-// Lleva a seleccion de ubicacion; si ya existe, abre en modo edicion.
+// ===============================
+// BLOQUE: BOTÃ“N "CAMBIAR UBICACIÃ“N"
+// DÃ³nde se usa: botÃ³n debajo de "Ubicacion actual"
+// Para quÃ© sirve: ir a /coords para configurar o editar ubicaciÃ³n
+// ===============================
 function goCoords() {
   router.push(hasCoords.value ? '/coords?edit=1' : '/coords');
 }
 
-// Cierra sesion y redirige a login.
+// ===============================
+// BLOQUE: BOTÃ“N "CERRAR"
+// DÃ³nde se usa: botÃ³n de cerrar sesiÃ³n en la cabecera del perfil
+// Para quÃ© sirve: cerrar sesiÃ³n y volver al login
+// ===============================
 async function logout() {
   await auth.logout();
   router.push('/login');
 }
 
-// Carga categorias y construye indice por id para pintar etiquetas rapido.
+// ===============================
+// BLOQUE: PETICIONES (CATEGORÃAS)
+// DÃ³nde se usa: editor de producto (label de categorÃ­a y <select>)
+// Para quÃ© sirve: cargar categorÃ­as y crear un mapa id->nombre
+// ===============================
 async function loadCategorias() {
   try {
     const res = await axios.get('/categorias');
@@ -442,7 +556,11 @@ async function loadCategorias() {
   }
 }
 
-// Carga unidades para formulario de edicion de producto.
+// ===============================
+// BLOQUE: PETICIONES (UNIDADES)
+// DÃ³nde se usa: editor de producto (<select> de unidad)
+// Para quÃ© sirve: cargar unidades disponibles (kg, ud, etc.)
+// ===============================
 async function loadUnidades() {
   try {
     const res = await axios.get('/unidades');
@@ -452,7 +570,11 @@ async function loadUnidades() {
   }
 }
 
-// Carga productos del vendedor logueado para listado y acciones de gestion.
+// ===============================
+// BLOQUE: PETICIONES (MIS PRODUCTOS)
+// DÃ³nde se usa: secciÃ³n "Mis productos" + contador "Ventas activas"
+// Para quÃ© sirve: traer la lista de productos del usuario
+// ===============================
 async function loadMyProducts() {
   loadingProducts.value = true;
   try {
@@ -467,7 +589,11 @@ async function loadMyProducts() {
   }
 }
 
-// Carga reservas del usuario para calcular contadores de actividad.
+// ===============================
+// BLOQUE: PETICIONES (MIS RESERVAS)
+// DÃ³nde se usa: contador "Reservas activas" y navegaciÃ³n a /reservas
+// Para quÃ© sirve: traer reservas y quitar las que estÃ¡n canceladas
+// ===============================
 async function loadMyReservas() {
   loadingReservas.value = true;
   try {
@@ -481,49 +607,11 @@ async function loadMyReservas() {
   }
 }
 
-// Carga puntos de entrega actuales para el bloque resumen del perfil.
-async function loadMyPoints() {
-  if (!isLoggedIn.value) {
-    myPoints.value = [];
-    return;
-  }
-
-  loadingPoints.value = true;
-  try {
-    const res = await axios.get('/puntos-entrega/me');
-    myPoints.value = Array.isArray(res.data) ? res.data : [];
-  } catch (err) {
-    console.error('Error cargando los puntos', err);
-    toast.error('Error cargando los puntos.');
-    myPoints.value = [];
-  } finally {
-    loadingPoints.value = false;
-  }
-}
-
-// Carga media de valoraciones recibidas por el usuario.
-async function loadValoracionMedia() {
-  if (!auth.user || !auth.user.id) {
-    valoracionMediaText.value = '-';
-    return;
-  }
-
-  try {
-    const res = await axios.get(`/usuarios/${auth.user.id}/ratings/media`);
-    const media = res && res.data ? res.data.media : null;
-    const total = res && res.data ? res.data.total : 0;
-
-    if (!total || media === null || media === undefined) {
-      valoracionMediaText.value = '-';
-    } else {
-      valoracionMediaText.value = Number(media).toFixed(1);
-    }
-  } catch {
-    valoracionMediaText.value = '-';
-  }
-}
-
-// Abre editor de producto y precarga campos actuales.
+// ===============================
+// BLOQUE: BOTÃ“N "EDITAR" (PRODUCTO)
+// DÃ³nde se usa: botÃ³n "Editar" en cada fila de producto
+// Para quÃ© sirve: abrir el formulario y rellenarlo con el producto elegido
+// ===============================
 function startEdit(p) {
   editingId.value = p.id;
   editFile.value = null;
@@ -539,7 +627,11 @@ function startEdit(p) {
   };
 }
 
-// Cierra editor y limpia estado temporal de formulario/preview.
+// ===============================
+// BLOQUE: BOTÃ“N "CANCELAR" (EDICIÃ“N DE PRODUCTO)
+// DÃ³nde se usa: dentro del editor del producto
+// Para quÃ© sirve: cerrar el editor y limpiar datos temporales
+// ===============================
 function cancelEdit() {
   editingId.value = null;
   editForm.value = null;
@@ -547,13 +639,21 @@ function cancelEdit() {
   editPreviewSrc.value = '';
 }
 
-// Gestiona seleccion de imagen en edicion y genera preview local.
+// ===============================
+// BLOQUE: INPUT DE IMAGEN (PRODUCTO)
+// DÃ³nde se usa: input type="file" del editor
+// Para quÃ© sirve: guardar archivo y mostrar una previsualizaciÃ³n
+// ===============================
 function onEditFileChange(e) {
   editFile.value = e.target?.files?.[0] || null;
   editPreviewSrc.value = editFile.value ? URL.createObjectURL(editFile.value) : '';
 }
 
-// Envia actualizacion de producto (multipart) y refresca listado.
+// ===============================
+// BLOQUE: BOTÃ“N "GUARDAR" (PRODUCTO)
+// DÃ³nde se usa: dentro del editor del producto
+// Para quÃ© sirve: enviar cambios al backend y recargar la lista
+// ===============================
 async function saveEdit() {
   if (!editingId.value || !editForm.value) return;
   savingEdit.value = true;
@@ -583,7 +683,11 @@ async function saveEdit() {
   }
 }
 
-// Elimina producto tras confirmacion modal y recarga lista.
+// ===============================
+// BLOQUE: BOTÃ“N "ELIMINAR" (PRODUCTO)
+// DÃ³nde se usa: botÃ³n "Eliminar" en cada fila de producto
+// Para quÃ© sirve: pedir confirmaciÃ³n y eliminar en el backend
+// ===============================
 async function deleteProduct(p) {
   const ok = await modal.openConfirm({
     title: 'Eliminar producto',
@@ -599,19 +703,31 @@ async function deleteProduct(p) {
   }
 }
 
-// Desplaza la pantalla hasta el bloque "Mis productos".
+// ===============================
+// BLOQUE: NAVEGACIÃ“N (SCROLL A "MIS PRODUCTOS")
+// DÃ³nde se usa: al pulsar el cuadro "Ventas activas"
+// Para quÃ© sirve: hacer scroll suave hasta el listado de productos
+// ===============================
 function goToMyProducts() {
   myProductsEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Navega a la vista de reservas.
+// ===============================
+// BLOQUE: NAVEGACIÃ“N (IR A RESERVAS)
+// DÃ³nde se usa: al pulsar el cuadro "Reservas activas"
+// Para quÃ© sirve: navegar a /reservas
+// ===============================
 function goToReservas() {
   router.push('/reservas');
 }
 
+// ===============================
+// BLOQUE: CARGA INICIAL (AL ENTRAR EN LA VISTA)
+// DÃ³nde se usa: se ejecuta automÃ¡ticamente al abrir la pÃ¡gina
+// Para quÃ© sirve: cargar usuario y todos los datos de la pantalla
+// ===============================
 onMounted(async () => {
-  // Carga inicial completa del perfil cuando hay sesion activa.
-  await auth.ensureReady();
+  await auth.fetchMe();
   if (!isLoggedIn.value) return;
   await loadCategorias();
   await loadUnidades();
@@ -619,9 +735,13 @@ onMounted(async () => {
   await loadMyProducts();
   await loadMyReservas();
   await loadMyPoints();
-  await loadValoracionMedia();
 });
 
+// ===============================
+// BLOQUE: ACTUALIZAR UBICACIÃ“N SI CAMBIAN COORDENADAS
+// DÃ³nde se usa: si el usuario cambia lat/lng (por ejemplo en /coords)
+// Para quÃ© sirve: refrescar el texto de ubicaciÃ³n sin recargar la pÃ¡gina
+// ===============================
 watch(isLoggedIn, async (v) => {
   if (!v) {
     myPoints.value = [];
