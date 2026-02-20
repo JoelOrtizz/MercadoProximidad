@@ -77,7 +77,7 @@
                 <div v-for="p in (selectedMapPoint?.productos || [])" :key="p.id" class="map-product" @click="goToDetails(p)">
 
                   <div class="product-head">
-                    <div class="product-title">{{ p.nombre || 'Producto' }}</div>
+                    <div class="product-title">{{ p.nombre || 'Producto' }} </div>
                     <div class="product-price">
                       <i class="bi bi-currency-euro"></i>
                       {{ formatPrice(p.precio) }}
@@ -143,7 +143,13 @@
                 <div class="card-body p-3 d-flex flex-column">
 
                   <div class="product-head">
-                    <div class="product-title">{{ p.nombre || 'Producto' }}</div>
+                    <div class="product-title">{{ p.nombre || 'Producto' }}
+                      <button class="btn btn-warning btn-sm" type="button" @click.stop="añadrFavoritos(p)">
+                        <i class="bi bi-heart"></i>
+                      </button>
+                    </div>
+
+                    <!-- ------------------------------------------------------------------------------------------------ -->
                     <div class="product-price">
                       <i class="bi bi-currency-euro"></i>
                       {{ formatPrice(p.precio) }}
@@ -563,6 +569,29 @@ function canReserve(p) {
   if (String(p.id_vendedor) === String(auth.user?.id)) return false;
   const stock = Number(p.stock);
   return Number.isFinite(stock) ? stock > 0 : true;
+}
+
+async function añadrFavoritos(p){
+  if (!isLoggedIn()) {
+    toast.warning('Tienes que iniciar sesion');
+    router.push('/login');
+    return;
+  }
+
+  try{
+    const res = await axios.post('/favoritos',{
+      id_producto:p.id,
+    })
+
+    if(res.data.fav === true){
+      toast.success('Añadido a favoritos');
+    }else{
+      toast.error('Eliminado de favoritos')
+    }
+
+  }catch(err){
+    toast.error(`Error: ${msg || 'Error : Inseperado'}`);
+  }
 }
 
 async function crearReserva(p) {

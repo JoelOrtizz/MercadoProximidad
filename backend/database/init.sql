@@ -214,6 +214,16 @@ CREATE TABLE mensajes (
   INDEX idx_mensajes_usuario_fecha (id_usuario, fecha_creacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE favoritos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_usuario INT NOT NULL,
+  id_producto INT NOT NULL,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_favorito (id_usuario, id_producto),
+  FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (id_producto) REFERENCES productos(id) ON DELETE CASCADE
+);
+
 
 -- ======================================
 -- CATEGORÇ?AS INSERTADAS

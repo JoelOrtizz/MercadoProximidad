@@ -110,6 +110,32 @@
           </button>
         </div>
 
+        <div id="favoritos_header" class="productos-header">
+          <p>Mis favoritos</p>
+          <button id="btnMisFavoritosReload" type="button" @click="loadMyFavoritos">Recargar</button>
+        </div>
+
+        <div id="favoritos_me" class="favoritos-grid">
+          <div v-if="loadingFavoritos" class="product-muted">Cargando favoritos...</div>
+          <div v-else-if="myFavoritos.length === 0" class="product-muted"> No tienes favoritos</div>
+
+          <div
+            v-for="f in myFavoritos"
+            :key="f.id"
+            class="product-row"
+            :class="{ 'is-editing': editingId === f.id}">
+
+            <div>
+              <div class="product-row__title">{{ f.nombre }}</div>
+              <div class="product-row__desc">{{ f.descripcion || 'Sin descripcion.' }}</div>
+              <div class="product-row__meta">
+                Categoria: {{ categoriaLabel(f.id_categoria) }} · Stock:
+                {{ formatStock(f.stock, f.unidad_simbolo || f.unidad_nombre) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id="productos_header" ref="myProductsEl" class="productos-header">
           <p>Mis productos</p>
           <button id="btnMisProductosReload" type="button" @click="loadMyProducts">Recargar</button>
@@ -223,6 +249,8 @@ const loadingProducts = ref(false);
 const myReservas = ref([]);
 const loadingReservas = ref(false);
 const myProductsEl = ref(null);
+const myFavoritos = ref([]);
+const loadingFavoritos = ref(false);
 
 const editingId = ref(null);
 const editForm = ref(null);
@@ -428,6 +456,18 @@ async function loadMyProducts() {
   }
 }
 
+async function loadMyFavoritos(){
+  loadingFavoritos.value=true;
+  try{
+    const res= await axios.get('/favoritos');
+    myFavoritos.value = Array.isArray(res.data) ? res.data : [];
+  } catch(err) {
+    myFavoritos.value = [];
+  } finally {
+    loadingFavoritos.value = false;
+  }
+}
+
 async function loadMyReservas() {
   loadingReservas.value = true;
   try {
@@ -570,6 +610,7 @@ onMounted(async () => {
   await loadMyReservas();
   await loadMyPoints();
   await loadValoracionMedia();
+  await loadMyFavoritos();
 });
 
 watch(isLoggedIn, async (v) => {

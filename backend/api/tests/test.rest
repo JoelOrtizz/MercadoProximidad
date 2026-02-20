@@ -158,3 +158,31 @@ get http://localhost:3000/api/categorias
   "cantidad": 2.50,
   "id_punto_entrega": 3
 }
+
+
+###
+
+get http://localhost:3000/api/favoritos
+
+###
+
+post http://localhost:3000/api/favoritos
+Content-Type: application/json
+
+{
+  "id_producto":2
+}
+
+
+###
+
+get http://localhost:3000/api/usuarios
+
+####
+post http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+    "email":"paco@gmail.com",
+    "contrasena":"root"
+}
