@@ -11,7 +11,7 @@
           <h2>Filtros</h2>
           <button class="btn filters__toggle-mobile" type="button" @click="mobileFiltersOpen = !mobileFiltersOpen">
             {{ mobileFiltersOpen ? 'Ocultar' : 'Mostrar' }}
-          </button>
+          </button>0
         </div>
 
         <div class="filters__body">

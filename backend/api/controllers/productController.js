@@ -196,7 +196,6 @@ export async function updateProduct(req, res, next) {
                 }
             }
 
-
         } catch (err) {
             console.error("No se pudo crear la notificacion", err);
         }

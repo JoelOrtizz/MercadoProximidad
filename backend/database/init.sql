@@ -238,6 +238,21 @@ create table favoritos (
     Foreign Key (id_producto) REFERENCES productos (id) ON DELETE CASCADE
 );
 
+CREATE TABLE incidencias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_reserva INT NOT NULL,
+    id_autor INT NOT NULL,
+    id_destinatario INT NOT NULL,
+    tipo_problema ENUM('calidad', 'cantidad', 'otro') NOT NULL,
+    descripcion TEXT NOT NULL,
+    imagen_prueba VARCHAR(255),
+    estado ENUM('abierta', 'resuelta') DEFAULT 'abierta',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_reserva) REFERENCES reservas (id) ON DELETE CASCADE,
+    FOREIGN KEY (id_comprador) REFERENCES usuarios (id),
+    FOREIGN KEY (id_vendedor) REFERENCES usuarios (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 -- ======================================
 -- CATEGORÇ?AS INSERTADAS
 -- ======================================
