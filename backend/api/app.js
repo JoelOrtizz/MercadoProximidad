@@ -16,6 +16,7 @@ import chatRoutes from './routes/chatRoutes.js';
 import notificacionRoutes from './routes/notificacionRoutes.js';
 import alertaRoutes from './routes/alertaRoutes.js';
 import favoritosRoutes from './routes/favoritosRoutes.js';
+import incidenciasRoutes from './routes/incidenciasRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -74,6 +75,7 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/notificaciones', notificacionRoutes);
 app.use('/api/alertas', alertaRoutes);
 app.use('/api/favoritos', favoritosRoutes);
+app.use('/api/incidencias', incidenciasRoutes);
 
 // 404
 app.use((req, res) => {

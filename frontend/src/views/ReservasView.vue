@@ -7,23 +7,24 @@
       </div>
 
       <!-- Filtro simple: separar compras y ventas -->
-      <div v-if="isLoggedIn" class="reservas-top-switch" style="flex: 1; display: flex; justify-content: center; gap: 8px">
-        <button class="btn" type="button" :class="{ 'btn-primary': tipoLista === 'compras' }" @click="tipoLista = 'compras'">
+      <div v-if="isLoggedIn" class="reservas-top-switch"
+        style="flex: 1; display: flex; justify-content: center; gap: 8px">
+        <button class="btn" type="button" :class="{ 'btn-primary': tipoLista === 'compras' }"
+          @click="tipoLista = 'compras'">
           Compras
         </button>
-        <button class="btn" type="button" :class="{ 'btn-primary': tipoLista === 'ventas' }" @click="tipoLista = 'ventas'">
+        <button class="btn" type="button" :class="{ 'btn-primary': tipoLista === 'ventas' }"
+          @click="tipoLista = 'ventas'">
           Ventas
         </button>
       </div>
 
-      <button class="btn btn-reload-mobile" type="button" :disabled="loading" title="Recargar" aria-label="Recargar" @click="loadReservas">Recargar</button>
+      <button class="btn btn-reload-mobile" type="button" :disabled="loading" title="Recargar" aria-label="Recargar"
+        @click="loadReservas">Recargar</button>
     </div>
 
-    <GuestState
-      v-if="!isLoggedIn"
-      title="Necesitas iniciar sesion"
-      message="Para ver tus reservas debes iniciar sesion."
-    />
+    <GuestState v-if="!isLoggedIn" title="Necesitas iniciar sesion"
+      message="Para ver tus reservas debes iniciar sesion." />
 
     <div v-else class="card">
       <div class="tabs reservas-tabs" style="display: flex; gap: 8px; flex-wrap: wrap">
@@ -44,25 +45,26 @@
       </div>
     </div>
 
-      <div v-if="activeList.length === 0" class="hint" style="margin-top: 12px">
-        No tienes reservas en esta categoria.
-      </div>
+    <div v-if="activeList.length === 0" class="hint" style="margin-top: 12px">
+      No tienes reservas en esta categoria.
+    </div>
 
-      <div v-else class="d-flex flex-column gap-2" style="margin-top: 12px">
-        <div v-for="r in activeList" :key="r.id" class="card shadow-sm mb-3">
-          <div class="card-body reserva-clickable" @click="goToProducto(r, $event)">
+    <div v-else class="d-flex flex-column gap-2" style="margin-top: 12px">
+      <div v-for="r in activeList" :key="r.id" class="card shadow-sm mb-3">
+        <div class="card-body reserva-clickable" @click="goToProducto(r, $event)">
           <div class="reserva-head mb-2">
             <div class="d-flex align-items-center gap-2">
               <img v-if="r.producto_imagen" :src="`/uploads/${encodeURIComponent(r.producto_imagen)}`" alt=""
                 class="rounded border" style="width: 56px; height: 56px; object-fit: cover;" />
-            <div>
-              <div class="reserva-title">
-                {{ r.producto_nombre || 'Producto' }}
-                <span class="reserva-title-meta">({{ formatCantidad(r.cantidad) }} {{ r.producto_unidad || '' }})</span>
+              <div>
+                <div class="reserva-title">
+                  {{ r.producto_nombre || 'Producto' }}
+                  <span class="reserva-title-meta">({{ formatCantidad(r.cantidad) }} {{ r.producto_unidad || ''
+                    }})</span>
+                </div>
+                <div class="reserva-ref">Numero de reserva: {{ r.id }}</div>
+                <div class="reserva-ref-note">Usa este numero como referencia para la recogida.</div>
               </div>
-              <div class="reserva-ref">Numero de reserva: {{ r.id }}</div>
-              <div class="reserva-ref-note">Usa este numero como referencia para la recogida.</div>
-            </div>
             </div>
             <div class="reserva-top-grid reserva-top-grid--header">
               <div class="reserva-top-item">
@@ -114,24 +116,21 @@
           </div>
 
           <div class="actions mt-3 d-flex gap-2 flex-wrap">
-            <button class="btn btn-outline-primary btn-sm" type="button" :disabled="savingById[r.id]" @click="openChat(r)">
+            <button class="btn btn-outline-primary btn-sm" type="button" :disabled="savingById[r.id]"
+              @click="openChat(r)">
               <i class="bi bi-chat-dots me-1"></i>
               Chat
             </button>
 
-            <button
-              v-if="isComprador(r) && r.estado === 'aceptada' && hasPointCoords(r)"
-              class="btn btn-outline-success btn-sm"
-              type="button"
-              @click="openMaps(r)"
-            >
+            <button v-if="isComprador(r) && r.estado === 'aceptada' && hasPointCoords(r)"
+              class="btn btn-outline-success btn-sm" type="button" @click="openMaps(r)">
               <i class="bi bi-geo-alt me-1"></i>
               Como llegar
             </button>
 
             <template v-if="isComprador(r)">
-              <button v-if="r.estado === 'pendiente'" class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]"
-                @click="cancelar(r)">
+              <button v-if="r.estado === 'pendiente'" class="btn btn-outline-danger btn-sm" type="button"
+                :disabled="savingById[r.id]" @click="cancelar(r)">
                 <i class="bi bi-x-circle me-1"></i>
                 {{ savingById[r.id] ? 'Cancelando...' : 'Cancelar' }}
               </button>
@@ -146,6 +145,11 @@
                 style="font-size: 0.9em; padding: 5px; color: #856404; background-color: #fff3cd; border-radius: 4px;">
                 ⏳ Esperando respuesta...
               </span>
+
+              <button class="btn btn-outline-danger btn-sm" type="button" 
+              v-if="r.estado=== 'completada'" @click="abrirReportar(r)">
+                Reportar problema
+              </button>
             </template>
 
             <template v-if="isVendedor(r)">
@@ -155,7 +159,8 @@
                   @click="cambiarEstado(r, 'aceptada')">
                   {{ savingById[r.id] ? 'Guardando...' : 'Aceptar' }}
                 </button>
-                <button class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]" @click="cambiarEstado(r, 'rechazada')">
+                <button class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]"
+                  @click="cambiarEstado(r, 'rechazada')">
                   {{ savingById[r.id] ? 'Guardando...' : 'Rechazar' }}
                 </button>
               </template>
@@ -165,7 +170,8 @@
                   @click="cambiarEstado(r, 'completada')">
                   {{ savingById[r.id] ? 'Guardando...' : 'Marcar completada' }}
                 </button>
-                <button class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]" @click="cancelar(r)">
+                <button class="btn btn-outline-danger btn-sm" type="button" :disabled="savingById[r.id]"
+                  @click="cancelar(r)">
                   <i class="bi bi-x-circle me-1"></i>
                   {{ savingById[r.id] ? 'Cancelando...' : 'Cancelar' }}
                 </button>
@@ -175,20 +181,60 @@
                 <div style="width: 100%; font-size: 0.85em; color: #d97706; margin-bottom: 2px;">
                   ⚠ Solicitud de cancelación
                 </div>
-                <button class="btn btn-warning btn-sm" type="button" style="background-color: #d97706; border-color: #d97706;"
-                  :disabled="savingById[r.id]" @click="cancelar(r)">
+                <button class="btn btn-warning btn-sm" type="button"
+                  style="background-color: #d97706; border-color: #d97706;" :disabled="savingById[r.id]"
+                  @click="cancelar(r)">
                   {{ savingById[r.id] ? 'Procesando...' : 'Aceptar Cancelación' }}
                 </button>
-                <button class="btn btn-outline-secondary btn-sm" type="button" :disabled="savingById[r.id]" @click="rechazarSolicitud(r)">
+                <button class="btn btn-outline-secondary btn-sm" type="button" :disabled="savingById[r.id]"
+                  @click="rechazarSolicitud(r)">
                   {{ savingById[r.id] ? 'Procesando...' : 'Rechazar' }}
                 </button>
               </template>
 
             </template>
           </div>
-          </div>
         </div>
       </div>
+    </div>
+
+    <div v-if="showForm" class="modal-backdrop">
+      <div class="modal-content">
+        <h2>Reporta tu incidencia</h2>
+        <p>Reserva #{{ idReservaReporte }}</p>
+        <div class="form-group">
+          <label for="problmea">Tipo de problema</label>
+          <select name="problema" id="problema" v-model="form.tipo_problema">
+            <option value="">-- Selecciona un tipo --</option>
+            <option value="calidad">Calidad</option>
+            <option value="cantidad">Cantidad</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripcion</label>
+          <textarea name="descripcion" id="descripcion" v-model="form.descripcion"
+            placeholder="Detalla que ha pasado"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="imagen">Imagen</label>
+          <div class="file-input-wrapper">
+            <input ref="fileInput" type="file" id="imagen" name="imagen" accept="image/*" @change="onFileChange">
+          </div>
+          <small class="helper-text">Se enviara la primera imagen seleccionada</small>
+
+          <div v-if="previewSrc" class="image-preview-wrap">
+            <img class="image-preview" :src="previewSrc" alt="Previsualizacion" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" @click="cerrarReporte">Descartar</button>
+          <button type="submit" class="btn btn-primary" :disabled="loading" @click="enviarReporte">Enviar</button>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -214,6 +260,83 @@
   const tipoLista = ref('compras'); // compras | ventas
 
   const isLoggedIn = computed(() => Boolean(auth.user?.id));
+  const previewSrc = ref('');
+  const showForm = ref(false);
+  const file = ref(null);
+  const fileInput = ref(null);
+  const form = ref({
+    tipo_problema: "",
+    descripcion: ""
+  })
+  const idReservaReporte = ref(null);
+  function cerrarReporte() {
+    showForm.value = false;
+    idReservaReporte.value = null;
+    form.value.tipo_problema = "";
+    form.value.descripcion = "";
+    file.value = null;
+    if (previewSrc.value) {
+      try { URL.revokeObjectURL(previewSrc.value); } catch { }
+      previewSrc.value = '';
+    }
+    if (fileInput.value) fileInput.value.value = '';
+  }
+  function abrirReportar(r) {
+    form.value.tipo_problema = "";
+    form.value.descripcion = "";
+    idReservaReporte.value = r.id;
+    showForm.value = true;
+
+  }
+
+  async function enviarReporte() {
+    const userId = auth.user?.id
+    if (!userId) {
+      toast.warning('Tienes que iniciar sesion');
+      router.push('/login');
+      return;
+    }
+    try {
+      const fd = new FormData();
+      fd.append('tipo_problema', form.value.tipo_problema);
+      fd.append('descripcion', String(form.value.descripcion));
+      fd.append('imagen_prueba', file.value);
+      fd.append('estado', String('abierta'));
+
+      const res = await axios.post(`/incidencias/${idReservaReporte.value}`, fd);
+      await loadReservas();
+      toast.success('Reporte enviado con exito: ' + (res.data?.id ?? ''));
+      //alert('Guardado con existo. ID: ' +(res.data?.id ?? ''));
+      file.value = null;
+      if (previewSrc.value) {
+        try { URL.revokeObjectURL(previewSrc.value); } catch { }
+        previewSrc.value = '';
+      }
+      if (fileInput.value) fileInput.value.value = '';
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
+      toast.error(`Error: ${msg || 'No se pudo publicar'}`);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function onFileChange(e) {
+    const f = e && e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null;
+
+    // Si ya habia una URL creada, la borramos para no acumular memoria.
+    if (previewSrc.value) {
+      try { URL.revokeObjectURL(previewSrc.value); } catch { }
+      previewSrc.value = '';
+    }
+
+    file.value = f;
+
+    // Si el usuario ha seleccionado una imagen, creamos una URL temporal para verla.
+    if (f) {
+      try { previewSrc.value = URL.createObjectURL(f); } catch { previewSrc.value = ''; }
+    }
+  }
 
   function formatDate(value) {
     if (!value) return '-';
@@ -313,91 +436,91 @@
     }
   }
 
-async function cancelar(r) {
-  const soyComprador = isComprador(r);
-  const soyVendedor = isVendedor(r);
+  async function cancelar(r) {
+    const soyComprador = isComprador(r);
+    const soyVendedor = isVendedor(r);
 
-  let endpoint = "";
-  let confirmMsg = "";
-  let method = "post";
-  let body = {};
+    let endpoint = "";
+    let confirmMsg = "";
+    let method = "post";
+    let body = {};
 
-  // CASO 1: Comprador + Pendiente -> Cancelación directa
-  if (soyComprador && r.estado === 'pendiente') {
-    confirmMsg = `Cancelar la reserva #${r.id}`;
-    endpoint = `/reservas/${r.id}/cancel`;
-    method = 'put';
-  }
-  // CASO 2: Comprador + Aceptada -> Solicitar cancelación
-  else if (soyComprador && r.estado === 'aceptada') {
-    confirmMsg = `¿Solicitar la cancelación de la reserva #${r.id}? El vendedor deberá aceptarla.`;
-    endpoint = `/reservas/${r.id}/solicitar-cancelacion`;
-  }
-  // CASO 3: Vendedor + Solicitud -> Aceptar solicitud
-  else if (soyVendedor && r.estado === 'cancelacion_solicitada') {
-    confirmMsg = `¿Aceptar la cancelación de la reserva #${r.id}? Se devolverá el stock.`;
-    endpoint = `/reservas/${r.id}/responder-cancelacion`;
-    body = { decision: 'aceptar' };
-  }
-  // CASO 4: Vendedor + Aceptada -> Cancelación forzosa
-  else if (soyVendedor && r.estado === 'aceptada') {
-    confirmMsg = `¿Cancelar venta #${r.id} unilateralmente?`;
-    endpoint = `/reservas/${r.id}/status`;
-    method = 'put';
-    body = { estado: 'rechazada' }; 
-  }
-  else {
-    toast.error("No puedes realizar esta acción en el estado actual.");
-    return;
-  }
-
-  // Confirmación
-  const ok = await modal.openConfirm({
-    title: 'Confirmar acción',
-    message: confirmMsg,
-  });
-
-  if (!ok) return;
-
-  // Ejecución 
-  try {
-    savingById[r.id] = true;
-
-    if (method === 'put') {
-      await axios.put(endpoint, body);
-    } else {
-      await axios.post(endpoint, body);
+    // CASO 1: Comprador + Pendiente -> Cancelación directa
+    if (soyComprador && r.estado === 'pendiente') {
+      confirmMsg = `Cancelar la reserva #${r.id}`;
+      endpoint = `/reservas/${r.id}/cancel`;
+      method = 'put';
+    }
+    // CASO 2: Comprador + Aceptada -> Solicitar cancelación
+    else if (soyComprador && r.estado === 'aceptada') {
+      confirmMsg = `¿Solicitar la cancelación de la reserva #${r.id}? El vendedor deberá aceptarla.`;
+      endpoint = `/reservas/${r.id}/solicitar-cancelacion`;
+    }
+    // CASO 3: Vendedor + Solicitud -> Aceptar solicitud
+    else if (soyVendedor && r.estado === 'cancelacion_solicitada') {
+      confirmMsg = `¿Aceptar la cancelación de la reserva #${r.id}? Se devolverá el stock.`;
+      endpoint = `/reservas/${r.id}/responder-cancelacion`;
+      body = { decision: 'aceptar' };
+    }
+    // CASO 4: Vendedor + Aceptada -> Cancelación forzosa
+    else if (soyVendedor && r.estado === 'aceptada') {
+      confirmMsg = `¿Cancelar venta #${r.id} unilateralmente?`;
+      endpoint = `/reservas/${r.id}/status`;
+      method = 'put';
+      body = { estado: 'rechazada' };
+    }
+    else {
+      toast.error("No puedes realizar esta acción en el estado actual.");
+      return;
     }
 
-    await loadReservas();
-    toast.success("Operación realizada con éxito");
-  } catch (err) {
-    const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
-    toast.error(`Error: ${msg || 'No se pudo realizar la acción'}`);
-  } finally {
-    savingById[r.id] = false;
+    // Confirmación
+    const ok = await modal.openConfirm({
+      title: 'Confirmar acción',
+      message: confirmMsg,
+    });
+
+    if (!ok) return;
+
+    // Ejecución 
+    try {
+      savingById[r.id] = true;
+
+      if (method === 'put') {
+        await axios.put(endpoint, body);
+      } else {
+        await axios.post(endpoint, body);
+      }
+
+      await loadReservas();
+      toast.success("Operación realizada con éxito");
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
+      toast.error(`Error: ${msg || 'No se pudo realizar la acción'}`);
+    } finally {
+      savingById[r.id] = false;
+    }
   }
-}
 
-async function rechazarSolicitud(r) {
-  const ok = await modal.openConfirm({
-    title: 'Rechazar cancelación',
-    message: `¿Rechazar la solicitud y mantener la venta activa?`
-  });
+  async function rechazarSolicitud(r) {
+    const ok = await modal.openConfirm({
+      title: 'Rechazar cancelación',
+      message: `¿Rechazar la solicitud y mantener la venta activa?`
+    });
 
-  if (!ok) return;
+    if (!ok) return;
 
-  try {
-    savingById[r.id] = true;
-    await axios.post(`/reservas/${r.id}/responder-cancelacion`, { decision: 'rechazar' });
-    await loadReservas();
-    toast.info("Solicitud rechazada. La reserva sigue en pie.");
-  } catch (err) {
-    toast.error("Error al rechazar solicitud");
-  } finally {
-    savingById[r.id] = false;
+    try {
+      savingById[r.id] = true;
+      await axios.post(`/reservas/${r.id}/responder-cancelacion`, { decision: 'rechazar' });
+      await loadReservas();
+      toast.info("Solicitud rechazada. La reserva sigue en pie.");
+    } catch (err) {
+      toast.error("Error al rechazar solicitud");
+    } finally {
+      savingById[r.id] = false;
+    }
   }
-}
 
   async function cambiarEstado(r, estado) {
     try {
@@ -416,8 +539,8 @@ async function rechazarSolicitud(r) {
     if (!r) return;
     if (!auth.user || !auth.user.id) return;
 
-  const myId = auth.user.id;
-  const otherId = String(r.id_vendedor) === String(myId) ? r.id_comprador : r.id_vendedor;
+    const myId = auth.user.id;
+    const otherId = String(r.id_vendedor) === String(myId) ? r.id_comprador : r.id_vendedor;
 
     try {
       savingById[r.id] = true;

@@ -158,7 +158,7 @@ import GuestState from "../components/GuestState.vue";
   const auth = useAuthStore();
   const toast = useToastStore();
   const router = useRouter();
-
+  
   const loading = ref(false);
   const subtitle = ref("");
 

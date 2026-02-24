@@ -157,7 +157,7 @@ export const responderCancelacion = async (idReserva, idVendedor, decision) => {
 // Verifica si existe la reserva y si el usuario participa en ella como vendedor o comprador
 export async function reservaByUserId(id_reserva, id_user) {
   const [result] = await pool.query(
-    `select * from reservas where id = ? and (id_vendedor = ? or id_comprador)`,
+    `select * from reservas where id = ? and (id_vendedor = ? or id_comprador = ?)`,
     [id_reserva, id_user, id_user],
   );
   return result;

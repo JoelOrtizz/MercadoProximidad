@@ -249,8 +249,8 @@ CREATE TABLE incidencias (
     estado ENUM('abierta', 'resuelta') DEFAULT 'abierta',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_reserva) REFERENCES reservas (id) ON DELETE CASCADE,
-    FOREIGN KEY (id_comprador) REFERENCES usuarios (id),
-    FOREIGN KEY (id_vendedor) REFERENCES usuarios (id)
+    FOREIGN KEY (id_autor) REFERENCES usuarios (id),
+    FOREIGN KEY (id_destinatario) REFERENCES usuarios (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 -- ======================================

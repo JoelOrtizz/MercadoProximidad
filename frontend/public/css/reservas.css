@@ -37,7 +37,54 @@
 .reserva-clickable:hover {
   background: #fafafa;
 }
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
 
+.modal-content {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease-out;
+}
+.form-group label {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #2a2a2a;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.image-preview-wrap {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.image-preview {
+  width: min(360px, 100%);
+  max-height: 140px;
+  border-radius: 12px;
+  border: 1px solid rgba(2, 6, 23, 0.12);
+  object-fit: cover;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
 .reserva-user-link {
   margin-left: 4px;
   font-weight: 600;
