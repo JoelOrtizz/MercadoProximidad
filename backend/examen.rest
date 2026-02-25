@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:3000
+@startDate = 2026-01-01
+@endDate = 2026-12-31
+@logUserId = 3
+
+### =========================================
+### 1) LOGIN COMO ADMIN (Daniel) + logs OK
+### =========================================
+
+# @name loginDaniel
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "email": "daniel@ejemplo.com",
+  "contrasena": "1234"
+}
+
+###
+# Ver logs
+GET {{baseUrl}}/api/logs
+
+### =========================================
+### 2) LOGIN COMO NO ADMIN (Joel) + logs KO
+### =========================================
+
+# @name loginJoel
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "email": "joel@ejemplo.com",
+  "contrasena": "1234"
+}
+
+###
+# Debe devolver 403 (rol insuficiente)
+GET {{baseUrl}}/api/logs
+
+### =========================================
+### 3) LOGS FILTRADOS POR FECHAS
+### =========================================
+
+# Vuelve a autenticar como admin antes de probar filtros
+# @name loginDanielAgain
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+  "email": "daniel@ejemplo.com",
+  "contrasena": "1234"
+}
+
+###
+# Rango de fechas (inclusive)
+GET {{baseUrl}}/api/logs?start_date={{startDate}}%2000:00:00&end_date={{endDate}}%2023:59:59
+
+### =========================================
+### 4) LOGS FILTRADOS POR FECHAS + USER_ID=3
+### =========================================
+
+GET {{baseUrl}}/api/logs?start_date={{startDate}}%2000:00:00&end_date={{endDate}}%2023:59:59&user_id={{logUserId}}

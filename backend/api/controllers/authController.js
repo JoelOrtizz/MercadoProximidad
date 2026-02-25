@@ -3,18 +3,15 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 import { getByEmail, getById } from '../models/userModel.js';
+import { insertLog } from '../models/logsModel.js';
 
 function getCookieOptions(req) {
   const isProd = process.env.NODE_ENV === 'production';
-
-  // Con Traefik, Express puede saber si era HTTPS gracias a `trust proxy`.
-  const isSecureRequest = Boolean(req && req.secure) || String(req?.headers?.['x-forwarded-proto'] || '').includes('https');
 
   return {
     httpOnly: true,
     sameSite: 'strict',
     signed: true,
-    // En produccion, obligamos cookies seguras (solo HTTPS).
     secure: isProd ? true : false,
   };
 }
@@ -28,13 +25,11 @@ export const login = async (req, res, next) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    // utilizamos la funcion de compare para ver si coinciden
     const isMatch = await bcrypt.compare(contrasena, user.contrasena);
     if (!isMatch) {
       return res.status(401).json({ message: 'Contrasena incorrecta' });
     }
 
-    // utilizams la secret key definida en el .env para generar el token
     const secretKey = process.env.JWT_SECRET;
     if (!secretKey) {
       const error = new Error('JWT_SECRET no configurado');
@@ -42,19 +37,22 @@ export const login = async (req, res, next) => {
       return next(error);
     }
 
-    // ponemos en el token el id, el nickname, la clave secreta y su expiracion
     const token = jwt.sign(
       { id: user.id, nickname: user.nickname },
       secretKey,
       { expiresIn: '1h' }
     );
 
-    // guardamos en la cookie el token
-    res.cookie('access_token', token, {
-      httpOnly: true, // La cookie solo viaja por http al servidor
-      sameSite: 'strict', // Controla cuándo se envía la cookie si la petición viene de otra web
-      signed: true, // La firma de la cookie, para comprobar que es la misma cookie
-    });
+    res.cookie('access_token', token, getCookieOptions(req));
+
+    //Log al logearse
+
+    insertLog({
+      userId: user.id,
+      action: 'LOGGED',
+      tableName: 'usuarios',
+      data: { email: user.email, nickname: user.nickname },
+    }).catch(() => {});
 
     return res.json({
       message: 'Login correct',
@@ -65,11 +63,24 @@ export const login = async (req, res, next) => {
   }
 };
 
-// cerramos sesion
-export const logout = (req, res) => {
-  res.clearCookie('access_token', getCookieOptions(req));
+export const logout = async (req, res, next) => {
+  try {
+    if (req.user?.id) {
 
-  res.status(200).json({ message: 'Sesion cerrada correctamente' });
+      //Log al hacer logout
+      insertLog({
+        userId: req.user.id,
+        action: 'LOGGED_OUT',
+        tableName: 'usuarios',
+        data: { nickname: req.user.nickname || null },
+      }).catch(() => {});
+    }
+
+    res.clearCookie('access_token', getCookieOptions(req));
+    return res.status(200).json({ message: 'Sesion cerrada correctamente' });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 export const me = async (req, res, next) => {

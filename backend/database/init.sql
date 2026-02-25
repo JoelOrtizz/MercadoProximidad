@@ -245,7 +245,7 @@ INSERT INTO unidades (nombre, simbolo) VALUES
 -- Contraseña para ambos usuarios: 1234
 -- (hash bcrypt ya generado, para que puedas hacer login)
 INSERT INTO usuarios (id, nombre, nickname, email, tlf, contrasena, tipo, lat, lng) VALUES
-(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07170000, -0.26680000),
+(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'admin', 39.07170000, -0.26680000),
 (2, 'Joel', 'Joel', 'joel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07310000, -0.26820000);
 
 -- ======================================
@@ -394,3 +394,17 @@ VALUES
   (2, 'valoracion_pendiente', 'Te falta valorar', 'Recuerda valorar la experiencia de tu ultima reserva.', '/valoraciones', 8, 0),
   (1, 'mensaje_nuevo', 'Mensaje nuevo', 'Has recibido un mensaje en tu chat.', '/mensajes', 1, 1),
   (2, 'info', 'Consejo de uso', 'Puedes gestionar tus filtros desde la pantalla de compra.', '/comprar', NULL, 1);
+
+
+CREATE TABLE logs (
+  log_id INT AUTO_INCREMENT PRIMARY KEY,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  user_id INT NOT NULL,
+  action VARCHAR(50) NOT NULL,
+  table_name VARCHAR(100) NOT NULL,
+  data JSON,
+  
+  CONSTRAINT fk_logs_usuario
+    FOREIGN KEY (user_id) REFERENCES usuarios(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
