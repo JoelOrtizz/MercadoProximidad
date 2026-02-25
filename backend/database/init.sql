@@ -1,4 +1,4 @@
--- Active: 1762442615612@@127.0.0.1@3306@terretashop_db
+-- Active: 1771355233677@@127.0.0.1@3306@terretashop_db
 -- ======================================
 -- BASE DE DATOS
 -- ======================================
@@ -147,7 +147,7 @@ CREATE TABLE valoraciones (
 -- ALERTAS
 -- ======================================
 create table alertas_stock(
-  id INT INT AUTO_INCREMENT PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   id_usuario int not null,
   id_producto int not null unique,
   activa boolean default true,
