@@ -1,5 +1,5 @@
-import { getUser, getPublicUserById, insertUser, deleteUserById, updateUserById,updateUserMyself } from '../models/userModel.js';
-
+import { getUser, getUserByEmail, getPublicUserById, insertUser, deleteUserById, updateUserById,updateUserMyself, getByEmail } from '../models/userModel.js';
+import { insertLog } from '../models/logsModel.js';
 // get de usuarios
 export const fetchUser = async (req, res, next) => {
   try {
@@ -41,6 +41,9 @@ export const register = async (req, res, next) => {
 
     const id = await insertUser(nombre, nickname, email, contrasena);
 
+    const user_id = getUserByEmail(email);
+    const data = `nombre: ${nombre}, nickname: ${nickname}, email: ${email}`;
+    const log = await insertLog(user_id, "register", "users", data);
     return res.status(201).json({
       id,
       nombre,
@@ -113,11 +116,9 @@ export const updateUser = async (req, res, next) => {
     // recogemos los parametros del body
     const { nombre, nickname, email, contrasena } = req.body;
     const result = await updateUserById(id, nombre, nickname, email, contrasena);
-
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
-
     return res.json({
       id,
       nombre,
@@ -142,7 +143,8 @@ export const updateUserMe = async (req,res,next) => {
 
 
     const {nombre,email,tlf} = req.body;
-
+    const data = `nombre: ${nombre}, email: ${email}`;
+    const log = await insertLog(id, "update_user", "users", data);
     // Si llega como string vacio, lo guardamos como NULL (asi no hay "telefono = ''" raro en BD)
     const tlfFinal = (tlf === '' || tlf === undefined) ? null : tlf;
 

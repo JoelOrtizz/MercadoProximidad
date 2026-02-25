@@ -51,6 +51,22 @@ export const getUser = async () => {
     return result;
 }
 
+export async function getUserByEmail(email){
+    const [result] = await pool.query(
+        `select id from usuarios where email = ?`,
+        [email]
+    )
+    return result;
+}
+
+export async function esAdmin(id) {
+    const [result] = await pool.query(
+        `select tipo from usuarios where id = ?`,
+        [id]
+    )
+    return result;
+}
+
 export const getPublicUserById = async (id) => {
     const [result] = await pool.query(
         // Perfil publico: devolvemos datos basicos.
@@ -93,7 +109,6 @@ export const deleteUserById = async (id) => {
 export const updateUserById = async (id, nombre, nickname, email, contrasena) => {
 
     if (!nombre || !nickname || !email || !contrasena) {
-        throw badRequest("Por favor, rellena todos los campos obligatorios.");
         throw badRequest("Por favor, rellena todos los campos obligatorios.");
     }
 

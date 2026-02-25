@@ -1,4 +1,4 @@
--- Active: 1762442615612@@127.0.0.1@3306@terretashop_db
+-- Active: 1771355233677@@127.0.0.1@3306@terretashop_db
 -- ======================================
 -- BASE DE DATOS
 -- ======================================
@@ -214,6 +214,16 @@ CREATE TABLE mensajes (
   INDEX idx_mensajes_usuario_fecha (id_usuario, fecha_creacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+create table logs(
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+  user_id int not null,
+  action varchar(50),
+  table_name VARCHAR(50),
+  data VARCHAR(2550),
+  FOREIGN KEY (user_id) REFERENCES usuarios (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
 
 -- ======================================
 -- CATEGORÇ?AS INSERTADAS
@@ -246,8 +256,8 @@ INSERT INTO unidades (nombre, simbolo) VALUES
 -- (hash bcrypt ya generado, para que puedas hacer login)
 INSERT INTO usuarios (id, nombre, nickname, email, tlf, contrasena, tipo, lat, lng) VALUES
 (1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07170000, -0.26680000),
-(2, 'Joel', 'Joel', 'joel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07310000, -0.26820000);
-
+(2, 'Joel', 'Joel', 'joel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07310000, -0.26820000),
+(3, 'admin', 'admin', 'admin@gmail.com', null, 'contrasena', 'admin', 39.07310000, -0.26820000);
 -- ======================================
 -- PRODUCTOS DE MUESTRA (ALTERNANDO VENDEDOR)
 -- ======================================

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
 import { getByEmail, getById } from '../models/userModel.js';
+import { insertLog } from '../models/logsModel.js';
 
 function getCookieOptions(req) {
   const isProd = process.env.NODE_ENV === 'production';
@@ -48,6 +49,7 @@ export const login = async (req, res, next) => {
       secretKey,
       { expiresIn: '1h' }
     );
+    
 
     // guardamos en la cookie el token
     res.cookie('access_token', token, {
@@ -55,6 +57,10 @@ export const login = async (req, res, next) => {
       sameSite: 'strict', // Controla cuándo se envía la cookie si la petición viene de otra web
       signed: true, // La firma de la cookie, para comprobar que es la misma cookie
     });
+
+    const data = `nickname: ${user.nickname}, email: ${email}`
+    const log = await insertLog(user.id, "login", "users", data);
+
 
     return res.json({
       message: 'Login correct',
@@ -66,7 +72,7 @@ export const login = async (req, res, next) => {
 };
 
 // cerramos sesion
-export const logout = (req, res) => {
+export async function logout(req, res) {
   res.clearCookie('access_token', getCookieOptions(req));
 
   res.status(200).json({ message: 'Sesion cerrada correctamente' });

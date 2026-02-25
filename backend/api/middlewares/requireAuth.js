@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
+import { esAdmin } from '../models/userModel.js';
+
 export function requireAuth(req, res, next) {
   try {
     // acces_token es el nombre del token que cuando es firmado se guarda como signedCookie y usamos la variable token
@@ -27,5 +29,18 @@ export function requireAuth(req, res, next) {
   } catch (err) {
     // Token mal o expirado -> 401 sin pasar por el handler global (evitamos spam de logs)
     return res.status(401).json({ error: 'Token invalido o expirado' });
+  }
+}
+
+export async function requireAdmin(req, res, next) {
+  try{
+    const id = req.user.id;
+    const tipo = esAdmin(id)
+    if(tipo === 'miembro'){
+      return res.status(401).json({ message: 'No es admin' });
+    }
+    return next();
+  }catch(err){
+    return res.status(401).json({ err: 'error' });
   }
 }

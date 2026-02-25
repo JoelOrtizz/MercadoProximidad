@@ -23,7 +23,7 @@ router.get('/:id/ratings/media', getRatingMedia);
 router.get('/:id', fetchUserByIdPublic);
 
 router.delete('/:id', requireAuth, deleteUser);
-router.put('/:id', requireAuth, updateUser)
+router.put('/:id', requireAuth, updateUser);
 
 export default router;
 
