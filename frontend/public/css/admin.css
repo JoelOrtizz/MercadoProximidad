@@ -1,0 +1,24 @@
+﻿.admin-logs-scroll {
+  max-height: 62vh;
+  overflow: auto;
+}
+
+.admin-view .table td,
+.admin-view .table th {
+  white-space: nowrap;
+}
+
+.admin-data-preview {
+  max-width: 420px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+@media (max-width: 992px) {
+  .admin-data-preview {
+    max-width: 240px;
+  }
+}

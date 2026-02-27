@@ -7,6 +7,15 @@
         </RouterLink>
         <div class="header-top__tagline">El mercado local que te queda a mano</div>
         <div class="header-top__actions">
+          <button
+            v-if="isAdmin"
+            class="nav__user"
+            type="button"
+            title="Admin"
+            @click="router.push('/admin')"
+          >
+            Admin
+          </button>
 
           <button
             v-if="isLoggedIn"
@@ -37,6 +46,7 @@ const auth = useAuthStore();
 const router = useRouter();
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
+const isAdmin = computed(() => auth.user?.tipo === 'admin');
 const nickname = computed(() => auth.user?.nickname || '');
 
 async function handleAuthClick() {
