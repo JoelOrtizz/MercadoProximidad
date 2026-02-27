@@ -6,15 +6,8 @@
       <form id="register" class="auth-form" @submit.prevent="Register">
         <div class="field">
           <label class="label" for="email">Correo electrónico</label>
-          <input
-            v-model="email"
-            class="input"
-            type="email"
-            name="email"
-            id="email"
-            placeholder="usuario@ejemplo.com"
-            required
-          >
+          <input v-model="email" class="input" type="email" name="email" id="email" placeholder="usuario@ejemplo.com"
+            required>
         </div>
 
         <div class="field">
@@ -36,7 +29,8 @@
           {{ auth.loading ? 'Creando...' : 'Registrarse' }}
         </button>
 
-        <p class="auth-foot">¿Tienes cuenta? <RouterLink to="/login">Inicia sesión</RouterLink></p>
+        <p class="auth-foot">¿Tienes cuenta? <RouterLink to="/login">Inicia sesión</RouterLink>
+        </p>
       </form>
     </div>
   </main>
@@ -73,4 +67,3 @@
     }
   }
 </script>
-

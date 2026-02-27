@@ -1,4 +1,4 @@
-import { crearIncidencia, incidenciaComprador, incidenciaVendedor } from "../models/incidenciasModel.js";
+import { cambiarEstado, crearIncidencia, incidenciaComprador, incidenciaVendedor } from "../models/incidenciasModel.js";
 import { reservaByUserId } from "../models/reservaModel.js";
 import { createNotificacion } from "../models/notificacionModel.js";
 
@@ -43,7 +43,7 @@ export async function postIncidencia(req, res, next) {
     }
 }
 
-export async function incidenciasRecibidas() {
+export async function incidenciasRecibidas(req, res, next) {
     try{
         const id = req.user?.id;
         if (!id) {
@@ -51,14 +51,14 @@ export async function incidenciasRecibidas() {
             error.status = 401;
             throw error;
         }
-        const result = await incidenciaVendedor(id);
-        res.status(200).json(result);
+        const result = await incidenciaComprador(id);
+        res.status(200).json(Array.isArray(result) ? result : []);
     }catch(err){
-        next(err)
+        next(err);
     }
 }
 
-export async function incidenciasEnviadas() {
+export async function incidenciasEnviadas(req, res, next) {
     try {
         const id = req.user?.id;
         if (!id) {
@@ -66,9 +66,20 @@ export async function incidenciasEnviadas() {
             error.status = 401;
             throw error;
         }
-        const result = await incidenciaComprador(id);
-        res.status(200).json(result);
+        const result = await incidenciaVendedor(id);
+        res.status(200).json(Array.isArray(result) ? result : []);
     } catch (err) {
-        next(err)
+        next(err);
+    }
+}
+
+export async function putIncidencia(req, res, next) {
+    try{
+        const {id} = req.params;
+        const estado = req.body;
+        const result = await cambiarEstado(id, estado);
+        res.status(201).json({message: "estado cambiado"})
+    }catch(err){
+        next(err);
     }
 }

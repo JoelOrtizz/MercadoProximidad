@@ -11,19 +11,7 @@ export async function crearIncidencia(id_reserva, id_autor, id_destinatario, tip
 
 export async function incidenciaComprador(id) {
     const [result] = await pool.query(
-        `SELECT 
-            i.*, 
-            u.nombre, 
-            u.nickname,
-            p.nombre AS producto_nombre,   
-            p.imagen AS producto_imagen,
-            r.*
-        FROM incidencias i
-        JOIN usuarios u ON i.id_comprador = u.id
-        JOIN reservas r ON i.id_reserva = r.id     
-        JOIN productos p ON r.id_producto = p.id   
-        WHERE i.id_comprador = ?
-        ORDER BY v.fecha_creacion DESC`,
+        `select * from incidencias where id_destinatario = ?`,
         [id]
     );
     return result;
@@ -31,20 +19,16 @@ export async function incidenciaComprador(id) {
 
 export async function incidenciaVendedor(id) {
     const [result] = await pool.query(
-        `SELECT 
-            i.*,
-            u.nombre,
-            u.nickname,
-            p.nombre AS producto_nombre,
-            p.imagen AS producto_imagen,
-            r.*
-        FROM incidencias i
-        JOIN usuarios u ON i.vendedor = u.id
-        JOIN reservas r ON i.id_reserva = r.id     
-        JOIN productos p ON r.id_producto = p.id   
-        WHERE i.id_vendedor = ?
-        ORDER BY v.fecha_creacion DESC`,
+        `select * from incidencias where id_autor = ?`,
         [id]
     );
+    return result;
+}
+
+export async function cambiarEstado(id, estado) {
+    const [result] = await pool.query(
+        `update incidencias set estado = ? where id = ?`,
+        [id, estado]
+    )
     return result;
 }

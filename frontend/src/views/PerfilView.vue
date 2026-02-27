@@ -200,6 +200,13 @@
             </div>
           </div>
         </div>
+        <div>Mis enviasas
+          <div v-for="i in incidenciasEnv" :key="i.id">
+            <p>Reserva: {{ i.id_reserva }}</p>
+            <p>Comprador: {{ i.id_autor }}</p>
+            <p>Vendedor: {{ i.id_destinatario }}</p>
+          </div>
+        </div>
       </template>
     </div>
   </main>
@@ -272,6 +279,29 @@ const reservasActivas = computed(() => {
   return (myReservas.value || []).filter((r) => r?.estado === 'pendiente' || r?.estado === 'aceptada').length;
 });
 
+const misIncidencias = ref([]);
+const incidenciasEnv = ref([]);
+
+
+async function loadIncidenciasReb(){
+  try{
+    const res = await axios.get('/incidencias/recibidas');
+    misIncidencias.value = Array.isArray(res.data) ? res.data : [];
+  }catch(err){
+    const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
+    toast.error(`Error: ${msg || 'No se pudo guardar el perfil.'}`);
+  }
+}
+
+  async function loadIncidenciasEnv() {
+    try {
+      const res = await axios.get('/incidencias/mis-reclamaciones');
+      incidenciasEnv.value = Array.isArray(res.data) ? res.data : [];
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
+      toast.error(`Error: ${msg || 'No se pudo guardar el perfil.'}`);
+    }
+  }
 
 
 function startEditProfile() {
@@ -575,6 +605,8 @@ onMounted(async () => {
   await loadMyReservas();
   await loadMyPoints();
   await loadValoracionMedia();
+  await loadIncidenciasEnv();
+  await loadIncidenciasReb();
 });
 
 watch(isLoggedIn, async (v) => {
