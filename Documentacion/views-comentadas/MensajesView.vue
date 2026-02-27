@@ -1,27 +1,30 @@
-<!--
-VISTA: Mensajes / Chat (MensajesView.vue)
+﻿<!--
+VISTA: MensajesView (MensajesView.vue)
 
-Qué pantalla es:
-- Pantalla de mensajería tipo “WhatsApp Web” con dos columnas:
-  - Izquierda: lista de chats del usuario.
-  - Derecha: conversación del chat seleccionado.
+Que pantalla es:
+- Esta copia refleja el estado actual de frontend/src/views/MensajesView.vue.
+- Sirve como referencia rapida para entender plantilla, estado y flujo principal.
 
-Qué puede hacer el usuario aquí:
-- Ver todos sus chats 1 a 1.
-- Entrar en un chat y ver los mensajes.
-- Escribir y enviar un mensaje nuevo.
-- Recargar chats o mensajes si algo no carga.
-
-Con qué otras pantallas se relaciona:
-- Si no hay sesión, te manda a /login.
-- Desde Reservas se puede entrar aquí con un chat ya seleccionado (/mensajes/:id).
+Como leerla:
+- Revisa primero el template para ver estructura visual y eventos.
+- Despues revisa el script para ver carga de datos, validaciones y acciones.
+- Si haces cambios en la vista real, actualiza tambien este archivo para mantener la documentacion alineada.
 -->
+
 <template>
   <main class="page mensajes-page">
-    <div v-if="!isLoggedIn" class="card">
-      Necesitas iniciar sesion para ver tus mensajes.
-      <RouterLink to="/login">Ir a login</RouterLink>
+    <div class="products-header">
+      <div>
+        <h1>Mensajeria</h1>
+        <div class="subtitle">Tus conversaciones con compradores y vendedores.</div>
+      </div>
     </div>
+
+    <GuestState
+      v-if="!isLoggedIn"
+      title="Necesitas iniciar sesion"
+      message="Para ver tus mensajes debes iniciar sesion."
+    />
 
     <div v-else class="mensajes-layout">
       <!-- Lista de chats (izquierda) -->
@@ -37,14 +40,8 @@ Con qué otras pantallas se relaciona:
         <div v-else-if="chats.length === 0" class="chats__muted">No tienes chats.</div>
 
         <div v-else class="chats__list">
-          <button
-            v-for="c in chats"
-            :key="c.id"
-            class="chat-item"
-            type="button"
-            :class="{ 'is-active': String(c.id) === String(selectedChatId) }"
-            @click="selectChat(c)"
-          >
+          <button v-for="c in chats" :key="c.id" class="chat-item" type="button"
+            :class="{ 'is-active': String(c.id) === String(selectedChatId) }" @click="selectChat(c)">
             <div class="chat-item__top">
               <div class="chat-item__name">{{ c.other_nickname || 'Usuario' }}</div>
               <div class="chat-item__time">{{ formatTime(c.last_message_at) }}</div>
@@ -54,17 +51,20 @@ Con qué otras pantallas se relaciona:
         </div>
       </aside>
 
-      <!-- Conversación (derecha) -->
+      <!-- ConversaciÃ³n (derecha) -->
       <section class="conv">
         <div v-if="!selectedChat" class="conv__empty">
           <div class="conv__empty-title">Selecciona un chat</div>
-          <div class="conv__empty-text">Elige una conversación a la izquierda para verla aquí.</div>
+          <div class="conv__empty-text">Elige una conversaciÃ³n a la izquierda para verla aquÃ­.</div>
         </div>
 
         <template v-else>
           <header class="conv__header">
             <div>
-              <div class="conv__name">{{ selectedChat.other_nickname }}</div>
+              <RouterLink :to="`/usuario/${selectedChat.other_user_id}`" class="conv__name"
+                style="text-decoration: none; color: inherit; cursor: pointer;">
+                {{ selectedChat.other_nickname }}
+              </RouterLink>
               <div class="conv__sub">Chat 1 a 1</div>
             </div>
             <button class="btn" type="button" :disabled="loadingMensajes" @click="loadMensajes(selectedChat.id)">
@@ -77,12 +77,7 @@ Con qué otras pantallas se relaciona:
             <div v-else-if="mensajes.length === 0" class="conv__muted">Escribe el primer mensaje.</div>
 
             <div v-else class="conv__list">
-              <div
-                v-for="m in mensajes"
-                :key="m.id"
-                class="bubble"
-                :class="isMine(m) ? 'bubble--me' : 'bubble--other'"
-              >
+              <div v-for="m in mensajes" :key="m.id" class="bubble" :class="isMine(m) ? 'bubble--me' : 'bubble--other'">
                 <div class="bubble__text">{{ m.mensaje }}</div>
                 <div class="bubble__meta">{{ formatTime(m.fecha_creacion) }}</div>
               </div>
@@ -90,16 +85,11 @@ Con qué otras pantallas se relaciona:
           </div>
 
           <form class="conv__composer" @submit.prevent="send">
-            <input
-              v-model="draft"
-              class="input conv__input"
-              type="text"
-              placeholder="Escribe un mensaje..."
-              :disabled="sending"
-              @keydown.enter.exact.prevent="send"
-            >
-            <button class="btn btn-primary" type="submit" :disabled="sending || !draft.trim()">
-              {{ sending ? 'Enviando...' : 'Enviar' }}
+            <input v-model="draft" class="input conv__input" type="text" placeholder="Escribe un mensaje..."
+              :disabled="sending" @keydown.enter.exact.prevent="send">
+            <button class="btn btn-primary conv__send-btn" type="submit" :disabled="sending || !draft.trim()">
+              <i class="bi bi-send-fill" aria-hidden="true"></i>
+              <span class="conv__send-label">{{ sending ? 'Enviando...' : 'Enviar' }}</span>
             </button>
           </form>
         </template>
@@ -109,57 +99,28 @@ Con qué otras pantallas se relaciona:
 </template>
 
 <script setup>
-// ==========================================================
-// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
-// ==========================================================
-// Esta pantalla es el “centro” de conversaciones.
-// La idea: primero cargar lista de chats, luego cargar mensajes del chat elegido,
-// y permitir enviar nuevos mensajes.
-// No se modifica el comportamiento del código.
-
-// ===============================
-// BLOQUE: IMPORTS
-// Qué problema resuelve: pedir chats/mensajes al backend y usar sesión + rutas.
-// Cuándo se usa: desde que entras a /mensajes.
-// Con qué se relaciona: con loadChats(), loadMensajes() y send().
-// Si no existiera: no podríamos hablar con el backend ni saber qué chat abrir.
-// ===============================
 import axios from 'axios';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import GuestState from '../components/GuestState.vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'; // Agregado onUnmounted
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useToastStore } from '@/stores/toastStore.js';
 
-// ===============================
-// BLOQUE: SESIÓN + RUTA + TOAST
-// Qué problema resuelve: saber quién está escribiendo, leer el chat de la URL y avisar de errores.
-// Cuándo se usa: en toda la pantalla.
-// Con qué se relaciona: con la selección de chat y el envío de mensajes.
-// Si no existiera: no podríamos filtrar “mis mensajes” ni mostrar avisos claros.
-// ===============================
+// Flujo de la vista:
+// 1) Carga lista de chats y selecciona uno por ruta o por defecto.
+// 2) Carga mensajes del chat activo.
+// 3) Lanza polling en background para traer cambios sin bloquear la lectura.
+// 4) Solo hace autoscroll cuando hay mensajes nuevos o el usuario envia uno.
+
 const auth = useAuthStore();
 const toast = useToastStore();
 
 const route = useRoute();
 const router = useRouter();
 
-// ===============================
-// BLOQUE: ESTADO (LISTA DE CHATS)
-// Qué problema resuelve: guardar la lista que se ve a la izquierda y si está cargando.
-// Cuándo se usa: al entrar y al recargar.
-// Con qué se relaciona: con loadChats() y con selectedChatId/selectedChat.
-// Si no existiera: el panel izquierdo estaría vacío.
-// ===============================
 const chats = ref([]);
 const loadingChats = ref(false);
 
-// ===============================
-// BLOQUE: CHAT SELECCIONADO
-// Qué problema resuelve: saber qué conversación se muestra a la derecha.
-// Cuándo se usa: al hacer click en un chat o al entrar por /mensajes/:id.
-// Con qué se relaciona: con loadMensajes() y send().
-// Si no existiera: no sabríamos qué mensajes cargar.
-// ===============================
 const selectedChatId = ref(null);
 const selectedChat = computed(() => {
   const id = selectedChatId.value;
@@ -167,28 +128,17 @@ const selectedChat = computed(() => {
   return chats.value.find((c) => String(c.id) === String(id)) || null;
 });
 
-// ===============================
-// BLOQUE: ESTADO (MENSAJES + ESCRIBIR)
-// Qué problema resuelve: guardar mensajes, estado de carga, lo que escribes y el scroll.
-// Cuándo se usa: al abrir un chat y al enviar mensajes.
-// Con qué se relaciona: con loadMensajes(), scrollToBottom() y send().
-// Si no existiera: no podrías ver la conversación ni escribir.
-// ===============================
 const mensajes = ref([]);
 const loadingMensajes = ref(false);
 const sending = ref(false);
 const draft = ref('');
 const messagesEl = ref(null);
 
-// ===============================
-// BLOQUE: COMPROBACIÓN DE SESIÓN
-// Qué problema resuelve: bloquear el acceso a mensajes si no hay login.
-// Cuándo se usa: al renderizar y en la carga inicial.
-// Con qué se relaciona: con el v-if del template.
-// Si no existiera: se intentarían hacer llamadas sin sesión y fallaría con 401.
-// ===============================
 const isLoggedIn = computed(() => Boolean(auth.user && auth.user.id));
 
+let pollingInterval = null; // Variable para el temporizador
+
+// Formatea timestamps de chat/mensaje en hora corta para la UI.
 function formatTime(value) {
   if (!value) return '';
   try {
@@ -199,111 +149,106 @@ function formatTime(value) {
   }
 }
 
+// Distingue burbuja propia vs ajena comparando id del autor con usuario logueado.
 function isMine(m) {
-  // ===============================
-  // BLOQUE: DIFERENCIAR “MIS MENSAJES”
-  // Qué problema resuelve: pintar burbujas a derecha/izquierda según quién lo envió.
-  // Cuándo se usa: al renderizar cada mensaje.
-  // Con qué se relaciona: con el template (clases bubble--me / bubble--other).
-  // Si no existiera: todos los mensajes se verían iguales y sería confuso.
-  // ===============================
   return String(m.id_usuario) === String(auth.user && auth.user.id);
 }
 
-async function loadChats() {
-  // ===============================
-  // BLOQUE: CARGAR CHATS (COLUMNA IZQUIERDA)
-  // Qué problema resuelve: traer del backend los chats donde participa el usuario.
-  // Cuándo se usa: al entrar y al recargar.
-  // Con qué se relaciona: con selectChat() y con la URL /mensajes/:id.
-  // Si no existiera: no podrías elegir conversación.
-  // ===============================
-  loadingChats.value = true;
+// Carga lista de chats. En background evita spinner y evita redirecciones bruscas.
+async function loadChats(background = false) {
+  // Solo mostramos spinner si NO es background
+  if (!background) loadingChats.value = true;
+
   try {
     const res = await axios.get('/chats');
     chats.value = Array.isArray(res.data) ? res.data : [];
 
-    // Si venimos por /mensajes/:id, respetamos esa selección.
-    const routeId = route.params && route.params.id ? String(route.params.id) : '';
-    if (routeId) {
-      selectedChatId.value = routeId;
-      return;
-    }
-
-    // Si no hay chat seleccionado, selecciona el primero.
-    if (!selectedChatId.value && chats.value.length) {
-      selectedChatId.value = String(chats.value[0].id);
-      router.replace(`/mensajes/${selectedChatId.value}`);
+    // LÃ³gica de redirecciÃ³n solo si NO es background (para no molestar mientras chatea)
+    if (!background) {
+      const routeId = route.params && route.params.id ? String(route.params.id) : '';
+      if (routeId) {
+        selectedChatId.value = routeId;
+        return;
+      }
+      if (!selectedChatId.value && chats.value.length) {
+        selectedChatId.value = String(chats.value[0].id);
+        router.replace(`/mensajes/${selectedChatId.value}`);
+      }
     }
   } catch (err) {
-    chats.value = [];
-    const msg = err && err.response && err.response.data && (err.response.data.error || err.response.data.message);
-    toast.error(`Error: ${msg || (err && err.message) || 'No se pudieron cargar los chats.'}`);
+    // Si falla en background, no borramos la lista ni mostramos error para no interrumpir
+    if (!background) {
+      chats.value = [];
+      const msg = err && err.response && err.response.data && (err.response.data.error || err.response.data.message);
+      toast.error(`Error: ${msg || (err && err.message) || 'No se pudieron cargar los chats.'}`);
+    }
   } finally {
-    loadingChats.value = false;
+    if (!background) loadingChats.value = false;
   }
 }
 
-async function loadMensajes(chatId) {
-  // ===============================
-  // BLOQUE: CARGAR MENSAJES (CONVERSACIÓN)
-  // Qué problema resuelve: traer y mostrar los mensajes del chat seleccionado.
-  // Cuándo se usa: cuando cambia selectedChatId o al recargar.
-  // Con qué se relaciona: con scrollToBottom() para que se vea lo último.
-  // Si no existiera: al seleccionar un chat no verías nada a la derecha.
-  // ===============================
+// Carga mensajes del chat activo. En background solo baja scroll si entran mensajes nuevos.
+async function loadMensajes(chatId, background = false) {
   if (!chatId) return;
-  loadingMensajes.value = true;
+
+  // Solo spinner si es carga manual
+  if (!background) loadingMensajes.value = true;
+
+  let hayQueBajarScroll = false;
   try {
+    const prevLen = mensajes.value.length;
+    const prevLastId = prevLen ? mensajes.value[prevLen - 1].id : null;
     const res = await axios.get(`/chats/${chatId}/mensajes`);
-    mensajes.value = Array.isArray(res.data) ? res.data : [];
-    await nextTick();
-    scrollToBottom();
+    const nuevos = Array.isArray(res.data) ? res.data : [];
+
+    // Si estamos en background, solo actualizamos si hay cambios (opcional, pero aqui actualizamos siempre para asegurar)
+    mensajes.value = nuevos;
+    const newLen = nuevos.length;
+    const newLastId = newLen ? nuevos[newLen - 1].id : null;
+    const hayMensajesNuevos = newLen > prevLen || (newLastId && newLastId !== prevLastId);
+
+    if (!background) {
+      hayQueBajarScroll = true;
+    } else {
+      hayQueBajarScroll = hayMensajesNuevos;
+    }
   } catch (err) {
-    mensajes.value = [];
-    const msg = err && err.response && err.response.data && (err.response.data.error || err.response.data.message);
-    toast.error(`Error: ${msg || (err && err.message) || 'No se pudieron cargar los mensajes.'}`);
+    if (!background) {
+      mensajes.value = [];
+      const msg = err && err.response && err.response.data && (err.response.data.error || err.response.data.message);
+      toast.error(`Error: ${msg || (err && err.message) || 'No se pudieron cargar los mensajes.'}`);
+    }
   } finally {
-    loadingMensajes.value = false;
+    if (!background) loadingMensajes.value = false;
+
+    // Scroll solo si es carga manual o si hay mensajes nuevos en background.
+    if (hayQueBajarScroll) {
+      await nextTick();
+      scrollToBottom();
+    }
   }
 }
 
+// Lleva la lista al final para dejar visible el ultimo mensaje.
 function scrollToBottom() {
-  // ===============================
-  // BLOQUE: SCROLL AL FINAL
-  // Qué problema resuelve: en chats suele interesar ver el último mensaje sin bajar manualmente.
-  // Cuándo se usa: después de cargar mensajes.
-  // Con qué se relaciona: con loadMensajes() y el ref messagesEl.
-  // Si no existiera: se quedaría arriba y parecería que faltan mensajes recientes.
-  // ===============================
   const el = messagesEl.value;
   if (!el) return;
   try {
     el.scrollTop = el.scrollHeight;
-  } catch {}
+  } catch { }
 }
 
+// Cambia chat activo, sincroniza URL y recarga mensajes del nuevo chat.
 function selectChat(chat) {
-  // ===============================
-  // BLOQUE: ELEGIR CHAT (CLICK EN LA IZQUIERDA)
-  // Qué problema resuelve: fijar el chat activo y cambiar la URL para poder compartir/recargar.
-  // Cuándo se usa: al pulsar en un chat.
-  // Con qué se relaciona: con el watch de selectedChatId que carga mensajes.
-  // Si no existiera: al pulsar no cambiaría nada.
-  // ===============================
   if (!chat) return;
   selectedChatId.value = String(chat.id);
   router.push(`/mensajes/${chat.id}`);
+  // Al cambiar de chat manualmente, carga normal (con spinner)
+  loadMensajes(chat.id, false);
 }
 
+// Envia mensaje al backend y refresca conversacion + listado de chats.
 async function send() {
-  // ===============================
-  // BLOQUE: ENVIAR MENSAJE
-  // Qué problema resuelve: guardar el mensaje en el backend y refrescar la conversación.
-  // Cuándo se usa: al pulsar “Enviar” o Enter.
-  // Con qué se relaciona: con loadMensajes() y loadChats() (para el preview del último mensaje).
-  // Si no existiera: podrías escribir pero no se enviaría nada.
-  // ===============================
   const chat = selectedChat.value;
   if (!chat) return;
 
@@ -314,8 +259,9 @@ async function send() {
   try {
     await axios.post(`/chats/${chat.id}/mensajes`, { mensaje: text });
     draft.value = '';
-    await loadMensajes(chat.id);
-    await loadChats(); // refresca preview del último mensaje
+    // Recarga inmediata manual
+    await loadMensajes(chat.id, false);
+    await loadChats(false);
   } catch (err) {
     const msg = err && err.response && err.response.data && (err.response.data.error || err.response.data.message);
     toast.error(`Error: ${msg || (err && err.message) || 'No se pudo enviar.'}`);
@@ -327,13 +273,6 @@ async function send() {
 watch(
   () => (route.params && route.params.id ? String(route.params.id) : ''),
   (id) => {
-    // ===============================
-    // BLOQUE: CAMBIO DE CHAT POR URL
-    // Qué problema resuelve: si entras por /mensajes/:id o cambias la URL, se selecciona ese chat.
-    // Cuándo se usa: cada vez que cambia el parámetro :id.
-    // Con qué se relaciona: con loadMensajes() (a través del otro watch).
-    // Si no existiera: entrar desde Reservas no abriría el chat correcto.
-    // ===============================
     if (id) selectedChatId.value = id;
   }
 );
@@ -341,28 +280,34 @@ watch(
 watch(
   () => selectedChatId.value,
   (id) => {
-    // ===============================
-    // BLOQUE: CUANDO CAMBIA EL CHAT SELECCIONADO
-    // Qué problema resuelve: cargar la conversación del chat actual.
-    // Cuándo se usa: al seleccionar chat o al llegar por URL.
-    // Con qué se relaciona: con loadMensajes().
-    // Si no existiera: el panel derecho no se actualizaría.
-    // ===============================
-    if (id) loadMensajes(id);
+    // Si cambia el ID seleccionado, carga normal
+    if (id) loadMensajes(id, false);
     else mensajes.value = [];
   }
 );
 
+// Quitamos el watcher global de scroll: ahora solo hacemos scroll cuando toca en loadMensajes.
+
 onMounted(async () => {
-  // ===============================
-  // BLOQUE: CARGA INICIAL
-  // Qué problema resuelve: recuperar sesión y cargar la lista de chats.
-  // Cuándo se usa: al entrar a la vista.
-  // Con qué se relaciona: con loadChats().
-  // Si no existiera: verías “No tienes chats” aunque existan o fallaría por falta de sesión.
-  // ===============================
-  await auth.fetchMe();
+  // Entrada a mensajeria: valida sesion, carga inicial y activa polling periodico.
+  await auth.ensureReady();
   if (!isLoggedIn.value) return;
-  await loadChats();
+
+  // 1. Carga inicial normal
+  await loadChats(false);
+
+  // 2. Intervalo cada 2 segundos (background = true)
+  pollingInterval = setInterval(() => {
+    loadChats(true); // Actualiza lista de la izquierda
+    if (selectedChatId.value) {
+      loadMensajes(selectedChatId.value, true); // Actualiza chat actual
+    }
+  }, 2000);
+});
+
+// Al salir de la vista se detiene el polling para evitar peticiones en segundo plano.
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval);
 });
 </script>
+

@@ -1,10 +1,10 @@
-<template>
+﻿<template>
   <main class="page">
     <div class="header">
       <div>
         <h1>Configurar puntos de entrega</h1>
         <p class="muted">
-          Haz click en el mapa para a�adir varios puntos. Luego pulsa "Guardar todo" para enviarlos al backend.
+          Haz click en el mapa para añadir varios puntos. Luego pulsa "Guardar todo" para enviarlos al backend.
         </p>
       </div>
       <button class="btn" type="button" @click="router.push('/perfil')">Volver a perfil</button>
@@ -40,7 +40,12 @@
             <tbody>
               <tr v-for="(p, idx) in points" :key="idx">
                 <td>{{ idx + 1 }}</td>
-                <td>{{ p.descripcion || p.displayName || 'Buscando...' }}</td>
+                <td>
+                  <div class="point-desc">{{ p.descripcion || p.displayName || 'Buscando...' }}</div>
+                  <span v-if="Number(p.reservas_activas) > 0" class="badge-reservas">
+                    Con reservas activas ({{ Number(p.reservas_activas) }})
+                  </span>
+                </td>
                 <td>
                   <button class="btn btn-danger" type="button" @click="removePoint(p)">Eliminar</button>
                 </td>
@@ -48,6 +53,9 @@
             </tbody>
           </table>
         </div>
+        <p class="muted table-note">
+          Si un punto tiene reservas activas, no puede eliminarse hasta que esas reservas dejen de estar activas.
+        </p>
 
         <div class="status">{{ statusText }}</div>
       </aside>
@@ -58,7 +66,7 @@
 <script setup>
 import GuestState from "../components/GuestState.vue";
 import axios from 'axios';
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.js';
 import { useToastStore } from '@/stores/toastStore.js';
@@ -75,6 +83,7 @@ const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
 let map = null;
 let markerIcon = null;
+let resizeHandler = null;
 
 const isLoggedIn = computed(() => Boolean(auth.user?.id));
 
@@ -149,6 +158,11 @@ function fitToPoints() {
   map.fitBounds(bounds, { padding: [20, 20], maxZoom: 16 });
 }
 
+function forceMapResize() {
+  if (!map) return;
+  try { map.invalidateSize(true); } catch {}
+}
+
 async function createMap() {
   const L = await loadLeaflet();
 
@@ -170,6 +184,15 @@ async function createMap() {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     await addPoint(lat, lng);
   });
+
+  // Evita el render parcial (franja gris) al entrar en la vista.
+  await nextTick();
+  requestAnimationFrame(() => {
+    try { map.invalidateSize(true); } catch {}
+  });
+  setTimeout(() => {
+    try { map.invalidateSize(true); } catch {}
+  }, 120);
 }
 
 function myLocation() {
@@ -250,11 +273,27 @@ async function saveAll() {
     }));
 
     const res = await axios.post('/puntos-entrega/bulk', { puntos: payload });
-    const inserted = Number(res.data?.inserted) || payload.length;
-    setStatus(`Guardados ${inserted} punto(s).`);
+    const inserted = Number(res.data?.inserted) || 0;
+    const keptLockedCount = Number(res.data?.kept_locked_count) || 0;
+    const backendMessage = String(res.data?.message || '').trim();
+
+    if (keptLockedCount > 0) {
+      const text =
+        backendMessage ||
+        `Guardado parcial: ${inserted} punto(s) actualizados. ${keptLockedCount} se mantienen por reservas activas.`;
+      setStatus(text);
+      toast.warning(text, 9000);
+    } else {
+      const text = backendMessage || `Guardados ${inserted} punto(s).`;
+      setStatus(text);
+      toast.success(text, 3500);
+    }
+
+    await loadMyPuntosEntrega();
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     setStatus(`Error: ${msg || 'No se pudieron guardar los puntos.'}`);
+    toast.error(msg || 'No se pudieron guardar los puntos.', 6000);
   } finally {
     saving.value = false;
   }
@@ -286,6 +325,7 @@ async function loadMyPuntosEntrega() {
         marker,
         descripcion: r?.descripcion || '',
         displayName: r?.descripcion || '',
+        reservas_activas: Number(r?.reservas_activas) || 0,
       });
     });
 
@@ -303,9 +343,24 @@ onMounted(async () => {
   await createMap();
   myLocation();
   await loadMyPuntosEntrega();
+  setTimeout(forceMapResize, 60);
+  setTimeout(forceMapResize, 250);
+  setTimeout(forceMapResize, 600);
+
+  resizeHandler = () => {
+    forceMapResize();
+  };
+  window.addEventListener('resize', resizeHandler);
+  window.addEventListener('orientationchange', resizeHandler);
+  document.addEventListener('visibilitychange', resizeHandler);
 });
 
 onBeforeUnmount(() => {
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler);
+    window.removeEventListener('orientationchange', resizeHandler);
+    document.removeEventListener('visibilitychange', resizeHandler);
+  }
   try {
     if (map) map.remove();
   } catch {}

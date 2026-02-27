@@ -38,10 +38,25 @@ export const countPuntosEntregaByVendedor = async (vendedorId) => {
 export const listPuntosEntregaByVendedor = async (vendedorId) => {
   const [rows] = await pool.query(
     `
-      SELECT id, id_vendedor AS id_vendedor, lat, lng, descripcion
-      FROM puntos_entrega
-      WHERE id_vendedor = ?
-      ORDER BY id DESC
+      SELECT
+        p.id,
+        p.id_vendedor AS id_vendedor,
+        p.lat,
+        p.lng,
+        p.descripcion,
+        COALESCE(ra.reservas_activas, 0) AS reservas_activas
+      FROM puntos_entrega p
+      LEFT JOIN (
+        SELECT
+          r.id_punto_entrega,
+          COUNT(*) AS reservas_activas
+        FROM reservas r
+        WHERE r.id_punto_entrega IS NOT NULL
+          AND r.estado IN ('pendiente', 'aceptada', 'cancelacion_solicitada')
+        GROUP BY r.id_punto_entrega
+      ) ra ON ra.id_punto_entrega = p.id
+      WHERE p.id_vendedor = ?
+      ORDER BY p.id DESC
     `,
     [vendedorId]
   );
@@ -89,6 +104,7 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
     const lockedIds = (Array.isArray(lockedIdRows) ? lockedIdRows : [])
       .map((r) => Number(r?.id_punto_entrega))
       .filter((n) => Number.isFinite(n));
+    const keptLockedCount = lockedIds.length;
 
     let lockedPoints = [];
     if (lockedIds.length) {
@@ -154,7 +170,17 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
         `,
         [vendedorId]
       );
-      return { inserted: 0, rows };
+      const message =
+        keptLockedCount > 0
+          ? `Guardado parcial: ${keptLockedCount} punto(s) se mantuvieron por tener reservas activas.`
+          : 'No habia cambios que guardar.';
+      return {
+        inserted: 0,
+        rows,
+        kept_locked_count: keptLockedCount,
+        kept_locked_ids: lockedIds,
+        message,
+      };
     }
 
     const valuesToInsert = toInsert.map((p) => [vendedorId, p.lat, p.lng, p.descripcion ?? null]);
@@ -180,7 +206,17 @@ export const createPuntosEntregaBulk = async ({ vendedorId, puntos }) => {
     );
 
     await conn.commit();
-    return { inserted, rows };
+    const message =
+      keptLockedCount > 0
+        ? `Guardado parcial: ${keptLockedCount} punto(s) se mantuvieron por tener reservas activas.`
+        : 'Puntos guardados correctamente.';
+    return {
+      inserted,
+      rows,
+      kept_locked_count: keptLockedCount,
+      kept_locked_ids: lockedIds,
+      message,
+    };
   } catch (err) {
     try {
       await conn.rollback();

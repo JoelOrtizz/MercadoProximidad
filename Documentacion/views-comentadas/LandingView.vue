@@ -1,4 +1,17 @@
-﻿<template>
+﻿<!--
+VISTA: LandingView (LandingView.vue)
+
+Que pantalla es:
+- Esta copia refleja el estado actual de frontend/src/views/LandingView.vue.
+- Sirve como referencia rapida para entender plantilla, estado y flujo principal.
+
+Como leerla:
+- Revisa primero el template para ver estructura visual y eventos.
+- Despues revisa el script para ver carga de datos, validaciones y acciones.
+- Si haces cambios en la vista real, actualiza tambien este archivo para mantener la documentacion alineada.
+-->
+
+<template>
   <div class="landing">
     <section class="landing-hero">
       <div class="landing-hero-bg" aria-hidden="true">
@@ -366,6 +379,7 @@ const text = {
 const t = computed(() => text[lang.value]);
 let rafId = null;
 
+// updateParallax: valida y envia cambios al backend, mostrando resultado al usuario.
 function updateParallax() {
   const sections = document.querySelectorAll('.landing-parallax, .landing-parallax-alt');
   const scrollY = window.scrollY || window.pageYOffset || 0;
@@ -385,6 +399,7 @@ function updateParallax() {
   });
 }
 
+// onScroll: centraliza una parte concreta de la logica de esta vista documentada.
 function onScroll() {
   if (rafId) return;
   rafId = requestAnimationFrame(() => {
@@ -405,6 +420,7 @@ onBeforeUnmount(() => {
   if (rafId) cancelAnimationFrame(rafId);
 });
 </script>
+
 
 
 

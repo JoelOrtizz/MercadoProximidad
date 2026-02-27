@@ -283,7 +283,7 @@ INSERT INTO unidades (nombre, simbolo) VALUES
 -- Contraseña para ambos usuarios: 1234
 -- (hash bcrypt ya generado, para que puedas hacer login)
 INSERT INTO usuarios (id, nombre, nickname, email, tlf, contrasena, tipo, lat, lng) VALUES
-(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07170000, -0.26680000),
+(1, 'Daniel', 'Daniel', 'daniel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'admin', 39.07170000, -0.26680000),
 (2, 'Joel', 'Joel', 'joel@ejemplo.com', NULL, '$2b$10$rkZhm8DzBLUtkEzixgEA2uPy2I037R6TtT/Sa7RpmoTpGnPdDg3xe', 'miembro', 39.07310000, -0.26820000);
 
 -- ======================================

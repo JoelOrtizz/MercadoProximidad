@@ -1,88 +1,73 @@
 # 02. Arquitectura del Sistema
 
-## 2.1 Visión general de la arquitectura
+## 2.1 Vision general
+TerretaShop sigue una arquitectura en 3 capas:
+- Frontend SPA (Vue 3).
+- Backend API REST (Node.js + Express).
+- Base de datos relacional (MySQL 8).
 
-La aplicación **TerretaShop** sigue una arquitectura web basada en separación de responsabilidades, con tres capas principales:
+En produccion, el acceso externo entra por Traefik (HTTPS) y se enruta a frontend o backend.
 
-- **Frontend (cliente)**: interfaz y experiencia de usuario.
-- **Backend (servidor / API REST)**: lógica de negocio y acceso a datos.
-- **Base de datos**: persistencia e integridad de la información.
+## 2.2 Frontend
+Ubicacion: `frontend/`
 
-La comunicación entre frontend y backend se realiza mediante una **API REST** usando HTTP y JSON (y `multipart/form-data` para subida de imágenes).
+Responsabilidades:
+- Render de vistas y navegacion (`vue-router`).
+- Estado global (`pinia`).
+- Consumo de API (`axios`, base `'/api'`, cookies activadas).
+- Interaccion de mapas con Leaflet (coords y puntos de entrega).
 
----
+Patrones activos:
+- Carga de CSS por ruta usando `route.meta.css` desde `App.vue`.
+- Estado "no logueado" reutilizable con `GuestState`.
+- Redireccion a `/coords` si hay sesion sin lat/lng.
 
-## 2.2 Arquitectura cliente-servidor
+## 2.3 Backend
+Ubicacion: `backend/api/`
 
-- El **frontend** se ejecuta en el navegador y consume la API.
-- El **backend** valida datos, aplica reglas de negocio y gestiona autenticación/autorización.
-- La **base de datos** almacena usuarios, productos, reservas, puntos de entrega y el resto de entidades.
+Responsabilidades:
+- Exponer endpoints REST bajo `/api`.
+- Validar entradas y permisos.
+- Aplicar reglas de negocio de reservas, puntos de entrega, chat, valoraciones y notificaciones.
+- Gestionar autenticacion por cookie JWT firmada.
+- Servir imagenes desde `/uploads`.
 
----
+Estructura:
+- `routes/`: definicion de endpoints.
+- `controllers/`: flujo HTTP y respuestas.
+- `models/`: consultas SQL y logica de datos.
+- `middlewares/`: auth, upload, etc.
 
-## 2.3 Capa de frontend
+## 2.4 Base de datos
+Ubicacion: `backend/database/init.sql`
 
-Responsabilidades principales:
+Caracteristicas:
+- Esquema relacional con claves foraneas.
+- Datos semilla para usuarios, productos, reservas y otros casos de uso.
+- Soporte de estados de reserva y relaciones entre modulos (chat/notificacion/valoracion).
 
-- Interfaz y navegación (Vue + Router).
-- Gestión de estado (Pinia), especialmente la sesión del usuario.
-- Consumo de la API (`axios`) y renderizado de listados.
-- Integración de mapas (Leaflet) y reverse geocoding (Nominatim) para mostrar direcciones.
+## 2.5 Comunicacion entre capas
+Flujo principal:
+1. Usuario interactua en frontend.
+2. Frontend llama API REST.
+3. Backend valida, ejecuta SQL y responde JSON.
+4. Frontend actualiza estado y UI.
 
-Nota: actualmente el frontend redirige a **selección de coordenadas** cuando el usuario está autenticado pero no tiene `lat/lng` guardados.
+Subidas de imagen:
+- Frontend envia `multipart/form-data`.
+- Backend guarda archivo en `backend/uploads`.
+- Frontend muestra imagen via `/uploads/<filename>`.
 
----
+## 2.6 Despliegue logico
+En produccion:
+- Traefik termina TLS y enruta por host/path.
+- Frontend se sirve con Nginx (contenedor propio).
+- Backend y MySQL corren en red interna de Docker.
+- Backend expone API y uploads a traves de Traefik.
 
-## 2.4 Capa de backend (API REST)
-
-El backend es una API REST (Node/Express) con estas responsabilidades:
-
-- Autenticación mediante **JWT en cookie** (cookie `access_token` firmada) y middleware `requireAuth`.
-- Gestión de usuarios (`/api/usuarios`) y sesión (`/api/login`).
-- Gestión de productos (`/api/productos`) y catálogos (`/api/categorias`, `/api/unidades`).
-- Gestión de coordenadas del usuario (`/api/map/me`).
-- Gestión de puntos de entrega (`/api/puntos-entrega`).
-- Gestión de reservas (`/api/reservas`) y cambio de estado con permisos básicos (comprador/vendedor por contexto).
-
-Pendiente de integrar (próximo sprint):
-
-- **Chat/mensajes**.
-- **Valoraciones**.
-
----
-
-## 2.5 Capa de datos
-
-Base de datos relacional con claves primarias y foráneas para integridad referencial.
-
-Cambios relevantes actuales:
-
-- Los productos ya **no** usan un campo de texto para la unidad. En su lugar usan `id_unidad` con relación a la tabla `unidades`.
-
----
-
-## 2.6 Integración de geolocalización
-
-El sistema contempla:
-
-- Almacenar coordenadas (`lat`, `lng`) en `usuarios`.
-- Selección de ubicación desde el frontend (mapa).
-- Uso de esa ubicación para funcionalidades futuras (proximidad, filtros, etc.).
-
----
-
-## 2.7 Entornos de ejecución
-
-- **Desarrollo**: ejecución local (Vite para frontend y Node para backend) y base de datos recreable con `init.sql`.
-- **Producción (planificado)**: despliegue con configuración de HTTPS y variables de entorno.
-
----
-
-## 2.8 Justificación de la arquitectura
-
-Esta arquitectura permite:
-
-- Separación clara de responsabilidades.
-- Facilidad de mantenimiento y ampliación por sprint.
-- Consistencia entre frontend/backend mediante contratos de API.
+## 2.7 Razones de esta arquitectura
+- Separacion clara de responsabilidades.
+- Mantenibilidad para trabajo en equipo.
+- Escalabilidad por servicio.
+- Facil reproduccion de entorno con Docker Compose.
 

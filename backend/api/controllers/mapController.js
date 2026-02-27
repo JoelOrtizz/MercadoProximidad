@@ -1,4 +1,5 @@
 import { updateUserCords } from '../models/mapModel.js';
+import { insertLog } from '../models/logsModel.js';
 
 // definimos un mensaje de error
 const badRequest = (message) => {
@@ -36,6 +37,12 @@ export const updateCords = async (req, res, next) => {
 
         // utilizamos el modelo de mapa con los datos que hemos recogido
         await updateUserCords(userId, { lat, lng });
+        insertLog({
+            userId: Number(userId),
+            action: 'UPDATE_USER',
+            tableName: 'usuarios',
+            data: { lat, lng, source: 'map' },
+        }).catch(() => {});
         res.status(200).json({ message: "Coordenadas actualizadas correctamente", lat, lng });
     } catch (error) {
         next(error);

@@ -1,129 +1,73 @@
-# 03. Diseño de la Base de Datos
+# 03. Base de Datos
 
-## 3.1 Introducción
+## 3.1 Fuente de verdad del esquema
+El esquema real se define en:
+- `backend/database/init.sql`
 
-La base de datos de **TerretaShop** almacena de forma persistente la información necesaria para el funcionamiento del sistema: usuarios, productos, reservas, puntos de entrega y entidades relacionadas.
-
-El modelo está pensado para mantener integridad referencial mediante claves primarias y foráneas, y facilitar la evolución del proyecto por sprints.
-
----
-
-## 3.2 Modelo entidad–relación
-
-El modelo ER se recoge en:
-
+El diagrama de apoyo esta en:
 - `Documentacion/diagrama_terretashop_db.md`
-- `Documentacion/diagrama_terretashop_db.png` (si existe en el repo)
+- `Documentacion/diagrama_terretashop_db.png`
 
----
+## 3.2 Tablas principales
 
-## 3.3 Usuarios
+### `usuarios`
+Datos de identidad, contacto, rol y coordenadas (`lat`, `lng`).
 
-Tabla: `usuarios`
+### `categorias`
+Catalogo de categorias de producto.
 
-Campos relevantes:
+### `unidades`
+Catalogo de unidades (`nombre`, `simbolo`).
 
-- Identificación (`id`, `nombre`, `nickname`, `email`)
-- Autenticación (`contrasena`)
-- Rol (`tipo`: `miembro` | `admin`)
-- Coordenadas (`lat`, `lng`)
-- Fecha creación (`fecha_creacion`)
+### `productos`
+Publicaciones de vendedor.
+Relaciones:
+- `id_vendedor -> usuarios.id`
+- `id_categoria -> categorias.id`
+- `id_unidad -> unidades.id`
 
-Notas:
+### `puntos_entrega`
+Puntos de recogida definidos por vendedor.
+Relacion:
+- `id_vendedor -> usuarios.id`
 
-- Los roles funcionales “comprador/vendedor” se derivan del contexto (por ejemplo, en una reserva hay `id_comprador` e `id_vendedor`).
+### `reservas`
+Relaciona comprador, vendedor, producto y punto de entrega.
+Campos clave:
+- `id_vendedor`, `id_comprador`, `id_producto`, `id_punto_entrega`, `cantidad`, `estado`.
 
----
+Estados usados:
+- `pendiente`
+- `aceptada`
+- `cancelacion_solicitada`
+- `rechazada`
+- `cancelada`
+- `completada`
 
-## 3.4 Categorías
+### `valoraciones`
+Valoraciones asociadas a reserva y usuarios implicados.
 
-Tabla: `categorias`
+### `notificaciones`
+Eventos para el usuario (reserva, chat, valoracion, etc.) con estado de lectura.
 
-Se utiliza para clasificar productos y evitar duplicidad de nombres.
+### `chats`
+Conversaciones 1 a 1 entre usuarios.
 
----
+### `mensajes`
+Mensajes de un chat, con autor y fecha.
 
-## 3.5 Unidades
+## 3.3 Reglas de negocio relevantes en BD + backend
+- Un vendedor tiene limite de puntos de entrega (validado en backend).
+- Puntos con reservas activas no se eliminan en reemplazo bulk.
+- Cambios de estado en reservas afectan a stock y bloqueos de puntos.
+- Productos con stock 0 no se muestran en compra (consulta de backend).
 
-Tabla: `unidades`
+## 3.4 Datos semilla
+`init.sql` incluye datos de ejemplo para:
+- Usuarios y catalogos.
+- Productos e imagenes referenciadas.
+- Reservas en distintos estados.
+- Casos para chat, notificaciones y valoraciones.
 
-Campos:
-
-- `id`
-- `nombre` (único, obligatorio)
-- `simbolo` (único, obligatorio)
-
-Se usa para normalizar la unidad de medida de los productos (por ejemplo: Kilogramo/kg, Litro/L, Unidad/ud).
-
----
-
-## 3.6 Productos
-
-Tabla: `productos`
-
-Relaciones principales:
-
-- `id_categoria` → `categorias(id)` (puede ser `NULL`)
-- `id_unidad` → `unidades(id)` (**obligatorio**)
-- `id_vendedor` → `usuarios(id)`
-
-Notas:
-
-- Antes existía un campo `tipo` (texto) para la unidad. Ese campo se ha eliminado y se ha sustituido por `id_unidad`.
-
----
-
-## 3.7 Puntos de entrega
-
-Tabla: `puntos_entrega`
-
-Cada vendedor puede definir hasta N puntos (regla implementada en backend) y se usan en las reservas.
-
----
-
-## 3.8 Reservas
-
-Tabla: `reservas`
-
-Campos relevantes:
-
-- `id_vendedor`, `id_comprador`
-- `id_producto`
-- `cantidad`
-- `id_punto_entrega`
-- `estado` (`pendiente`, `aceptada`, `rechazada`, `cancelada`, `completada`)
-
-Notas de negocio (implementación actual):
-
-- El comprador puede cancelar una reserva **pendiente**.
-- El vendedor puede aceptar/rechazar/completar.
-- Las reservas en estado `cancelada` se mantienen en la BD, pero el frontend no las muestra en listados.
-
----
-
-## 3.9 Mensajes (pendiente)
-
-Tabla: `mensajes`
-
-Existe en base de datos, pero la integración en frontend/backend está **pendiente**.
-
-Plan (próximo sprint):
-
-- El chat será entre 2 usuarios y podrá referenciar una reserva (el diseño final puede variar respecto a la tabla actual).
-
----
-
-## 3.10 Valoraciones (pendiente)
-
-Tabla: `valoraciones`
-
-Existe en base de datos, pero la integración en frontend/backend está **pendiente**.
-
----
-
-## 3.11 Notificaciones (pendiente/parcial)
-
-Tabla: `notificaciones`
-
-Existe en base de datos. La integración depende del sprint.
+Esto permite levantar entorno con escenarios reales desde el primer arranque.
 

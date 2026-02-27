@@ -8,7 +8,7 @@
     <div class="app-content">
       <router-view />
     </div>
-    <Footer />
+    <Footer v-if="!route.meta?.hideFooter" />
   </div>
 </template>
 
@@ -117,7 +117,7 @@ onMounted(async () => {
   aplicarCssDePagina(route?.meta?.css); // carga el css
 
   // Si el usuario está logueado pero no tiene coords, lo mandamos a seleccionarlas
-  if (auth.user?.id && !hasCoords(auth.user) && route.path !== '/coords') {
+  if (auth.user?.id && !hasCoords(auth.user) && route.path !== '/coords' && !route.path.startsWith('/admin')) {
     router.push('/coords');
   }
 });
@@ -128,7 +128,7 @@ watch(
   () => {
     aplicarCssDePagina(route?.meta?.css);
 
-    if (auth.user?.id && !hasCoords(auth.user) && route.path !== '/coords') {
+    if (auth.user?.id && !hasCoords(auth.user) && route.path !== '/coords' && !route.path.startsWith('/admin')) {
       router.push('/coords');
     }
   }
@@ -147,7 +147,7 @@ watch(
       notificaciones.clear();
     }
 
-    if (u?.id && !hasCoords(u) && route.path !== '/coords') {
+    if (u?.id && !hasCoords(u) && route.path !== '/coords' && !route.path.startsWith('/admin')) {
       router.push('/coords');
     }
   }

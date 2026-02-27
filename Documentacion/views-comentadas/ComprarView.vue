@@ -1,31 +1,33 @@
-<!--
-VISTA: Comprar (ComprarView.vue)
+﻿<!--
+VISTA: ComprarView (ComprarView.vue)
 
-Qué pantalla es:
-- Es la pantalla principal para buscar y reservar productos del marketplace.
-- Aquí el usuario actúa como comprador: filtra productos y crea reservas.
+Que pantalla es:
+- Esta copia refleja el estado actual de frontend/src/views/ComprarView.vue.
+- Sirve como referencia rapida para entender plantilla, estado y flujo principal.
 
-Qué puede hacer el usuario aquí:
-- Ver productos publicados por otros usuarios.
-- Filtrar por categoría, texto y (si tiene ubicación guardada) por distancia.
-- Elegir cantidad y punto de entrega del vendedor.
-- Crear una reserva del producto.
-
-Con qué otras pantallas se relaciona:
-- Si no estás logueado y quieres reservar, te envía a /login.
-- Los puntos de entrega que aparecen aquí se configuran en /puntos-entrega (pero esa pantalla es del vendedor).
+Como leerla:
+- Revisa primero el template para ver estructura visual y eventos.
+- Despues revisa el script para ver carga de datos, validaciones y acciones.
+- Si haces cambios en la vista real, actualiza tambien este archivo para mantener la documentacion alineada.
 -->
+
 <template>
 
-  <main>
+  <main class="page">
 
     <div class="market-layout">
 
-      <!-- ASIDE se va a referir a la tarjeta lateral donde se mostrarán las categorías -->
-      <aside class="card filters">
+      <!-- ASIDE se va a referir a la tarjeta lateral donde se mostrarÃ¡n las categorÃ­as -->
+      <aside class="card filters" :class="{ 'filters--open-mobile': mobileFiltersOpen }">
 
-        <h2>Filtros</h2>
+        <div class="filters__head">
+          <h2>Filtros</h2>
+          <button class="btn filters__toggle-mobile" type="button" @click="mobileFiltersOpen = !mobileFiltersOpen">
+            {{ mobileFiltersOpen ? 'Ocultar' : 'Mostrar' }}
+          </button>
+        </div>
 
+        <div class="filters__body">
         <div class="field">
           <label class="label">Categorias</label>
           <div class="chips">
@@ -34,7 +36,7 @@ Con qué otras pantallas se relaciona:
               Todas
             </button>
 
-            <!-- bucle para mostrar las categorías -->
+            <!-- bucle para mostrar las categorÃ­as -->
             <button v-for="c in categorias" :key="c.id" class="chip"
               :class="{ 'is-active': selectedCategory === String(c.id) }" type="button"
               @click="selectCategory(String(c.id))">
@@ -43,7 +45,7 @@ Con qué otras pantallas se relaciona:
           </div>
         </div>
 
-        <!-- Búsqueda -->
+        <!-- BÃºsqueda -->
         <div class="field">
           <label class="label" for="q">Busqueda</label>
           <input id="q" v-model="searchText" class="input" placeholder="Nombre o descripcion" />
@@ -55,15 +57,19 @@ Con qué otras pantallas se relaciona:
           <div class="hint">Filtra por proximidad usando tu ubicacion guardada.</div>
         </div>
 
-        <!-- Botones de la búsqueda -->
+        <!-- Botones de la bÃºsqueda -->
         <div class="actions">
           <button class="btn btn-primary" type="button" @click="loadProducts">Aplicar</button>
           <button class="btn" type="button" @click="clearFilters">Limpiar</button>
+          <button class="btn" type="button" @click="mapMode = !mapMode">
+            {{ mapMode ? 'Ver en lista' : 'Ver en mapa' }}
+          </button>
+        </div>
         </div>
         
       </aside>
 
-      <!-- Sección principal de los productos --> 
+      <!-- SecciÃ³n principal de los productos --> 
       <section class="products">
 
         <div class="products-header">
@@ -74,57 +80,182 @@ Con qué otras pantallas se relaciona:
           <button class="btn" type="button" @click="loadProducts">Recargar</button>
         </div>
 
-        <div class="product-grid">
-          <!-- Bucle para mostrar los productos -->
-          <article v-for="p in products" :key="p.id" class="product-card">
-
-            <div class="product-top">
-              <h3>{{ p.nombre || 'Producto' }}</h3>
-              <div class="price">{{ formatPrice(p.precio) }}</div>
-            </div>
-
-            <div v-if="p.imagen" class="product-media">
-              <img :src="resolveImageSrc(p.imagen)" :alt="`Imagen de ${p.nombre || 'Producto'}`">
-            </div>
-
-            <p class="desc">{{ p.descripcion || 'Sin descripción.' }}</p>
-
-            <div class="meta">Stock: {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}</div>
-
-            <!-- Reservar directamente (cantidad + punto) -->
-            <div class="card" style="margin-top: 12px; padding: 12px">
-              <div class="field">
-                <label for="label">Cantidad</label>
-                <input :disabled="!canReserve(p)" v-model="reservaCantidad[String(p.id)]" class="input" type="number"
-                  min="1" @focus="ensureReservaDefaults(p)" />
+        <template v-if="mapMode">
+          <div class="map-view map-view--bottom">
+            <div id="comprar-map"></div>
+            <aside ref="mapPanelRef" class="map-panel map-panel--bottom">
+              <div class="map-panel__head">
+                <h2>Productos del punto</h2>
+                <span class="map-panel__count">{{ selectedMapPoint?.productos?.length || 0 }}</span>
               </div>
+
+              <div class="map-panel__list">
+                <div v-if="!selectedMapPoint" class="map-panel__empty">
+                  Selecciona un punto en el mapa para ver sus productos.
+                </div>
+
+                <div v-for="p in (selectedMapPoint?.productos || [])" :key="p.id" class="map-product" @click="goToDetails(p)">
+
+                  <div class="product-head">
+                    <div class="product-title">{{ p.nombre || 'Producto' }}</div>
+                    <div class="product-price">
+                      <i class="bi bi-currency-euro"></i>
+                      {{ formatPrice(p.precio) }}
+                    </div>
+                  </div>
+
+                  <div class="product-thumb">
+                    <img :src="p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg'" :alt="p.nombre || 'Producto'" />
+                  </div>
+
+                  <p class="product-desc">{{ p.descripcion || 'Sin descripcion.' }}</p>
+
+                  <div class="product-meta">
+                    <span class="meta-item">
+                      <i class="bi bi-tag"></i>
+                      <span>{{ getCategoriaNombre(p) }}</span>
+                    </span>
+                    <span class="meta-item">
+                      <i class="bi bi-box-seam"></i>
+                      {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="bi bi-person"></i>
+                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop>
+                        @{{ p.nickname || 'Desconocido' }}
+                      </RouterLink>
+                      <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
+                    </span>
+                  </div>
+
+                  <div class="product-actions-row">
+                    <div class="product-qty">
+                      <i class="bi bi-123"></i>
+                      <span>Cant:</span>
+                      <input :disabled="!isLoggedIn()" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                        style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <div class="product-point">
+                      <i class="bi bi-geo-alt"></i>
+                      <div class="product-point-field">
+                        <div class="product-point-label">Seleccione donde quiere recogerlo</div>
+                        <select
+                          :disabled="!isLoggedIn() || puntosEntregaDeVendedor(p.id_vendedor).length === 0"
+                          v-model="reservaPuntoId[String(p.id)]"
+                          class="input form-control form-control-sm"
+                          @click.stop
+                          @focus="ensureReservaDefaults(p)"
+                          style="max-width:180px;"
+                        >
+                          <option
+                            v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)"
+                            :key="pt.id"
+                            :value="String(pt.id)"
+                          >
+                            {{ pt.descripcion || `Punto #${pt.id}` }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
+                      :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                      <i class="bi bi-cart-plus me-1"></i>
+                      {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </template>
+        <template v-else>
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
+            <!-- Bucle para mostrar los productos -->
+            <div v-for="p in visibleProducts" :key="p.id" class="col">
+              <article class="card shadow-sm h-100 product-card" @click="goToDetails(p)">
+
+                <div class="card-body p-3 d-flex flex-column">
+
+                  <div class="product-head">
+                    <div class="product-title">{{ p.nombre || 'Producto' }}</div>
+                    <div class="product-price">
+                      <i class="bi bi-currency-euro"></i>
+                      {{ formatPrice(p.precio) }}
+                    </div>
+                  </div>
+
+                  <div class="product-thumb">
+                    <img :src="p.imagen ? resolveImageSrc(p.imagen) : '/assets/logo.jpeg'" :alt="p.nombre || 'Producto'" />
+                  </div>
+
+                  <p class="product-desc">{{ p.descripcion || 'Sin descripcion.' }}</p>
+
+                  <div class="product-meta">
+                    <span class="meta-item">
+                      <i class="bi bi-tag"></i>
+                      <span>{{ getCategoriaNombre(p) }}</span>
+                    </span>
+                    <span class="meta-item">
+                      <i class="bi bi-box-seam"></i>
+                      {{ formatStock(p.stock, p.unidad_simbolo || p.unidad_nombre) }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="bi bi-person"></i>
+                      <RouterLink v-if="p.id_vendedor" :to="`/usuario/${p.id_vendedor}`" @click.stop>
+                        @{{ p.nickname || 'Desconocido' }}
+                      </RouterLink>
+                      <span v-else>@{{ p.nickname || 'Desconocido' }}</span>
+                    </span>
+                  </div>
+
+                  <div class="product-actions-row">
+                    <div class="product-qty">
+                      <i class="bi bi-123"></i>
+                      <span>Cant:</span>
+                      <input :disabled="!isLoggedIn()" v-model="reservaCantidad[String(p.id)]" class="input form-control form-control-sm" @click.stop
+                        style="max-width:90px;" type="number" min="1" @focus="ensureReservaDefaults(p)" />
+                    </div>
+                    <div class="product-point">
+                      <i class="bi bi-geo-alt"></i>
+                      <div class="product-point-field">
+                        <div class="product-point-label">Seleccione donde quiere recogerlo</div>
+                        <select
+                          :disabled="!isLoggedIn() || puntosEntregaDeVendedor(p.id_vendedor).length === 0"
+                          v-model="reservaPuntoId[String(p.id)]"
+                          class="input form-control form-control-sm"
+                          @click.stop
+                          @focus="ensureReservaDefaults(p)"
+                          style="max-width:180px;"
+                        >
+                          <option
+                            v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)"
+                            :key="pt.id"
+                            :value="String(pt.id)"
+                          >
+                            {{ pt.descripcion || `Punto #${pt.id}` }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <button class="btn btn-warning btn-sm" type="button" @click.stop="crearReserva(p)"
+                      :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
+                      <i class="bi bi-cart-plus me-1"></i>
+                      {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
+                    </button>
+                  </div>
+
+                </div>
+
+              </article>
             </div>
-
-            <div class="field">
-
-              <label class="label">Punto de Entrega</label>
-              <select :disabled="!canReserve(p)" v-model="reservaPuntoId[String(p.id)]" class="input"
-                @focus="ensureReservaDefaults(p)">
-                <option v-for="pt in puntosEntregaDeVendedor(p.id_vendedor)" :key="pt.id" :value="String(pt.id)">{{
-                  pt.descripcion || `Punto #${pt.id}` }}</option>
-              </select>
-
-              <div v-if="puntosEntregaDeVendedor(p.id_vendedor).length === 0" class="hint">Este vendedor no tiene puntos
-                de entrega.</div>
-
-            </div>
-
-            <div class="actions">
-
-              <button class="btn btn-primary" type="button" @click="crearReserva(p)"
-                :disabled="!canReserve(p) || reservandoLoadingId === p.id || puntosEntregaDeVendedor(p.id_vendedor).length === 0">
-                {{ reservandoLoadingId === p.id ? 'Reservando...' : 'Reservar' }}
-              </button>
-
-            </div>
-
-          </article>
-
+          </div>
+        </template>
+        <!--Boton de ver mas -->
+        <div v-if="hasMoreProducts" class="text-center mt-4 mb-5">
+          <button class="btn load-more-btn" type="button" @click="handleLoadMore">
+            Ver mÃ¡s productos
+            <i class="bi bi-chevron-down ms-1"></i>
+          </button>
         </div>
 
       </section>
@@ -137,122 +268,291 @@ Con qué otras pantallas se relaciona:
 
 
 <script setup>
-// ==========================================================
-// BLOQUES DEL SCRIPT (SOLO ORGANIZACIÓN + COMENTARIOS)
-// ==========================================================
-// En esta copia NO se cambia el comportamiento.
-// Solo se añaden comentarios para entender el flujo de la pantalla.
-
-// ===============================
-// BLOQUE: IMPORTS Y DEPENDENCIAS
-// Qué problema resuelve: necesitamos hablar con el backend y usar estado de la sesión.
-// Cuándo se usa: desde que entras a la pantalla.
-// Con qué se relaciona: con todos los bloques que cargan productos/categorías y crean reservas.
-// Si no existiera: no podríamos pedir datos al backend ni saber quién está logueado.
-// ===============================
 import axios from 'axios';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch, computed, onBeforeUnmount, nextTick } from 'vue';
 import { useAuthStore } from '../stores/auth.js';
-import { useRouter } from 'vue-router';
+import { RouterLink, useRouter, useRoute } from 'vue-router';
 import { useToastStore } from '@/stores/toastStore.js';
 
-// ===============================
-// BLOQUE: SESIÓN + NAVEGACIÓN + NOTIFICACIONES
-// Qué problema resuelve: saber si hay usuario logueado, poder movernos a otra pantalla y mostrar mensajes.
-// Cuándo se usa: cuando intentas reservar sin sesión, o cuando hay errores/éxitos.
-// Con qué se relaciona: con `crearReserva`, `canReserve`, y los mensajes del usuario (toast).
-// Si no existiera: no podríamos redirigir a login ni avisar de errores.
-// ===============================
+// Flujo de la vista:
+// 1) Carga categorias y productos al entrar.
+// 2) Aplica filtros reactivos (categoria, texto, distancia) con debounce.
+// 3) En modo mapa agrupa productos por punto de entrega y sincroniza seleccion con panel inferior.
+// 4) Al reservar valida login/cantidad/punto y crea la reserva en backend.
+
 const auth = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 const toast = useToastStore();
+const mapPanelRef = ref(null);
 
-// ===============================
-// BLOQUE: ESTADO DE PANTALLA (FILTROS Y LISTADO)
-// Qué problema resuelve: guardar lo que el usuario ve y selecciona (categoría, texto, distancia, lista de productos).
-// Cuándo se usa: todo el rato mientras navegas por productos.
-// Con qué se relaciona: con `loadProducts`, `selectCategory`, `clearFilters`.
-// Si no existiera: cada interacción “se olvidaría” y no podríamos renderizar nada.
-// ===============================
 const categorias = ref([]);
 const products = ref([]);
 const subtitle = ref('Cargando productos...');
 const selectedCategory = ref('all');
 const searchText = ref('');
-const distanceKm = ref('');
+const distanceKm = ref('10');
+const mapMode = ref(false);
+const mobileFiltersOpen = ref(false);
+const selectedMapPoint = ref(null);
+const selectedMapPointKey = ref('');
 
 // Reservas (simple, por producto)
-// ===============================
-// BLOQUE: ESTADO DE RESERVA (POR PRODUCTO)
-// Qué problema resuelve: cada producto tiene su “mini-formulario” (cantidad + punto elegido).
-// Cuándo se usa: cuando enfocas cantidad/punto o pulsas “Reservar”.
-// Con qué se relaciona: con `ensureReservaDefaults`, `puntosEntregaDeVendedor`, `crearReserva`.
-// Si no existiera: no podríamos saber qué cantidad/punto ha elegido el usuario para cada producto.
-// ===============================
 const puntosPorVendedor = reactive({}); // { [id_vendedor]: [puntos] }
 const reservaCantidad = reactive({}); // { [id_producto]: number }
 const reservaPuntoId = reactive({}); // { [id_producto]: string }
 const reservandoLoadingId = ref(null);
+const DEFAULT_COORDS = { lat: 39.0717, lng: -0.2668 };
 
-// ===============================
-// BLOQUE: “HAY SESIÓN?” (COMPROBACIÓN RÁPIDA)
-// Qué problema resuelve: bloquear la reserva si no hay usuario logueado.
-// Cuándo se usa: al reservar y al decidir si un botón está habilitado.
-// Con qué se relaciona: `canReserve` y `crearReserva`.
-// Si no existiera: un usuario sin sesión intentaría reservar y fallaría de forma confusa.
-// ===============================
+let map = null;
+let mapMarkers = [];
+
 const isLoggedIn = () => Boolean(auth.user?.id);
 
+// "paginacion"
+const itemsPerPage = 6;
+const visibleCount = ref(itemsPerPage);
+// corta el array original y devuelve solo los que deben verse
+const visibleProducts = computed(() => {
+  return products.value.slice(0, visibleCount.value);
+});
+// Calcula si quedan productos ocultos para mostrar el botÃ³n
+const hasMoreProducts = computed(() => {
+  return visibleCount.value < products.value.length;
+});
+// Incrementa la paginacion local para mostrar mas tarjetas en lista.
+function handleLoadMore() {
+  visibleCount.value += itemsPerPage;
+}
+
+// Abre la vista detalle conservando el contexto del mapa (modo + punto seleccionado).
+function goToDetails(p) {
+  if (!p?.id) return;
+  if (mapMode.value && selectedMapPointKey.value) {
+    sessionStorage.setItem('comprar_map_mode', '1');
+    sessionStorage.setItem('comprar_map_point', selectedMapPointKey.value);
+    router.push({ path: `/producto/${p.id}`, query: { map: '1', point: selectedMapPointKey.value } });
+    return;
+  }
+  sessionStorage.removeItem('comprar_map_mode');
+  sessionStorage.removeItem('comprar_map_point');
+  router.push(`/producto/${p.id}`);
+}
+
+// Clave estable para identificar un punto por vendedor e id del punto.
+function pointKey(pt) {
+  if (!pt) return '';
+  return `${pt.vendedorId}-${pt.id}`;
+}
+
+const mapPoints = computed(() => {
+  const byKey = new Map();
+  (products.value || []).forEach((p) => {
+    const vendedorId = String(p?.id_vendedor || '');
+    if (!vendedorId) return;
+    const puntos = puntosEntregaDeVendedor(vendedorId);
+    puntos.forEach((pt) => {
+      const lat = Number(pt?.lat);
+      const lng = Number(pt?.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      const key = `${vendedorId}-${pt.id}`;
+      if (!byKey.has(key)) {
+        byKey.set(key, {
+          id: pt.id,
+          vendedorId,
+          lat,
+          lng,
+          descripcion: pt?.descripcion || '',
+          productos: [],
+        });
+      }
+      byKey.get(key).productos.push(p);
+    });
+  });
+  return Array.from(byKey.values());
+});
+
 // ===============================
-// BLOQUE: FORMATEO VISUAL (IMAGEN / PRECIO / STOCK)
-// Qué problema resuelve: mostrar datos del backend de forma “bonita” y consistente.
-// Cuándo se usa: cada vez que se pinta un producto.
-// Con qué se relaciona: con el template (tarjetas de producto).
-// Si no existiera: verías textos raros, sin € o sin ruta correcta de imágenes.
+// CARGA REACTIVA (busqueda / filtros)
 // ===============================
+
+// Timer simple para no llamar al backend en cada tecla
+let timerBusqueda = null;
+
+watch(
+  () => [
+    selectedCategory.value,
+    searchText.value,
+    distanceKm.value,
+    auth.user ? auth.user.lat : null,
+    auth.user ? auth.user.lng : null,
+  ],
+  () => {
+    // Cancelamos el timer anterior
+    if (timerBusqueda) {
+      clearTimeout(timerBusqueda);
+      timerBusqueda = null;
+    }
+
+    // Esperamos un poco a que el usuario termine de escribir
+    timerBusqueda = setTimeout(() => {
+      loadProducts();
+    }, 400);
+  }
+);
+
+// Normaliza la ruta de imagen para soportar URL absoluta o archivo en /uploads.
 function resolveImageSrc(value) {
   if (!value) return '';
   if (/^https?:\/\//i.test(value)) return value;
   return `/uploads/${encodeURIComponent(value)}`;
 }
 
+// formatPrice: transforma datos para mostrarlos o reutilizarlos en la UI.
 function formatPrice(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return '-';
-  return `${n.toFixed(2)} €`;
+  return `${n.toFixed(2)} \u20AC`;
 }
 
+// formatStock: transforma datos para mostrarlos o reutilizarlos en la UI.
 function formatStock(stock, tipo) {
   const s = stock == null ? '-' : String(stock);
   const t = tipo ? String(tipo) : '';
   return t ? `${s} ${t}` : s;
 }
 
-function selectCategory(value) {
-  selectedCategory.value = value;
-  loadProducts();
+// Resuelve el nombre de categoria a partir de id_categoria y el catalogo cargado.
+function getCategoriaNombre(p) {
+  const id = String(p?.id_categoria ?? '');
+  if (!id) return '-';
+  const c = (categorias.value || []).find((cat) => String(cat?.id) === id);
+  return c?.nombre || id;
 }
 
-// ===============================
-// BLOQUE: BOTÓN “LIMPIAR FILTROS”
-// Qué problema resuelve: volver al estado “sin filtros” para ver todo.
-// Cuándo se usa: cuando el usuario pulsa “Limpiar”.
-// Con qué se relaciona: con `loadProducts` porque recarga el listado.
-// Si no existiera: el usuario tendría que borrar filtros a mano.
-// ===============================
+// Actualiza la categoria activa; el watch con debounce dispara la recarga.
+function selectCategory(value) {
+  selectedCategory.value = value;
+  // loadProducts();
+}
+
+// Reinicia filtros de categoria/texto y recarga el listado completo.
 function clearFilters() {
   selectedCategory.value = 'all';
   searchText.value = '';
   loadProducts();
 }
 
-// ===============================
-// BLOQUE: CARGA DE CATEGORÍAS (FILTROS)
-// Qué problema resuelve: pintar las categorías del backend como botones de filtro.
-// Cuándo se usa: al entrar a la pantalla.
-// Con qué se relaciona: con el template del lateral “Filtros”.
-// Si no existiera: solo podrías filtrar por “Todas”.
-// ===============================
+// Carga Leaflet de forma perezosa y evita reinyectar CSS/JS si ya existen.
+function loadLeaflet() {
+  if (window.L) return Promise.resolve(window.L);
+
+  return new Promise((resolve, reject) => {
+    const cssId = 'leaflet-css';
+    const jsId = 'leaflet-js';
+
+    if (!document.getElementById(cssId)) {
+      const link = document.createElement('link');
+      link.id = cssId;
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    const existing = document.getElementById(jsId);
+    if (existing) {
+      const check = () => (window.L ? resolve(window.L) : setTimeout(check, 50));
+      check();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = jsId;
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.async = true;
+    script.onload = () => resolve(window.L);
+    script.onerror = () => reject(new Error('No se pudo cargar Leaflet'));
+    document.head.appendChild(script);
+  });
+}
+
+// Limpia marcadores existentes antes de repintar puntos en el mapa.
+function clearMapMarkers() {
+  if (!map) return;
+  mapMarkers.forEach((m) => {
+    try {
+      map.removeLayer(m);
+    } catch {}
+  });
+  mapMarkers = [];
+}
+
+// Pinta puntos de entrega en el mapa y sincroniza click de marcador con panel de productos.
+async function renderMapPoints() {
+  if (!map || !window.L) return;
+  clearMapMarkers();
+  const L = window.L;
+  const points = mapPoints.value;
+  if (!points.length) {
+    map.setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+    selectedMapPoint.value = null;
+    return;
+  }
+
+
+  points.forEach((pt) => {
+    const markerIcon = L.icon({
+      iconUrl: '/assets/pin_sin_fondo.png',
+      iconSize: [30, 40],
+      iconAnchor: [15, 40],
+      popupAnchor: [0, -34],
+    });
+    const marker = L.marker([pt.lat, pt.lng], { icon: markerIcon }).addTo(map);
+    const count = pt.productos.length;
+    const seller = pt.productos[0]?.nickname || 'Vendedor';
+    const desc = pt.descripcion || 'Punto de entrega';
+    marker.bindPopup(
+      `<div class="map-popup__title">${seller}</div>
+       <div class="map-popup__desc">${desc}</div>
+       <div class="map-popup__meta">${count} producto(s)</div>`,
+      { className: 'map-popup' }
+    );
+    marker.on('click', () => {
+      selectedMapPoint.value = pt;
+      selectedMapPointKey.value = pointKey(pt);
+      nextTick(() => {
+        mapPanelRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+    mapMarkers.push(marker);
+  });
+
+  const bounds = L.latLngBounds(points.map((p) => [p.lat, p.lng]));
+  map.fitBounds(bounds, { padding: [20, 20], maxZoom: 15 });
+}
+
+// Inicializa el mapa una sola vez y deja preparada la primera capa de puntos.
+async function initMap() {
+  const L = await loadLeaflet();
+  if (!L) return;
+  if (map) return;
+  map = L.map('comprar-map').setView([DEFAULT_COORDS.lat, DEFAULT_COORDS.lng], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '',
+  }).addTo(map);
+  await renderMapPoints();
+}
+
+// Libera mapa y marcadores al salir del modo mapa o al desmontar la vista.
+function destroyMap() {
+  try {
+    clearMapMarkers();
+    if (map) map.remove();
+  } catch {}
+  map = null;
+}
+
+// Trae categorias para construir chips y para resolver etiquetas de categoria.
 async function loadCategorias() {
   try {
     const res = await axios.get('/categorias');
@@ -262,11 +562,13 @@ async function loadCategorias() {
   }
 }
 
+// Devuelve puntos cacheados de un vendedor para no repetir peticiones.
 function puntosEntregaDeVendedor(idVendedor) {
   const list = puntosPorVendedor[String(idVendedor)];
   return Array.isArray(list) ? list : [];
 }
 
+// Inicializa cantidad/punto por defecto del producto cuando el usuario interactua.
 function ensureReservaDefaults(p) {
   const pid = String(p.id);
   if (reservaCantidad[pid] == null) reservaCantidad[pid] = 1;
@@ -277,14 +579,8 @@ function ensureReservaDefaults(p) {
   }
 }
 
+// Precarga puntos por vendedor para que cada tarjeta tenga su selector listo.
 async function preloadPuntosEntrega(productsList) {
-  // ===============================
-  // BLOQUE: PRE-CARGA DE PUNTOS DE ENTREGA (POR VENDEDOR)
-  // Qué problema resuelve: para reservar necesitas ver los puntos del vendedor en el <select>.
-  // Cuándo se usa: después de cargar productos.
-  // Con qué se relaciona: con `puntosEntregaDeVendedor` y con el formulario de reserva.
-  // Si no existiera: el desplegable de puntos estaría vacío o pediría datos tarde.
-  // ===============================
   const vendedores = Array.from(new Set((productsList || []).map((p) => String(p?.id_vendedor)).filter(Boolean)));
   const toLoad = vendedores.filter((id) => puntosPorVendedor[id] == null);
 
@@ -302,16 +598,10 @@ async function preloadPuntosEntrega(productsList) {
   (productsList || []).forEach((p) => ensureReservaDefaults(p));
 }
 
+// Carga productos aplicando filtros y, si procede, distancia desde coordenadas del usuario.
 async function loadProducts() {
-  // ===============================
-  // BLOQUE: CARGA PRINCIPAL DE PRODUCTOS
-  // Qué problema resuelve: traer del backend los productos que se van a mostrar.
-  // Cuándo se usa: al entrar, al aplicar filtros y al recargar.
-  // Con qué se relaciona: con la UI de filtros y con `preloadPuntosEntrega`.
-  // Si no existiera: la pantalla estaría vacía y no podrías comprar nada.
-  // ===============================
   subtitle.value = 'Cargando productos...';
-  products.value = [];
+  
 
   try {
     const params = {};
@@ -333,9 +623,13 @@ async function loadProducts() {
     const list = Array.isArray(res.data) ? res.data : [];
 
     products.value = list;
+    visibleCount.value = itemsPerPage;
     subtitle.value = list.length ? `${list.length} producto(s)` : 'No hay productos publicados todavia.';
 
     await preloadPuntosEntrega(list);
+    if (mapMode.value) {
+      await renderMapPoints();
+    }
   } catch (err) {
     const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message;
     subtitle.value = 'No se pudieron cargar los productos.';
@@ -343,14 +637,8 @@ async function loadProducts() {
   }
 }
 
+// Regla de habilitacion del boton reservar: login, no ser vendedor y stock > 0.
 function canReserve(p) {
-  // ===============================
-  // BLOQUE: VALIDACIÓN “PUEDE RESERVAR?”
-  // Qué problema resuelve: deshabilitar botones si no procede (sin sesión, sin stock, es tu propio producto).
-  // Cuándo se usa: cada vez que se pinta una tarjeta de producto.
-  // Con qué se relaciona: con el template (disabled) y con `crearReserva`.
-  // Si no existiera: podrías pulsar “Reservar” y generar errores evitables.
-  // ===============================
   if (!isLoggedIn()) return false;
   if (!p) return false;
   if (String(p.id_vendedor) === String(auth.user?.id)) return false;
@@ -358,14 +646,8 @@ function canReserve(p) {
   return Number.isFinite(stock) ? stock > 0 : true;
 }
 
+// Crea reserva con validaciones minimas y refresca listado para reflejar stock/estado.
 async function crearReserva(p) {
-  // ===============================
-  // BLOQUE: ACCIÓN “RESERVAR”
-  // Qué problema resuelve: crear una reserva en el backend con producto + cantidad + punto de entrega.
-  // Cuándo se usa: cuando el usuario pulsa el botón “Reservar”.
-  // Con qué se relaciona: con `ensureReservaDefaults`, `canReserve` y la recarga de productos.
-  // Si no existiera: esta pantalla solo mostraría productos, pero no permitiría comprarlos.
-  // ===============================
   if (!isLoggedIn()) {
     toast.warning('Tienes que iniciar sesion');
     router.push('/login');
@@ -405,15 +687,67 @@ async function crearReserva(p) {
 }
 
 onMounted(async () => {
-  // ===============================
-  // BLOQUE: CARGA INICIAL DE LA PANTALLA
-  // Qué problema resuelve: al entrar, prepara la sesión y carga lo que se ve (categorías y productos).
-  // Cuándo se usa: automáticamente al abrir /comprar.
-  // Con qué se relaciona: con `loadCategorias` y `loadProducts`.
-  // Si no existiera: entrarías y verías la pantalla sin datos o con datos viejos.
-  // ===============================
-  await auth.fetchMe();
+  // Entrada a la vista: prepara sesion, carga datos y restaura modo mapa si venimos de detalle.
+  await auth.ensureReady();
   loadCategorias();
   loadProducts();
+  const mapFromQuery = route.query?.map === '1';
+  const mapFromSession = sessionStorage.getItem('comprar_map_mode') === '1';
+  if (mapFromQuery || mapFromSession) {
+    mapMode.value = true;
+  } else {
+    mapMode.value = false;
+  }
+});
+
+watch(
+  () => mapMode.value,
+  async (value) => {
+    if (value) {
+      sessionStorage.setItem('comprar_map_mode', '1');
+      await initMap();
+      setTimeout(() => {
+        try {
+          map?.invalidateSize();
+        } catch {}
+      }, 50);
+    } else {
+      selectedMapPoint.value = null;
+      selectedMapPointKey.value = '';
+      sessionStorage.removeItem('comprar_map_mode');
+      sessionStorage.removeItem('comprar_map_point');
+      destroyMap();
+    }
+  }
+);
+
+watch(
+  () => [products.value.length, Object.keys(puntosPorVendedor).length],
+  () => {
+    if (mapMode.value) renderMapPoints();
+  }
+);
+
+watch(
+  () => [mapMode.value, route.query?.map, route.query?.point, mapPoints.value.length],
+  () => {
+    const pointFromQuery = route.query?.point;
+    const pointFromSession = sessionStorage.getItem('comprar_map_point');
+    const wantedPoint = pointFromQuery || pointFromSession;
+    if (!mapMode.value || !wantedPoint) return;
+    const match = mapPoints.value.find((p) => pointKey(p) === wantedPoint);
+    if (match) {
+      selectedMapPoint.value = match;
+      selectedMapPointKey.value = wantedPoint;
+      if (map) {
+        map.setView([match.lat, match.lng], 14);
+      }
+    }
+  }
+);
+
+onBeforeUnmount(() => {
+  destroyMap();
 });
 </script>
+

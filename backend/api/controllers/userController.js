@@ -1,4 +1,5 @@
 import { getUser, getPublicUserById, insertUser, deleteUserById, updateUserById,updateUserMyself } from '../models/userModel.js';
+import { insertLog } from '../models/logsModel.js';
 
 // get de usuarios
 export const fetchUser = async (req, res, next) => {
@@ -38,8 +39,21 @@ export const fetchUserByIdPublic = async (req, res, next) => {
 export const register = async (req, res, next) => {
   try {
     const { nombre, nickname, email, contrasena } = req.body;
+    
+    //Crear log al crear usuario
+    const result = await insertUser(nombre, nickname, email, contrasena);
+    const id = result?.insertId;
 
-    const id = await insertUser(nombre, nickname, email, contrasena);
+    if (id) {
+      insertLog({
+        userId: id,
+        action: 'CREATE_USER',
+        tableName: 'usuarios',
+        data: { nombre, nickname, email },
+      }).catch(() => {});
+    }
+
+
 
     return res.status(201).json({
       id,
@@ -118,6 +132,15 @@ export const updateUser = async (req, res, next) => {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
 
+
+    //Log al hacer update a un usuario
+    insertLog({
+      userId: Number(id),
+      action: 'UPDATE_USER',
+      tableName: 'usuarios',
+      data: { nombre, nickname, email },
+    }).catch(() => {});
+
     return res.json({
       id,
       nombre,
@@ -151,6 +174,13 @@ export const updateUserMe = async (req,res,next) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
     }
+
+    insertLog({
+      userId: Number(id),
+      action: 'UPDATE_USER',
+      tableName: 'usuarios',
+      data: { nombre, email, tlf: tlfFinal },
+    }).catch(() => {});
 
     return res.json({
       id,

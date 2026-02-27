@@ -172,6 +172,9 @@ async function createMap() {
   setTimeout(() => {
     try { map.invalidateSize(true); } catch {}
   }, 120);
+  setTimeout(() => {
+    try { map.invalidateSize(true); } catch {}
+  }, 450);
 }
 
 function myLocation() {
@@ -239,12 +242,14 @@ onMounted(async () => {
   };
   window.addEventListener('resize', resizeHandler);
   window.addEventListener('orientationchange', resizeHandler);
+  document.addEventListener('visibilitychange', resizeHandler);
 });
 
 onBeforeUnmount(() => {
   if (resizeHandler) {
     window.removeEventListener('resize', resizeHandler);
     window.removeEventListener('orientationchange', resizeHandler);
+    document.removeEventListener('visibilitychange', resizeHandler);
   }
   try {
     if (map) map.remove();
