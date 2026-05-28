@@ -17,9 +17,6 @@ import LegalView from './views/LegalView.vue';
 import ContactoView from './views/ContactoView.vue';
 import ProductoView from './views/ProductoView.vue';
 import AdminLayoutView from './views/admin/AdminLayoutView.vue';
-import AdminUsersView from './views/admin/AdminUsersView.vue';
-import AdminProductsView from './views/admin/AdminProductsView.vue';
-import AdminReservasView from './views/admin/AdminReservasView.vue';
 import AdminLogsView from './views/admin/AdminLogsView.vue';
 import { useAuthStore } from './stores/auth.js';
 
@@ -65,13 +62,9 @@ const router = createRouter({
       path: '/admin',
       component: AdminLayoutView,
       beforeEnter: requireAdmin,
-      meta: { css: '/css/admin.css', hideNav: true, hideFooter: true },
       children: [
         { path: '', redirect: '/admin/logs' },
-        { path: 'usuarios', component: AdminUsersView, meta: { css: '/css/admin.css', hideNav: true, hideFooter: true } },
-        { path: 'productos', component: AdminProductsView, meta: { css: '/css/admin.css', hideNav: true, hideFooter: true } },
-        { path: 'reservas', component: AdminReservasView, meta: { css: '/css/admin.css', hideNav: true, hideFooter: true } },
-        { path: 'logs', component: AdminLogsView, meta: { css: '/css/admin.css', hideNav: true, hideFooter: true } },
+        { path: 'logs', component: AdminLogsView },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },

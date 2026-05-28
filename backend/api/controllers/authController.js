@@ -45,7 +45,6 @@ export const login = async (req, res, next) => {
 
     res.cookie('access_token', token, getCookieOptions(req));
 
-    //Log al logearse
 
     insertLog({
       userId: user.id,
@@ -66,8 +65,6 @@ export const login = async (req, res, next) => {
 export const logout = async (req, res, next) => {
   try {
     if (req.user?.id) {
-
-      //Log al hacer logout
       insertLog({
         userId: req.user.id,
         action: 'LOGGED_OUT',
